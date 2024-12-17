@@ -1,158 +1,109 @@
-'use client';
+"use client";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-import { useState, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import axios, { AxiosError } from 'axios';
+export default function LoginPage() {
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [error, setError] = useState("");
+	const router = useRouter();
 
-interface LoginResponse {
-  token: string;
-  user: {
-    id: string;
-    email: string;
-    username?: string;
-  };
-}
 
-interface LoginError {
-  message: string;
-  statusCode: number;
-}
 
-export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Données de connexion:', { email, password });
-    setError(null);
-    setIsLoading(true);
-
-    // Validation des champs
-    if (!email.trim() || !password.trim()) {
-      setError('Email et mot de passe requis');
-      setIsLoading(false);
-      return;
-    }
-
-    // Validation basique du format email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Format d\'email invalide');
-      setIsLoading(false);
-      return;
-    }
-
+    setError("");
     try {
-      console.log('Envoi de la requête à:', 'http://localhost:4000/api/auth/login');
-      const response = await axios.post<LoginResponse>(
-        'http://localhost:4000/api/auth/login',
-        { 
-          email: email.trim(), 
-          password: password.trim() 
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          withCredentials: true
-        }
-      );
+        console.log("Données envoyées:", {
+            email: email,
+            password: password,
+        });
 
-      console.log('Réponse du serveur:', response.data);
+        const api = axios.create({
+            baseURL: "http://localhost:4000",
+        });
 
-      if (response.data && response.data.token) {
-        // Stockage sécurisé des données
-        localStorage.setItem('token', response.data.token);
-        if (response.data.user) {
-          localStorage.setItem('user', JSON.stringify(response.data.user));
-        }
+        const response = await api.post("/auth/login", {
+            email,
+            password,
+        });
+
+        console.log("Réponse du serveur:", response.data);
+
+        const { token, userId, username, email: userEmail } = response.data;
+
+        // Stocker les informations utilisateur
+        const userInfo = {
+            username,
+            email: userEmail
+        };
+
+        // Stocker dans localStorage
+        localStorage.setItem("token", token);
+        localStorage.setItem("userId", userId);
+        localStorage.setItem("user", JSON.stringify(userInfo)); // Stocke l'objet userInfo
+
+        console.log('Données stockées:', {
+            token: token ? 'Présent' : 'Absent',
+            userInfo
+        });
+
+        router.push("/synthetisers");
         
-        // Nettoyage des états
-        setEmail('');
-        setPassword('');
-        setError(null);
-        
-        // Redirection
-        router.push('/');
-      } else {
-        throw new Error('Réponse invalide du serveur');
-      }
-      
-    } catch (error) {
-      console.error('Erreur complète:', error);
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<LoginError>;
-        if (axiosError.response?.data?.message) {
-          setError(axiosError.response.data.message);
-        } else if (axiosError.request) {
-          setError('Erreur de connexion au serveur. Veuillez réessayer.');
+    } catch (error: unknown) {
+        console.error("Erreur complète:", error);
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                switch (error.response.status) {
+                    case 401:
+                        setError("Identifiants incorrects");
+                        break;
+                    case 404:
+                        setError("Utilisateur non trouvé");
+                        break;
+                    case 500:
+                        setError("Erreur serveur. Réessayez plus tard.");
+                        break;
+                    default:
+                        setError("Une erreur est survenue");
+                }
+            } else if (error.request) {
+                setError("Pas de réponse du serveur");
+            } else {
+                setError("Erreur lors de la préparation de la requête");
+            }
         } else {
-          setError('Erreur lors de la tentative de connexion');
+            setError("Une erreur inattendue est survenue");
         }
-      } else {
-        setError('Une erreur inattendue est survenue');
-      }
-    } finally {
-      setIsLoading(false);
     }
-  };
+};
 
 
 
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="px-8 py-6 mt-4 text-left bg-white shadow-lg">
-        <h3 className="text-2xl font-bold text-center">Connexion à votre compte</h3>
-        
-        {/* Affichage des erreurs */}
-        {error && (
-          <div className="mt-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
-          </div>
-        )}
-        
-        <form onSubmit={handleSubmit}>
-          <div className="mt-4">
-            <div>
-              <label className="block" htmlFor="email">Email</label>
-              <input
-                type="email"
-                placeholder="Email"
-                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-                required
-              />
-            </div>
-            <div className="mt-4">
-              <label className="block">Mot de passe</label>
-              <input
-                type="password"
-                placeholder="Mot de passe"
-                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-                required
-              />
-            </div>
-            <div className="flex items-baseline justify-between">
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={`px-6 py-2 mt-4 text-white bg-blue-600 rounded-lg ${
-                  isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-900'
-                }`}
-              >
-                {isLoading ? 'Connexion...' : 'Se connecter'}
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-);
+
+
+
+
+	return (
+		<form onSubmit={handleLogin}>
+			<input
+				type="email" // Type email pour la validation de base
+				value={email}
+				onChange={(e) => setEmail(e.target.value)}
+				placeholder="Email"
+				required
+			/>
+			<input
+				type="password"
+				value={password}
+				onChange={(e) => setPassword(e.target.value)}
+				placeholder="Mot de passe"
+				required
+			/>
+			{error && <p style={{ color: "red" }}>{error}</p>}
+			<button type="submit">Connexion</button>
+		</form>
+	);
 }
