@@ -7,7 +7,7 @@ import Image from 'next/image';
 // Define User interface
 interface User {
   username?: string;
-  user_email?: string;
+  email?: string;
 }
 
 export default function Navbar() {
@@ -25,7 +25,7 @@ export default function Navbar() {
           try {
             const parsedUser: User = JSON.parse(userInfo);
             // Check if the user has a username
-            if (parsedUser.user_email || parsedUser.username) {
+            if (parsedUser.email || parsedUser.username) {
                 setUser(parsedUser);
             } 
           } catch (error) {
@@ -43,6 +43,10 @@ export default function Navbar() {
         router.push('/login');
       };
 
+
+
+
+
     return (
         <nav className="bg-gray-900">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,7 +59,7 @@ export default function Navbar() {
                         <div className="hidden md:block">
                             <div className="ml-10 flex items-baseline space-x-4">
                                 <Link 
-                                    href="/synthList"
+                                    href="/synthetisers"
                                     className={`${
                                         pathname === '/synthList' 
                                         ? 'bg-gray-900 text-white' 
@@ -140,9 +144,9 @@ export default function Navbar() {
                 <div className="md:hidden">
                     <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                         <Link 
-                            href="/synthetizers"
+                            href="/"
                             className={`${
-                                pathname === '/synthetizers' 
+                                pathname === 'synthList' 
                                 ? 'bg-gray-900 text-white' 
                                 : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                             } block px-3 py-2 rounded-md text-base font-medium`}
