@@ -166,7 +166,7 @@ const SynthList: FC = (): JSX.Element => {
 									<span>{synth.note}</span>
 									{synth.nb_avis && (
 										<span className="text-sm text-gray-500 ml-1">
-											({synth.nb_avis} avis)
+											({synth.nb_avis})
 										</span>
 									)}
 								</div>
