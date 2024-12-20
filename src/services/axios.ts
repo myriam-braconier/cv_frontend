@@ -19,17 +19,17 @@ api.interceptors.request.use((config) => {
         config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
+}, (error) => {
+    return Promise.reject(error);
 });
-
 
 // Intercepteur pour gérer les erreurs globales
 api.interceptors.response.use(
     (response) => response,
-    async (error) => {
-        console.error("Erreur API:", error);
+    (error) => {
         if (error.response?.status === 401) {
             localStorage.removeItem('token');
-            window.location.href = '/login';
+            // Redirection vers login se fera dans le composant
         }
         return Promise.reject(error);
     }
