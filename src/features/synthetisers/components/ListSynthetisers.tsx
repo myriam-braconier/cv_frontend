@@ -118,7 +118,7 @@ export default function ListSynthetisers() {
 	}
 
 	return (
-		<div className="container mx-auto px-4 py-6">
+		<div className="w-full px-4">
 			{/* Panel Administrateur - visible uniquement pour les admins */}
 			{userRoles.includes("admin") && (
 				<div className="bg-white rounded-lg shadow-lg p-4 mb-6">
@@ -136,7 +136,8 @@ export default function ListSynthetisers() {
                 - Espacement de 2rem (32px) entre les cartes (gap-8)
             */}
 
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+			<div className="container mx-auto px-4">
+			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 				{synths.length > 0 ? (
 					// tri alpphabétique par marques et affichage des cartes
 					[...synths]
@@ -145,6 +146,7 @@ export default function ListSynthetisers() {
 							// <div key={synth.id} className="border rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow">
 							<SynthetiserCard
 								key={synth.id} // ajout de la prop directement sur le composant
+
 								synthetiser={synth}
 								userRoles={userRoles} // Ajout des userRoles ici
 							/>
@@ -152,10 +154,11 @@ export default function ListSynthetisers() {
 						))
 				) : (
 					// message si aucun synthetiseur n'est trouvé
-					<div className="col-span-full text-center py-8">
+					<div className="col-span-full text-center">
 						<p className="text-gray-500">Aucun synthétiseur trouvé</p>
 					</div>
 				)}
+</div>
 			</div>
 		</div>
 	);
