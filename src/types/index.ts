@@ -8,7 +8,7 @@ export type Synth = {
 	specifications?: string;
 	url?: string;
 	auctionPrice?: number;
-	posts: Post[];  // Ajout de la propriété posts
+	posts: Post[];  // Ajout de la propriété post
 }
 
 
