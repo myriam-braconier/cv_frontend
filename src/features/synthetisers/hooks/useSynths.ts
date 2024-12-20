@@ -22,7 +22,7 @@ export function useSynths(): UseSynthsReturn {
 
 	const checkAuth = useCallback(async (): Promise<boolean> => {
 		try {
-			const response = await fetch("/api/auth/check", {
+			const response = await fetch("/api/auth/me", {
 				credentials: "include",
 			});
 			return response.ok;
