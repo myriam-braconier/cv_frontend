@@ -13,7 +13,7 @@ class SynthService {
   // Renommer la méthode pour correspondre à l'appel
   async fetchSynthetisers(): Promise<SynthResponse> {
     try {
-      const { data } = await api.get<SynthResponse>('/synthetisers');
+      const { data } = await api.get<SynthResponse>('/api/synthetisers');
       return data;
     } catch (error) {
       throw this.handleAxiosError(error);
