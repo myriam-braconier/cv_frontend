@@ -2,14 +2,14 @@
 
 import { useCallback, useState } from "react";
 import Image from "next/image";
-import { Synth} from "@/types";
+import { Synth } from "@/types";
 import { PostList } from "./PostList";
 import { Rating } from "./Rating";
 import Link from "next/link";
 
 interface SynthetiserCardProps {
 	synthetiser: Synth;
-	userRoles?: string[]; // Rendre userRoles optionnel
+	userRoles?: string[]; // userRoles optionnel
 }
 
 export const SynthetiserCard = ({
@@ -45,7 +45,7 @@ export const SynthetiserCard = ({
 		note,
 		nb_avis,
 		specifications,
-		auctionPrice,
+		price,
 		posts,
 	} = synthetiser;
 
@@ -53,7 +53,6 @@ export const SynthetiserCard = ({
 
 	return (
 		<article className="bg-white rounded-lg shadow-lg h-full w-full">
-			
 			<div className="flex flex-col h-full bg-white rounded-lg shadow-lg overflow-hidden">
 				<Link href={`/synthetisers/${synthetiser.id}`} className="flex-1">
 					<div className="border border-black flex flex-col h-full mx-3">
@@ -100,14 +99,14 @@ export const SynthetiserCard = ({
 						)}
 
 						{/* Prix */}
-						{auctionPrice && (
+						{price && (
 							<div className="mb-4">
 								<p className="text-xl font-bold text-blue-600">
 									{new Intl.NumberFormat("fr-FR", {
 										style: "currency",
 										currency: "EUR",
 										minimumFractionDigits: 0,
-									}).format(auctionPrice)}
+									}).format(price)}
 								</p>
 							</div>
 						)}
@@ -150,7 +149,6 @@ export const SynthetiserCard = ({
 					)}
 				</div>
 			</div>
-
 		</article>
 	);
 };
