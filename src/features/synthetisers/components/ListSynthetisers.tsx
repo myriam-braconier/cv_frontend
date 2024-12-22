@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Synth } from "@/types";
+import { Synth } from "@/types/synth";
 import axios from "axios";
 import { SynthetiserCard } from "./SynthetiserCard";
 import { api } from "@/services/axios";
+import ErrorBoundary from '@/components/ErrorBoundary';  // Importez l'ErrorBoundary
 
 export default function ListSynthetisers() {
 	const router = useRouter();
@@ -33,80 +34,52 @@ export default function ListSynthetisers() {
 
 	const fetchSynths = useCallback(async (): Promise<void> => {
 		try {
-			setIsLoading(true);
-			setError(null);
-
-			const isAuthenticated = await checkAuth();
-			if (!isAuthenticated) {
-				console.log("Non authentifié, redirection vers login");
-				return;
-			}
-
-			try {
-				// Récupération des rôles de l'utilisateur
-				const roleResponse = await api.get("/auth/me");
-				console.log("Réponse role:", roleResponse.data);
-				const userRole = roleResponse.data.role;
-				setUserRoles(userRole === "admin" ? ["admin"] : [userRole]);
-			} catch (error) {
-				console.error("Erreur lors de la récupération des rôles:", error);
-				if (axios.isAxiosError(error)) {
-					if (error.response?.status === 401) {
-						localStorage.removeItem("token");
-						router.push("/login");
-						return;
-					}
-				}
-				setError("Erreur lors de la récupération des rôles");
-				return;
-			}
-
-			try {
-				// Récupération des synthétiseurs
-				const { data } = await api.get("/api/synthetisers");
-				console.log("Données synthétiseurs:", data.data);
-				setSynths(data.data);
-			} catch (error) {
-				console.error(
-					"Erreur lors de la récupération des synthétiseurs:",
-					error
-				);
-				if (axios.isAxiosError(error)) {
-					if (error.response?.status === 401) {
-						localStorage.removeItem("token");
-						router.push("/login");
-						return;
-					}
-					setError(
-						error.response?.data?.message ||
-							"Erreur lors de la récupération des synthétiseurs"
-					);
-				} else {
-					setError("Erreur lors de la récupération des synthétiseurs");
-				}
-			}
+		  setIsLoading(true);
+		  setError(null);
+	  
+		  const isAuthenticated = await checkAuth();
+		  if (!isAuthenticated) {
+			console.log("Non authentifié, redirection vers login");
+			return;
+		  }
+	  
+		  // Récupération des données en parallèle
+		  const [roleResponse, synthResponse] = await Promise.all([
+			api.get("/auth/me"),
+			api.get("/api/synthetisers")
+		  ]);
+	  
+		  // Traitement du rôle utilisateur
+		  console.log("Réponse role:", roleResponse.data);
+		  const userRole = roleResponse.data.role;
+		  setUserRoles(userRole === "admin" ? ["admin"] : [userRole]);
+	  
+		  // Traitement des synthétiseurs
+		  console.log("Données synthétiseurs:", synthResponse.data.data);
+		  setSynths(synthResponse.data.data);
+	  
 		} catch (error) {
-			console.error("Erreur générale:", error);
-			if (axios.isAxiosError(error)) {
-				console.log("Status:", error.response?.status);
-				console.log("Message:", error.response?.data);
-
-				if (error.response?.status === 401) {
-					localStorage.removeItem("token");
-					router.push("/login");
-				} else {
-					setError(
-						error.response?.data?.message ||
-							"Une erreur est survenue lors de la communication avec le serveur"
-					);
-				}
-			} else {
-				setError("Une erreur inattendue est survenue");
+		  console.error("Erreur:", error);
+		  
+		  if (axios.isAxiosError(error)) {
+			if (error.response?.status === 401) {
+			  localStorage.removeItem("token");
+			  router.push("/login");
+			  return;
 			}
+			
+			setError(
+			  error.response?.data?.message || 
+			  "Erreur lors de la récupération des données"
+			);
+		  } else {
+			setError("Une erreur inattendue est survenue");
+		  }
 		} finally {
-			setIsLoading(false);
+		  setIsLoading(false);
 		}
-	}, [router, checkAuth]);
+	  }, [router, checkAuth]);
+	  
 
 	// Ne pas écraser les roles ici
 	// const rolesArray = Array.isArray(data.roles) ? data.roles : [data.roles];
@@ -120,6 +93,10 @@ export default function ListSynthetisers() {
 
 	useEffect(() => {
 		fetchSynths();
+	}, [fetchSynths]);
+
+	const handleUpdateSuccess = useCallback(async () => {
+		await fetchSynths();
 	}, [fetchSynths]);
 
 	// affichage du loader pendant le chargement
@@ -146,11 +123,14 @@ export default function ListSynthetisers() {
 	}
 
 	return (
+		<ErrorBoundary>
 		<div className="w-full px-4">
 			{/* Panel Administrateur - visible uniquement pour les admins */}
 			{userRoles.includes("admin") && (
 				<div className="container bg-white rounded-lg shadow-lg mx-auto  py-4 px-4">
-					<h2 className="text-center text-2xl font-bold">Panel {userRoles.join(", ")}</h2>
+					<h2 className="text-center text-2xl font-bold">
+						Panel {userRoles.join(", ")}
+					</h2>
 					{/* <p className="text-sm text-gray-600">
 						Rôles actuels : {userRoles.join(", ")}
 					</p> */}
@@ -175,6 +155,7 @@ export default function ListSynthetisers() {
 									key={synth.id} // ajout de la prop directement sur le composant
 									synthetiser={synth}
 									userRoles={userRoles} // Ajout des userRoles ici
+									onUpdateSuccess={handleUpdateSuccess}
 								/>
 							))
 					) : (
@@ -186,5 +167,6 @@ export default function ListSynthetisers() {
 				</div>
 			</div>
 		</div>
+		</ErrorBoundary>
 	);
 }

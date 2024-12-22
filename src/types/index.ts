@@ -7,9 +7,19 @@ export type Synth = {
 	nb_avis?: number;
 	specifications?: string;
 	url?: string;
-	auctionPrice?: number;
+	price: {
+		value: number;
+		currency: string;
+	  } | number; // Pour supporter les deux formats possible
+	auctionPrices?: Array<{
+		id: number;
+		proposal_price: number;
+		status: string;
+		createdAt: string;
+	  }>;
 	posts: Post[];  // Ajout de la propriété post
 }
+
 
 
 export type Post = {

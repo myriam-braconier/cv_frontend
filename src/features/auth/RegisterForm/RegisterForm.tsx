@@ -8,6 +8,7 @@ export default function RegisterForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [hasInstrument, setHasInstrument] = useState<boolean>(false); // Ajout du state pour has_instrument
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
@@ -24,11 +25,14 @@ export default function RegisterForm() {
         }
 
         try {
+            const roleId = hasInstrument ? 5 : 2; // 5 pour owner, 1 pour user
+            console.log('Role ID attribué:', roleId); // Pour déboguer
             const response = await axios.post("http://localhost:4000/auth/register", {
                 username,
                 email,
                 password,
-                roleId: 1
+                has_instrument: hasInstrument,
+                roleId
             });
 
             if (response.status === 201) {
@@ -97,6 +101,33 @@ export default function RegisterForm() {
                         minLength={8}
                         className="w-full px-3 py-2 border rounded"
                     />
+                </div>
+
+                {/* Ajout du sélecteur has_instrument */}
+                <div className="mb-4">
+                    <label className="block mb-2">Possédez-vous un instrument ?</label>
+                    <div className="flex gap-4">
+                        <label className="inline-flex items-center">
+                            <input
+                                type="radio"
+                                name="hasInstrument"
+                                checked={hasInstrument === true}
+                                onChange={() => setHasInstrument(true)}
+                                className="form-radio h-4 w-4 text-blue-600"
+                            />
+                            <span className="ml-2">Oui</span>
+                        </label>
+                        <label className="inline-flex items-center">
+                            <input
+                                type="radio"
+                                name="hasInstrument"
+                                checked={hasInstrument === false}
+                                onChange={() => setHasInstrument(false)}
+                                className="form-radio h-4 w-4 text-blue-600"
+                            />
+                            <span className="ml-2">Non</span>
+                        </label>
+                    </div>
                 </div>
             </div>
 

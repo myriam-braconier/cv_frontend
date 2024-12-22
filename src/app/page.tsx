@@ -5,11 +5,11 @@ export default function HomePage() {
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-blue-500 to-blue-700 text-white">
+      <section className="bg-gradient-to-b from-blue-500 to-yellow-700 text-white">
         <div className="container mx-auto px-4 py-16">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="md:w-1/2 mb-8 md:mb-0">
-              <h1 className="text-4xl md:text-6xl font-bold mb-4">
+              <h1 className="text-4xl md:text-6xl font-bold mb-4 text-red-500">
                 Bienvenue sur Concrete Vibes
               </h1>
               <p className="text-xl mb-8">
