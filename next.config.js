@@ -1,6 +1,19 @@
 // next.config.js
+
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+module.exports = {
+  output: 'standalone',
+  poweredByHeader: false,
+  reactStrictMode: true,
+  rewrites: async () => {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:4000/api/:path*'
+      }
+    ]
+  },
+  
   images: {
     remotePatterns: [
       {
@@ -17,5 +30,3 @@ const nextConfig = {
     ]
   }
 };
-
-module.exports = nextConfig;

@@ -4,17 +4,24 @@ import { AxiosError } from "axios";
 import { Synth } from "@/types";
 
 export interface SynthResponse {
-	data: Synth[];
-	roles: string[];
+  data: Synth[];
+  roles: string[];
 }
 
-
 class SynthService {
-  // Renommer la méthode pour correspondre à l'appel
   async fetchSynthetisers(): Promise<SynthResponse> {
     try {
       const { data } = await api.get<SynthResponse>('/api/synthetisers');
       return data;
+    } catch (error) {
+      throw this.handleAxiosError(error);
+    }
+  }
+
+  async updateSynthetiser(id: Synth['id'], data: Partial<Synth>): Promise<Synth> {
+    try {
+      const { data: response } = await api.put<Synth>(`/api/synthetisers/${id}`, data);
+      return response;
     } catch (error) {
       throw this.handleAxiosError(error);
     }
@@ -37,4 +44,5 @@ class SynthService {
   }
 }
 
+// Exporter une instance unique du service
 export const synthService = new SynthService();

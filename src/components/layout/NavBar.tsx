@@ -4,51 +4,44 @@ import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 
+// Define User interface
 interface User {
-    username: string;
-    role: string;  // Ajout de role qui était utilisé mais pas dans l'interface
+	username?: string;
+	email?: string;
 }
 
 export default function Navbar() {
-    const [user, setUser] = useState<User | null>(null);
-    const [isOpen, setIsOpen] = useState(false);  // Ajout de l'état manquant
-    const pathname = usePathname();
-    const router = useRouter();
+	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const [user, setUser] = useState<User | null>(null);
+	const pathname = usePathname();
+	const router = useRouter();
 
-    useEffect(() => {
-        // Vérifier l'état initial de l'authentification
-        const checkAuth = () => {
-            const username = localStorage.getItem('username');
-            const role = localStorage.getItem('userRole');
-            if (username && role) {
-                setUser({ username, role });
-            } else {
-                setUser(null);
-            }
-        };
+	useEffect(() => {
+		// Retrieve user information from localStorage
+		const userInfo = localStorage.getItem("user");
+		const token = localStorage.getItem("token");
 
-        // Vérifier au chargement
-        checkAuth();
+		if (userInfo && token) {
+			try {
+				const parsedUser: User = JSON.parse(userInfo);
+				// Check if the user has a username
+				if (parsedUser.email || parsedUser.username) {
+					setUser(parsedUser);
+				}
+			} catch (error) {
+				console.error("Error parsing user:", error);
+				localStorage.removeItem("user");
+				localStorage.removeItem("token");
+			}
+		}
+	}, [pathname]); // Triggers on each route change
 
-        // Écouter les changements
-        const handleAuthChange = () => checkAuth();
-        window.addEventListener('usernameUpdated', handleAuthChange);
-        
-        return () => {
-            window.removeEventListener('usernameUpdated', handleAuthChange);
-        };
-    }, []);
-
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('username');
-        localStorage.removeItem('userRole');
-        setUser(null);
-        router.push("/login");
-        // Émettre l'événement pour informer les autres composants
-        window.dispatchEvent(new Event('usernameUpdated'));
-    };
-
+	const handleLogout = () => {
+		localStorage.removeItem("token");
+		localStorage.removeItem("user");
+		setUser(null);
+		router.push("/login");
+	};
 
 	return (
 		<nav className="bg-gray-900">
