@@ -9,46 +9,44 @@ import Image from "next/image";
 import { AddPost } from "@/features/synthetisers/components/AddPost";
 
 export default function SynthetiserDetailPage() {
-    const params = useParams();
-    const [synth, setSynth] = useState<Synth | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+	const params = useParams();
+	const [synth, setSynth] = useState<Synth | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
-    const fetchSynth = useCallback(async () => {
-        if (!params?.id) return;
-       
-        try {
-            const token = localStorage.getItem("token");
-            const response = await api.get(`/api/synthetisers/${params.id}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            setSynth(response.data.data);
-        } catch (error) {
-            if (
-                error instanceof AxiosError &&
-                (error.response?.status === 401 || error.response?.status === 403)
-            ) {
-                localStorage.removeItem("token");
-                window.location.href = "/login";
-                return;
-            }
-            setError("Une erreur est survenue");
-        } finally {
-            setIsLoading(false);
-        }
-    }, [params?.id]);
+	const fetchSynth = useCallback(async () => {
+		if (!params?.id) return;
 
-    useEffect(() => {
-        fetchSynth();
-    }, [fetchSynth]);
+		try {
+			const token = localStorage.getItem("token");
+			const response = await api.get(`/api/synthetisers/${params.id}`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			setSynth(response.data.data);
+		} catch (error) {
+			if (
+				error instanceof AxiosError &&
+				(error.response?.status === 401 || error.response?.status === 403)
+			) {
+				localStorage.removeItem("token");
+				window.location.href = "/login";
+				return;
+			}
+			setError("Une erreur est survenue");
+		} finally {
+			setIsLoading(false);
+		}
+	}, [params?.id]);
 
+	useEffect(() => {
+		fetchSynth();
+	}, [fetchSynth]);
 
-
-    if (isLoading) return <div>Chargement...</div>;
-    if (error) return <div>{error}</div>;
-    if (!synth) return <div>Synthétiseur non trouvé</div>;
+	if (isLoading) return <div>Chargement...</div>;
+	if (error) return <div>{error}</div>;
+	if (!synth) return <div>Synthétiseur non trouvé</div>;
 
 	return (
 		<div className="container mx-auto px-4 py-8">
@@ -83,7 +81,7 @@ export default function SynthetiserDetailPage() {
 						</div>
 					)}
 
-					{synth.auctionPrice && (
+					{synth.price && (
 						<div>
 							<h2 className="text-xl font-semibold">Prix</h2>
 							<p className="text-blue-600 font-bold text-2xl">
@@ -91,7 +89,7 @@ export default function SynthetiserDetailPage() {
 									style: "currency",
 									currency: "EUR",
 									minimumFractionDigits: 0,
-								}).format(synth.auctionPrice)}
+								}).format(synth.price)}
 							</p>
 						</div>
 					)}
