@@ -1,6 +1,6 @@
 "use client";
 
-import LoginForm from '@/features/auth/LoginForm';  // Correction de l'import
+import LoginForm from '@/features/auth/LoginForm/LoginForm';  // Correction de l'import
 
 export default function LoginPage() {
   return (

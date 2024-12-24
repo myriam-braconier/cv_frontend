@@ -1,120 +1,124 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Image from "next/image";
+import { Synth } from "@/types/synth";
 
-interface Synth {
-    id: number;
-    marque: string;
-    modele: string;
-    image_url?: string;
-    specifications?: string;
-    price: number | null;  // Modifié pour accepter null
-    auctionPrice: number | null;  // Modifié pour accepter null
-    note?: number;
-    nb_avis?: number;
+interface EditorFormProps {
+ synth?: Synth;
+ onSubmit: (data: Partial<Synth>) => Promise<void>;
+ isOpen: boolean;
+ onOpenChange: (open: boolean) => void;
+ isLoading?: boolean;
+ error?: string | null;
+ onCancel: () => void;
 }
 
-interface SynthEditorProps {
-    synth?: Synth;
-    onSubmit: (synthData: Partial<Synth>) => void;
-    onCancel: () => void;
-    isLoading?: boolean;
-    error?: string | null;
+interface FormData {
+ marque: string;
+ modele: string;
+ image_url?: string;
+ specifications?: string;
+ price: number | null;
+ auctionPrice: number | null; 
+ auctionPrices: Array<{
+  proposal_price: number;
+  status: string;
+}>;
 }
 
-export const SynthEditor = ({
-    synth,
-    onSubmit,
-    onCancel,
-    isLoading = false,
-    error: apiError,
-}: SynthEditorProps) => {
-    const [formData, setFormData] = useState<Partial<Synth>>({
-        marque: synth?.marque || "",
-        modele: synth?.modele || "",
-        image_url: synth?.image_url || "",
-        specifications: synth?.specifications || "",
-        price: synth?.price ?? null,
-        auctionPrice: synth?.auctionPrice ?? null,
+export const EditorForm = ({
+ synth,
+ onSubmit,
+ onOpenChange,
+ isLoading = false,
+ error: apiError,
+ onCancel
+}: EditorFormProps) => {
+
+ const [formData, setFormData] = useState<FormData>({
+   marque: synth?.marque ?? "",
+   modele: synth?.modele ?? "",
+   image_url: synth?.image_url ?? "",
+   specifications: synth?.specifications ?? "",
+   price: typeof synth?.price === 'number' ? synth.price : synth?.price?.value ?? null,
+   auctionPrices: synth?.auctionPrices ?? [],
+ auctionPrice: synth?.auctionPrices?.[0]?.proposal_price ?? null });
+
+ const [imageError, setImageError] = useState(false);
+ const [formError, setFormError] = useState("");
+
+useEffect(() => {
+  if (synth) {
+    setFormData({
+      marque: synth.marque,
+      modele: synth.modele,
+      image_url: synth.image_url,
+      specifications: synth.specifications,
+      price: typeof synth.price === 'number' ? synth.price : synth.price?.value ?? null,
+      auctionPrice: synth.auctionPrices?.[0]?.proposal_price ?? null,
+      auctionPrices: synth.auctionPrices ?? []
     });
+    setFormError("");
+  }
+}, [synth]);
 
-    const [imageError, setImageError] = useState(false);
-    const [formError, setFormError] = useState("");
+ const handleChange = useCallback(
+   (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+     const { name, value } = e.target;
+     setFormData(prev => ({
+       ...prev,
+       [name]: (name === "price" || name === "auctionPrice") 
+       ? (value === "" ? null : Number(value))
+       : value
+   }));
+   },
+   []
+ );
 
-    // Synchronisation avec les props
-    useEffect(() => {
-        if (synth) {
-            setFormData({
-                marque: synth.marque || "",
-                modele: synth.modele || "",
-                image_url: synth.image_url || "",
-                specifications: synth.specifications || "",
-                price: synth.price ?? null,
-                auctionPrice: synth.auctionPrice ?? null,
-            });
-            setFormError("");
-        }
-    }, [synth]);
+ const handleImageChange = useCallback(
+   (e: React.ChangeEvent<HTMLInputElement>) => {
+     setImageError(false);
+     setFormData(prev => ({
+       ...prev,
+       image_url: e.target.value
+     }));
+   },
+   []
+ );
 
-    // Gestion des changements de champs
-    const handleChange = useCallback(
-        (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-            const { name, value } = e.target;
+ const handleImageError = useCallback(() => {
+   setImageError(true);
+ }, []);
 
-            setFormData(prev => ({
-                ...prev,
-                [name]: (name === "price" || name === "auctionPrice")
-                    ? (value === "" ? null : Number(value))
-                    : value
-            }));
-        },
-        []
-    );
-
-    // Gestion des changements d'image
-    const handleImageChange = useCallback(
-        (e: React.ChangeEvent<HTMLInputElement>) => {
-            const { value } = e.target;
-            setImageError(false);
-            setFormData(prev => ({
-                ...prev,
-                image_url: value,
-            }));
-        },
-        []
-    );
-
-    // Gestion des erreurs d'image
-    const handleImageError = useCallback(() => {
-        console.error("Erreur de chargement de l'image");
-        setImageError(true);
-    }, []);
-
-    // Soumission du formulaire
-    const handleSubmit = useCallback(
-        async (e: React.FormEvent) => {
-            e.preventDefault();
-            setFormError("");
-
-            try {
-                if (!formData.marque || !formData.modele) {
-                    throw new Error("La marque et le modèle sont requis");
-                }
-                await onSubmit(formData);
-            } catch (error) {
-                setFormError(
-                    error instanceof Error
-                        ? error.message
-                        : "Erreur lors de la mise à jour"
-                );
-            }
-        },
-        [formData, onSubmit]
-    );
+ const handleSubmit = useCallback(
+	async (e: React.FormEvent) => {
+	  e.preventDefault();
+	  setFormError("");
+  
+	  try {
+		if (!formData.marque || !formData.modele) {
+		  throw new Error("La marque et le modèle sont requis");
+		}
+		
+		// Modifiez cette partie pour envoyer seulement la valeur du prix
+		const submissionData: Partial<Synth> = {
+		  ...formData,
+		  price: formData.price || 0 // Envoie la valeur numérique directe
+		};
+		
+		await onSubmit(submissionData);
+		onOpenChange(false);
+	  } catch (error) {
+		setFormError(error instanceof Error ? error.message : "Erreur lors de la mise à jour");
+	  }
+	},
+	[formData, onSubmit, onOpenChange]
+  );
 
 
-	return (
-		<div className="w-full">
+
+ return (
+<div className="w-full">
 			<h2 className="text-2xl font-bold mb-6">
 				{synth ? "Modifier le synthétiseur" : "Ajouter un synthétiseur"}
 			</h2>
@@ -229,7 +233,7 @@ export const SynthEditor = ({
 						<input
 							type="number"
 							name="auctionPrice"
-							value={formData.auctionPrice ?? ''}  // Utilisation de l'opérateur de coalescence nulle
+							value={formData.auctionPrice ?? ''}
 							onChange={handleChange}
 							min="0"
 							step="0.01"
@@ -258,7 +262,7 @@ export const SynthEditor = ({
 				</div>
 			</form>
 		</div>
-	);
+ );
 };
 
-export default SynthEditor;
+export default EditorForm;

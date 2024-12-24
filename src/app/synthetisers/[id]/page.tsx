@@ -3,10 +3,10 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { api } from "@/services/axios";
-import { Synth, Post } from "@/types";
+import { Synth, Post } from "@/features/synthetisers/types";
 import { AxiosError } from "axios";
 import Image from "next/image";
-import { AddPost } from "@/features/synthetisers/components/AddPost";
+import { AddPost } from "@/features/synthetisers/components/posts/AddPost";
 
 export default function SynthetiserDetailPage() {
 	const params = useParams();
@@ -23,8 +23,14 @@ export default function SynthetiserDetailPage() {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
+				params: {
+					include: ["posts", "auctionPrices"],
+				},
 			});
-			setSynth(response.data.data);
+
+			if (response.data?.data) {
+				setSynth(response.data.data);
+			}
 		} catch (error) {
 			if (
 				error instanceof AxiosError &&
@@ -34,7 +40,7 @@ export default function SynthetiserDetailPage() {
 				window.location.href = "/login";
 				return;
 			}
-			setError("Une erreur est survenue");
+			setError("Une erreur est survenue lors du chargement du synthétiseur");
 		} finally {
 			setIsLoading(false);
 		}
@@ -44,92 +50,145 @@ export default function SynthetiserDetailPage() {
 		fetchSynth();
 	}, [fetchSynth]);
 
-	if (isLoading) return <div>Chargement...</div>;
-	if (error) return <div>{error}</div>;
-	if (!synth) return <div>Synthétiseur non trouvé</div>;
+	if (isLoading) {
+		return (
+			<div className="flex justify-center items-center min-h-screen">
+				<p className="text-lg">Chargement...</p>
+			</div>
+		);
+	}
+
+	if (error) {
+		return (
+			<div className="flex justify-center items-center min-h-screen">
+				<p className="text-red-500">{error}</p>
+			</div>
+		);
+	}
+
+	if (!synth) {
+		return (
+			<div className="flex justify-center items-center min-h-screen">
+				<p>Synthétiseur non trouvé</p>
+			</div>
+		);
+	}
 
 	return (
 		<div className="container mx-auto px-4 py-8">
-			<h1 className="text-3xl font-bold mb-4">
+			<h1 className="text-3xl font-bold mb-6">
 				{synth.marque} {synth.modele}
 			</h1>
+
 			<div className="bg-white shadow-lg rounded-lg p-6">
 				{synth.image_url && (
-					<div className="relative h-48 mb-4">
+					<div className="relative h-64 mb-6">
 						<Image
 							src={synth.image_url}
-							alt={synth.modele}
+							alt={`${synth.marque} ${synth.modele}`}
 							fill
-							className="object-cover rounded-lg"
+							className="object-contain rounded-lg"
+							priority
 						/>
 					</div>
 				)}
 
-				{/* Informations de base */}
-				<div className="space-y-4">
+				<div className="space-y-8">
 					{synth.specifications && (
-						<div>
-							<h2 className="text-xl font-semibold">Spécifications</h2>
-							<p className="text-gray-600">{synth.specifications}</p>
-						</div>
-					)}
-
-					{synth.note && (
-						<div>
-							<h2 className="text-xl font-semibold">Note</h2>
-							<p>{synth.note}</p>
-						</div>
-					)}
-
-					{synth.price && (
-						<div>
-							<h2 className="text-xl font-semibold">Prix</h2>
-							<p className="text-blue-600 font-bold text-2xl">
-								{new Intl.NumberFormat("fr-FR", {
-									style: "currency",
-									currency: "EUR",
-									minimumFractionDigits: 0,
-								}).format(synth.price)}
+						<section>
+							<h2 className="text-xl font-semibold mb-3">Spécifications</h2>
+							<p className="text-gray-600 leading-relaxed">
+								{synth.specifications}
 							</p>
-						</div>
+						</section>
 					)}
-				</div>
 
-				{/* Section Ajout de Post */}
-				<div className="mt-8">
-					<h2 className="text-2xl font-semibold mb-4">Ajouter un post</h2>
-					<AddPost
-						synthetiserId={synth.id}
-						onPostAdded={() => {
-							// Recharger les données du synthétiseur pour afficher le nouveau post
-							fetchSynth();
-						}}
-					/>
-				</div>
-
-				{/* list des Posts */}
-				{synth.posts && synth.posts.length > 0 && (
-					<div className="mt-8">
-						<h2 className="text-2xl font-semibold mb-4">Posts</h2>
-						<div className="space-y-4">
-							{synth.posts.map((post: Post) => (
-								<div key={post.id} className="bg-gray-50 p-4 rounded-lg">
-									{post.titre && (
-										<h3 className="font-semibold">{post.titre}</h3>
-									)}
-									{post.commentaire && (
-										<p className="mt-2">{post.commentaire}</p>
-									)}
-									{post.createdAt && (
-										<p className="text-sm text-gray-500 mt-2">
-											{new Date(post.createdAt).toLocaleDateString()}
-										</p>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+						{synth.note && (
+							<section>
+								<h2 className="text-xl font-semibold mb-3">Évaluation</h2>
+								<div className="flex items-center space-x-3">
+									<span className="text-lg font-medium">{synth.note}/5</span>
+									{synth.nb_avis && (
+										<span className="text-gray-500">
+											({synth.nb_avis} avis)
+										</span>
 									)}
 								</div>
-							))}
-						</div>
+							</section>
+						)}
+
+						{synth.price && (
+							<section>
+								<h2 className="text-xl font-semibold mb-3">Prix</h2>
+								<p className="text-blue-600 font-bold text-2xl">
+									{new Intl.NumberFormat("fr-FR", {
+										style: "currency",
+										currency: "EUR",
+										minimumFractionDigits: 0,
+									}).format(
+										typeof synth.price === "object"
+											? synth.price.value
+											: synth.price
+									)}
+								</p>
+							</section>
+						)}
 					</div>
-				)}
+
+					{/* Section enchères */}
+					{Array.isArray(synth.auctionPrices) &&
+						synth.auctionPrices.length > 0 && (
+							<section className="border-t pt-6">
+								<h2 className="text-xl font-semibold mb-3">Dernière enchère</h2>
+								<p className="text-green-600 font-bold text-2xl">
+									{new Intl.NumberFormat("fr-FR", {
+										style: "currency",
+										currency: "EUR",
+										minimumFractionDigits: 0,
+									}).format(synth.auctionPrices[0].proposal_price)}
+								</p>
+							</section>
+						)}
+
+					<section className="border-t pt-6">
+						<h2 className="text-2xl font-semibold mb-4">Ajouter un post</h2>
+						<AddPost synthetiserId={synth.id} onPostAdded={fetchSynth} />
+					</section>
+
+					{synth.posts && synth.posts.length > 0 && (
+						<section className="border-t pt-6">
+							<h2 className="text-2xl font-semibold mb-4">
+								Posts ({synth.posts.length})
+							</h2>
+							<div className="space-y-4">
+								{synth.posts.map((post: Post) => (
+									<article
+										key={post.id}
+										className="bg-gray-50 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+									>
+										{post.titre && (
+											<h3 className="font-semibold text-lg">{post.titre}</h3>
+										)}
+										{post.commentaire && (
+											<p className="mt-2 text-gray-700">{post.commentaire}</p>
+										)}
+										{post.createdAt && (
+											<time className="text-sm text-gray-500 mt-2 block">
+												Posté le{" "}
+												{new Date(post.createdAt).toLocaleDateString("fr-FR", {
+													year: "numeric",
+													month: "long",
+													day: "numeric",
+												})}
+											</time>
+										)}
+									</article>
+								))}
+							</div>
+						</section>
+					)}
+				</div>
 			</div>
 		</div>
 	);
