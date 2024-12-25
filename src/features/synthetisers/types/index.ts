@@ -15,8 +15,6 @@ export type Synth = {
 	posts?: Post[];
   }
 
-
-
   export interface AuctionPrice {
 	id: number;
 	proposal_price: number;
