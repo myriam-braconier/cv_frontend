@@ -1,6 +1,5 @@
 "use client";
 
-import { Dialog } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Image from "next/image";
 import { Synth } from "@/features/synthetisers/types/synth";
@@ -39,7 +38,6 @@ export const EditorForm = ({
 	error,
 	synth,
 	onSubmit,
-	isOpen,
 	onOpenChange,
 	isLoading = false,
 	onCancel,
@@ -155,7 +153,8 @@ export const EditorForm = ({
 	// RENDU
 
 	return (
-		<Dialog open={isOpen} onOpenChange={onOpenChange}>
+		
+		  <div className="w-full">
 			
 			<div>
 				{isSubmitting && <div>Chargement...</div>}
@@ -342,7 +341,7 @@ export const EditorForm = ({
 					</div>
 				</form>
 			</div>
-		</Dialog>
+			</div>
 	)
 
 
