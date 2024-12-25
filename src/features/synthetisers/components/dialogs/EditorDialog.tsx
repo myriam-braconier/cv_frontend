@@ -31,8 +31,7 @@ export const EditorDialog = ({
 	return (
 		<Dialog open={isOpen} onOpenChange={onOpenChange}>
 			<DialogOverlay className="fixed inset-0 bg-black/50 z-40" />
-			<DialogContent className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-2xl bg-white rounded-lg shadow-lg p-6">
-				{" "}
+      <DialogContent className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-lg shadow-lg p-6 z-50">				{" "}
 				<DialogTitle className="text-lg font-semibold mb-4">
 					{synthetiser ? "Modifier le synthétiseur" : "Ajouter un synthétiseur"}
 				</DialogTitle>
