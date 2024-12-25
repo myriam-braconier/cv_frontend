@@ -34,3 +34,37 @@ export interface Post {
 	createdAt?: Date; // Date de création
 	updatedAt?: Date; // Date de mise à jour
 }
+
+export interface AuctionPrice {
+	id:number;
+	proposal_price: number;
+	status: string;
+	createdAt: string;
+	updateAt: string;
+	userId: number;
+	synthetiserId: number;
+  }
+  
+  export interface Synth {
+	id: number;
+	marque: string;
+	modele: string;
+	image_url?: string;
+	specifications?: string;
+	price: {
+	  value: number;
+	  currency: string;
+	} | number;
+	auctionPrices: {
+		proposal_price: number;
+		status: string;
+	  }[];
+	note?: number;
+	nb_avis?: number;
+	posts?: Post[];
+  }
+  
+
+  
+  
+  
