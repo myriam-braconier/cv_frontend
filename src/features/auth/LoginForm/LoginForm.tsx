@@ -1,37 +1,43 @@
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { AxiosError } from 'axios';
 import { useAuth } from "@/hooks/useAuth";
-
-
-
 
 export default function LoginForm() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    
     const { login } = useAuth();
     const router = useRouter();
-    const [isLoading, setIsLoading] = useState(false);
-   
+    const searchParams = useSearchParams();
+    
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsLoading(true);
+        setError(null);
+
         try {
-          await login(email, password);
-          router.push('/');
+            await login(email, password);
+            
+            // Get the callback URL if it exists
+            const callbackUrl = searchParams.get('callbackUrl');
+            // Redirect to callback URL or home
+            router.push(callbackUrl || '/');
+            
         } catch (err) {
-          setError(err instanceof AxiosError ? 
-            err.response?.data?.message || "Erreur de connexion" : 
-            "Erreur inattendue"
-          );
+            setError(
+                err instanceof AxiosError 
+                    ? err.response?.data?.message || "Erreur de connexion"
+                    : "Erreur inattendue"
+            );
         } finally {
-          setIsLoading(false);
+            setIsLoading(false);
         }
-       };
+    };
 
-
-       return (
+    return (
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
             <div className="rounded-md shadow-sm -space-y-px">
                 <div>
@@ -71,5 +77,4 @@ export default function LoginForm() {
             </button>
         </form>
     );
-
-    }
+}

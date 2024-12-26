@@ -11,8 +11,11 @@ export interface Synth {
 		  }
 		| number; // Pour supporter les deux formats possibles
         auctionPrices: { 
+			createAt: string;
             proposal_price: number;
             status: string;
+			synthetiserId: number;
+			userId: number;
           }[];
 	note?: number;
 	nb_avis?: number;
@@ -45,26 +48,4 @@ export interface AuctionPrice {
 	synthetiserId: number;
   }
   
-  export interface Synth {
-	id: number;
-	marque: string;
-	modele: string;
-	image_url?: string;
-	specifications?: string;
-	price: {
-	  value: number;
-	  currency: string;
-	} | number;
-	auctionPrices: {
-		proposal_price: number;
-		status: string;
-	  }[];
-	note?: number;
-	nb_avis?: number;
-	posts?: Post[];
-  }
-  
-
-  
-  
-  
+ 

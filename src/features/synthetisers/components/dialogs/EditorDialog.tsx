@@ -1,54 +1,64 @@
-"use client";
-
 import {
 	Dialog,
 	DialogContent,
-	DialogDescription,
+	DialogHeader,
 	DialogTitle,
-	DialogOverlay,
+	DialogDescription,
 } from "@/components/ui/dialog";
-import { EditorForm } from "@/features/synthetisers/components/editor/EditorForm";
+import { EditorForm } from "@features/synthetisers/components/editor/EditorForm";
 import { Synth } from "@/features/synthetisers/types/synth";
+
+
 
 interface EditorDialogProps {
 	isOpen: boolean;
 	onOpenChange: (open: boolean) => void;
-	synthetiser: Synth;
-	onSubmit: (updatedData: Partial<Synth>) => Promise<void>;
-	isUpdating: boolean;
-	updateError: string | null;
-	onCancel?: () => void;
+	synth?: Synth; // Rendu optionnel pour correspondre à EditorFormProps
+	onSubmit: (data: Partial<Synth>) => Promise<void>;
+	isLoading?: boolean;
+	error: string | null; // Changé de string | undefined à string | null
+	onCancel: () => void;
 }
 
 export const EditorDialog = ({
 	isOpen,
 	onOpenChange,
-	synthetiser,
+	synth,
+	error,
+	isLoading,
 	onSubmit,
-	isUpdating,
-	updateError,
+	onCancel,
 }: EditorDialogProps) => {
 	return (
 		<Dialog open={isOpen} onOpenChange={onOpenChange}>
-			<DialogOverlay className="fixed inset-0 bg-black/50 z-40" />
-      <DialogContent className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-lg shadow-lg p-6 z-50">				{" "}
-				<DialogTitle className="text-lg font-semibold mb-4">
-					{synthetiser ? "Modifier le synthétiseur" : "Ajouter un synthétiseur"}
-				</DialogTitle>
-				<DialogDescription className="sr-only">
-					Formulaire d&apos;édition de synthétiseur
-				</DialogDescription>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>
+						{" "}
+						{synth
+							? `Modifier ${synth.marque} ${synth.modele}`
+							: "Modifier le synthétiseur"}
+					</DialogTitle>
+					<DialogDescription>
+						{" "}
+						{synth
+							? `Modifiez les informations de votre synthétiseur ${synth.marque} ${synth.modele}`
+							: "Modifiez les informations de votre synthétiseur"}
+					</DialogDescription>
+				</DialogHeader>
+
+				{/* Reste du contenu du dialogue */}
+				{error && <p className="text-red-500">{error}</p>}
+
 				<EditorForm
-					error={updateError}
-					synth={synthetiser}
+					synth={synth}
 					onSubmit={onSubmit}
-					isOpen={isOpen}
+					isLoading={isLoading}
+					onCancel={onCancel}
+					error={error}
 					onOpenChange={onOpenChange}
-					isLoading={isUpdating}
-					onCancel={() => onOpenChange(false)}
 				/>
 			</DialogContent>
 		</Dialog>
 	);
 };
-export default EditorDialog;
