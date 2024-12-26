@@ -1,5 +1,6 @@
 // services/axios.ts
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -14,20 +15,30 @@ export const api = axios.create({
 
 // Intercepteur pour ajouter le token à chaque requête
 api.interceptors.request.use((config) => {
-    try {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    } catch (error) {
-        console.error('Erreur dans l\'intercepteur de requête:', error);
-        return Promise.reject(error);
+    // On vérifie d'abord le token dans les cookies (pour cohérence avec le middleware)
+    const token = Cookies.get('token') || localStorage.getItem('token');
+
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
     }
+    return config;
 }, (error) => {
-    console.error('Erreur dans l\'intercepteur de requête:', error);
     return Promise.reject(error);
 });
+
+// Intercepteur pour gérer les erreurs d'authentification
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            // Si on reçoit une erreur 401, on nettoie les tokens
+            localStorage.removeItem('token');
+            Cookies.remove('token');
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
 
 // Intercepteur pour gérer les erreurs globales
 api.interceptors.response.use(
