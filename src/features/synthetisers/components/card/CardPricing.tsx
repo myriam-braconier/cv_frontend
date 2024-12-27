@@ -1,206 +1,196 @@
-import React, { useState, useEffect, useCallback } from 'react';
+"use client";
+
+import React, { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/services/axios";
-import axios from "axios";
 import { toast } from "react-hot-toast";
+import { AuctionPrice } from "@/features/synthetisers/types/synth"; // Import direct des types
 
-interface AuctionPrice {
-  proposal_price: number;
-  status: string;
-  userId?: string;
-  synthetiserId?: string;
-  createdAt?: string;
-}
 interface Price {
-  value: number;
-  currency: string;
+	value: number;
+	currency: string;
 }
+
 interface CardPricingProps {
-  price: number | Price | null;
-  auctionPrices: AuctionPrice[];
-  isAuthenticated: () => boolean;
-  isLoading?: boolean;
-  synthId: string;
-  onUpdateSuccess?: () => void;
+	price: number | Price | null;
+	auctionPrices: AuctionPrice[];
+	isAuthenticated: () => boolean;
+	isLoading?: boolean;
+	synthId: string;
+	onUpdateSuccess?: () => void;
 }
 
 const CardPricing = ({
-  price,
-  auctionPrices = [],
-  isAuthenticated,
-  isLoading = false,
-  synthId,
-  onUpdateSuccess
+	price = 0,
+	auctionPrices = [],
+	isAuthenticated,
+	isLoading = false,
+	synthId,
+	onUpdateSuccess,
 }: CardPricingProps) => {
-  const [localAuctionPrices, setLocalAuctionPrices] = useState<AuctionPrice[]>(auctionPrices);
-  const [isLoadingAuctions, setIsLoadingAuctions] = useState(false);
-  const [auctionError, setAuctionError] = useState<string | null>(null);
-  const router = useRouter();
+	// Mettre à jour le state local quand les props changent
+	useEffect(() => {
+		setLocalAuctionPrices(auctionPrices);
+		if (onUpdateSuccess) {
+			onUpdateSuccess();
+		}
+	}, [auctionPrices, onUpdateSuccess]);
 
-  const displayPrice = price
-    ? typeof price === "object"
-      ? price.value
-      : price
-    : "Prix indisponible";
+	const router = useRouter();
+	const [localAuctionPrices, setLocalAuctionPrices] =
+		useState<AuctionPrice[]>(auctionPrices);
+	const [isLoadingAuctions, setIsLoadingAuctions] = useState(false);
+	const [auctionError, setAuctionError] = useState<string | null>(null);
+	const [newBidAmount, setNewBidAmount] = useState<number | null>(null);
 
-  const getLatestAuctionPrice = useCallback((): AuctionPrice | null => {
-    if (!localAuctionPrices.length) return null;
-    return localAuctionPrices.reduce((prev, current) => 
-      prev.proposal_price > current.proposal_price ? prev : current
-    );
-  }, [localAuctionPrices]);
+	const displayPrice = price
+		? typeof price === "object"
+			? price.value
+			: price
+		: 0;
 
-  const canBid = useCallback(() => {
-    if (!isAuthenticated()) return false;
-    const latestAuction = getLatestAuctionPrice();
-    if (!latestAuction) return true;
-    return latestAuction.status !== "active";
-  }, [getLatestAuctionPrice, isAuthenticated]);
+	const getLatestAuctionPrice = useCallback((): number | null => {
+		if (!localAuctionPrices || localAuctionPrices.length === 0) return null;
 
-  const loadAuctionPrices = useCallback(async () => {
-    if (!synthId) {
-      console.log('Pas de synthId disponible');
-      return;
-    }
+		const highestBid = localAuctionPrices.reduce(
+			(max, current) =>
+				current.proposal_price > max ? current.proposal_price : max,
+			localAuctionPrices[0].proposal_price
+		);
 
-    setIsLoadingAuctions(true);
-    setAuctionError(null);
-    
-    try {
-      const response = await api.get<AuctionPrice[]>(`/api/synthetisers/${synthId}/auctions`);
-      setLocalAuctionPrices(response.data);
-    } catch (error) {
-      console.error("Erreur lors du chargement des enchères:", error);
-      let errorMessage = "Erreur lors du chargement des enchères";
-      
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (axios.isAxiosError(error) && error.response) {
-        errorMessage = error.response.data?.message || error.message;
-        if (error.response.status === 401) {
-          router.push('/login');
-        }
-      }
-      setAuctionError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsLoadingAuctions(false);
-    }
-  }, [synthId, router]);
+		return highestBid;
+	}, [localAuctionPrices]);
 
- const handleCreateAuction = async () => {
-  if (!isAuthenticated()) {
-    router.push("/login");
-    return;
-  }
-  setIsLoadingAuctions(true);
-  setAuctionError(null);
+	const latestAuctionPrice = getLatestAuctionPrice();
 
-  try {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      throw new Error("Utilisateur non connecté");
-    }
+	const handleCreateAuction = async () => {
+		if (!isAuthenticated() || !newBidAmount) {
+		  router.push("/login");
+		  return;
+		}
+	  
+		try {
+		  const token = localStorage.getItem("token");
+		  if (!token) {
+			throw new Error("Token non trouvé");
+		  }
+	  
+		  const tokenData = JSON.parse(atob(token.split('.')[1]));
+	  
+		  const response = await api.post(`/api/auctions/${synthId}`, {
+			proposal_price: Number(newBidAmount),
+			userId: tokenData.userId,
+			synthetiserId: Number(synthId),
+			status: 'active'
+		  });
 
-    const latestAuction = getLatestAuctionPrice();
-    let newPrice: number;
-    
-    // Détermination du nouveau prix d'enchère
-    if (latestAuction && latestAuction.proposal_price > 0) {
-      newPrice = latestAuction.proposal_price + 100;
-    } else if (price) {
-      newPrice = (typeof price === "object" ? price.value : price) + 100;
-    } else {
-      throw new Error("Prix de base non disponible");
-    }
+// Création d'un objet qui correspond au type AuctionPrice
+const newAuction: AuctionPrice = {
+	id: response.data.id,
+	proposal_price: response.data.proposal_price,
+	status: response.data.status,
+	synthetiserId: response.data.synthetiserId,
+	userId: response.data.userId,
+	createdAt: response.data.createdAt,
+	createAt: response.data.createdAt, // Pour correspondre au type AuctionPrice
+	updateAt: response.data.updatedAt || response.data.createdAt // Fallback si updatedAt n'existe pas
+  };
+	  
+	 // Mettre à jour le state local avec la nouvelle enchère
+	 setLocalAuctionPrices(prev => [newAuction, ...prev]);
+		  setNewBidAmount(null);
+		  if (onUpdateSuccess) onUpdateSuccess();
+		  toast.success("Enchère créée avec succès");
+		} catch (error) {
+		  const errorMsg = error instanceof Error ? error.message : "Erreur lors de la création de l'enchère";
+		  setAuctionError(errorMsg);
+		  toast.error(errorMsg);
+		} finally {
+		  setIsLoadingAuctions(false);
+		}
+	  };
+	  
+	  
+	useEffect(() => {
+		console.log("Debug CardPricing:", {
+			isAuthenticated: isAuthenticated(),
+			price,
+			displayPrice,
+			latestAuctionPrice,
+			localAuctionPrices,
+			newBidAmount,
+		});
+	}, [
+		isAuthenticated,
+		price,
+		displayPrice,
+		latestAuctionPrice,
+		localAuctionPrices,
+		newBidAmount,
+	]);
 
-    // Validation du prix
-    if (newPrice <= 0) {
-      throw new Error("Le prix d'enchère doit être supérieur à 0");
-    }
+	useEffect(() => {
+		if (auctionPrices && auctionPrices.length > 0) {
+			setLocalAuctionPrices(auctionPrices);
+		}
+	}, [auctionPrices]);
 
-    const newAuction: Partial<AuctionPrice> = {
-      proposal_price: newPrice,
-      status: "active",
-      userId: userId,
-      synthetiserId: synthId,
-      createdAt: new Date().toISOString()
-    };
 
-    const response = await api.post(`/api/synthetisers/${synthId}/auctions`, newAuction);
+	console.log({
+		token: localStorage.getItem('token'),
+		userId: localStorage.getItem('userId'),
+		price,
+		auctionPrices
+	  });
 
-    // Mise à jour de l'état local
-    setLocalAuctionPrices(prevPrices => [response.data, ...prevPrices]);
-    toast.success("Enchère placée avec succès");
-    
-    if (onUpdateSuccess) {
-      onUpdateSuccess();
-    }
-  } catch (error) {
-    let errorMessage = "Erreur lors de la création de l'enchère";
-    
-    if (error instanceof Error) {
-      errorMessage = error.message;
-    } else if (axios.isAxiosError(error) && error.response) {
-      errorMessage = error.response.data?.message || error.message;
-      if (error.response.status === 401) {
-        router.push('/login');
-        return;
-      }
-    }
-    
-    setAuctionError(errorMessage);
-    toast.error(errorMessage);
-  } finally {
-    setIsLoadingAuctions(false);
-  }
+
+	return (
+		<div className="flex flex-col space-y-4">
+			{auctionError && <div className="text-red-500">{auctionError}</div>}
+
+			<div className="flex justify-between items-center">
+				<div className="text-lg font-semibold">
+					{typeof displayPrice === "number"
+						? `Prix initial: ${displayPrice}€`
+						: displayPrice}
+				</div>
+
+				<div>
+					{latestAuctionPrice
+						? `Dernière enchère: ${latestAuctionPrice}€`
+						: "Aucune enchère"}
+				</div>
+			</div>
+
+			{isAuthenticated() && (
+				<div className="space-y-2">
+					<input
+						type="number"
+						value={newBidAmount || ""}
+						onChange={(e) =>
+							setNewBidAmount(e.target.value ? Number(e.target.value) : null)
+						}
+						min={
+							latestAuctionPrice
+								? latestAuctionPrice + 1
+								: typeof displayPrice === "number"
+								? displayPrice + 1
+								: 0
+						}
+						className="w-full p-2 border rounded"
+						placeholder="Montant de votre enchère"
+					/>
+					<button
+						onClick={handleCreateAuction}
+						disabled={isLoading || isLoadingAuctions || !newBidAmount}
+						className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+					>
+						{isLoadingAuctions ? "Enchère en cours..." : "Placer l'enchère"}
+					</button>
+				</div>
+			)}
+		</div>
+	);
 };
 
-  useEffect(() => {
-    if (isAuthenticated()) {
-      loadAuctionPrices();
-    }
-  }, [loadAuctionPrices, isAuthenticated]);
-
-  const latestAuctionPrice = getLatestAuctionPrice();
-
-
-
-  return (
-    <div className="flex flex-col space-y-2">
-      {auctionError && (
-        <div className="text-red-500 mb-2">
-          {auctionError}
-        </div>
-      )}
-      <div className="flex justify-between items-center">
-        <div className="text-lg font-semibold">
-          {typeof displayPrice === "number"
-            ? `Prix: ${displayPrice}€`
-            : displayPrice}
-        </div>
-        <div>
-          {latestAuctionPrice
-            ? `Enchère actuelle: ${latestAuctionPrice.proposal_price}€`
-            : "Enchère ouverte"
-          }
-        </div>
-      </div>
-      {isAuthenticated() && canBid() && (!latestAuctionPrice || latestAuctionPrice.proposal_price === 0) && (
-        <button
-          onClick={handleCreateAuction}
-          disabled={isLoading || isLoadingAuctions}
-          className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-        >
-          {isLoading ? "Enchère en cours..." : "Enchérir"}
-        </button>
-      )}
-    </div>
-  );
-
-
-
-
-
-};
 export default CardPricing;

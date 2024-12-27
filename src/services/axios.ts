@@ -1,6 +1,7 @@
 // services/axios.ts
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { toast } from "react-hot-toast";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -25,6 +26,42 @@ api.interceptors.request.use((config) => {
 }, (error) => {
     return Promise.reject(error);
 });
+
+
+
+
+
+// Intercepteur unique pour les réponses
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response) {
+            const { status, data } = error.response;
+            
+            // Gestion des erreurs d'authentification
+            if (status === 401) {
+                localStorage.removeItem('token');
+                Cookies.remove('token');
+                window.location.href = '/login';
+                toast.error('Session expirée, veuillez vous reconnecter');
+                return Promise.reject(error);
+            }
+// Gestion des autres erreurs HTTP
+const message = data?.message || 'Une erreur est survenue';
+toast.error(message);
+console.error('Erreur de réponse:', { status, data });
+} else if (error.request) {
+toast.error('Impossible de contacter le serveur');
+console.error('Erreur de requête:', error.request);
+} else {
+toast.error('Une erreur est survenue');
+console.error('Erreur:', error.message);
+}
+
+return Promise.reject(error);
+}
+);
+
 
 // Intercepteur pour gérer les erreurs d'authentification
 api.interceptors.response.use(

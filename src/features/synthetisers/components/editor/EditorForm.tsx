@@ -4,16 +4,7 @@ import { JSX } from "react"; // pour le type JSX.Element
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Image from "next/image";
 import { useState, useCallback } from "react";
-import { Synth } from "@/features/synthetisers/types/synth";
-
-interface AuctionPrice {
-	id?: number;
-	proposal_price: number;
-	status: string;
-	synthetiserId: number;
-	userId: number;
-	createAt: string;
-}
+import { Synth, AuctionPrice } from "@/features/synthetisers/types/synth";
 
 interface FormData {
 	marque: string;
@@ -21,10 +12,9 @@ interface FormData {
 	image_url: string;
 	specifications: string;
 	price: number | null;
-	auctionPrice: number | null;
-	auctionPrices: AuctionPrice[]; // Assurez-vous que cette propriété est définie
+	proposal_price: number | null;
+	auctionPrices: AuctionPrice[];
 }
-
 interface EditorFormProps extends React.PropsWithChildren {
 	error: string | null;
 	synth?: Synth;
@@ -32,6 +22,7 @@ interface EditorFormProps extends React.PropsWithChildren {
 	onOpenChange: (open: boolean) => void;
 	isLoading?: boolean;
 	onCancel: () => void;
+	isAuthenticated: () => boolean; // Ajout de la prop
 }
 
 export const EditorForm = ({
@@ -55,15 +46,24 @@ export const EditorForm = ({
 			typeof synth?.price === "number"
 				? synth.price
 				: synth?.price?.value ?? null,
+
+		proposal_price: synth?.auctionPrices?.length
+			? Math.max(
+					...synth.auctionPrices.map((auction) => auction.proposal_price)
+			  )
+			: null,
+
 		auctionPrices:
-			synth?.auctionPrices?.map((auction: AuctionPrice) => ({
+			synth?.auctionPrices?.map((auction) => ({
+				id: auction.id,
 				proposal_price: auction.proposal_price,
 				status: auction.status,
 				synthetiserId: auction.synthetiserId,
 				userId: auction.userId,
 				createAt: auction.createAt,
+				updateAt: auction.updateAt,
+				createdAt: auction.createAt,
 			})) || [],
-		auctionPrice: null,
 	});
 
 	const handleChange = useCallback(
@@ -72,7 +72,7 @@ export const EditorForm = ({
 			setFormData((prev) => ({
 				...prev,
 				[name]:
-					name === "price" || name === "auctionPrice"
+					name === "price" || name === "proposal_price"
 						? value === ""
 							? null
 							: Number(value)
@@ -113,7 +113,6 @@ export const EditorForm = ({
 					formData.price !== null
 						? { value: formData.price, currency: "EUR" }
 						: undefined,
-				auctionPrices: formData.auctionPrices,
 			};
 
 			await onSubmit(submissionData);
@@ -138,55 +137,6 @@ export const EditorForm = ({
 			onOpenChange(false);
 		}
 	}, [formData.marque, formData.modele, onCancel, onOpenChange]);
-
-	const handleAuctionBid = async () => {
-		setFormError("");
-		setIsSubmitting(true);
-
-		try {
-			const currentPrice: number | undefined =
-				typeof synth?.price === "object" ? synth.price.value : synth?.price;
-
-			const newPrice = formData.auctionPrice;
-
-			if (!synth?.id || !formData.auctionPrice) {
-				throw new Error("Données d'enchère invalides");
-			}
-
-			if (!newPrice || !currentPrice || newPrice <= currentPrice) {
-				throw new Error("L'enchère doit être supérieure au prix actuel");
-			}
-
-			const userId = localStorage.getItem("userId");
-			if (!userId) {
-				throw new Error("Information utilisateur manquante");
-			}
-
-			const newAuction: AuctionPrice = {
-				id: Date.now(),
-				proposal_price: newPrice,
-				status: "active",
-				createAt: new Date().toISOString(),
-				userId: Number(userId),
-				synthetiserId: synth.id,
-			};
-
-			const submissionData: Partial<Synth> = {
-				id: synth.id,
-				price: { value: newPrice, currency: "EUR" },
-				auctionPrices: [...(synth.auctionPrices || []), newAuction],
-			};
-
-			await onSubmit(submissionData);
-			onOpenChange(false);
-		} catch (error) {
-			setFormError(
-				error instanceof Error ? error.message : "Erreur lors de l'enchère"
-			);
-		} finally {
-			setIsSubmitting(false);
-		}
-	};
 
 	return (
 		<div className="w-full space-y-4">
@@ -239,7 +189,7 @@ export const EditorForm = ({
 					{/* Image */}
 					<div>
 						<label className="block text-sm font-medium text-gray-700 mb-1">
-							URL de l&apropos;image
+							URL de l&apos;image
 						</label>
 						<input
 							type="url"
@@ -249,14 +199,14 @@ export const EditorForm = ({
 							className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
 							disabled={isLoading}
 						/>
-						<div className="mt-2 relative h-[200px] w-full">
+						<div className="mt-2 relative h-[150px] w-[150px] mx-auto">
 							{formData.image_url && !imageError ? (
 								<Image
 									src={formData.image_url}
 									alt="Aperçu"
-									width={400}
-									height={200}
-									className="object-contain w-full h-full"
+									width={150}
+									height={150}
+									className="object-contain rounded-lg mx-auto"
 									onError={handleImageError}
 								/>
 							) : (
@@ -267,90 +217,143 @@ export const EditorForm = ({
 						</div>
 					</div>
 
-					{/* Spécifications */}
-					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-1">
-							Spécifications
-						</label>
-						<textarea
-							name="specifications"
-							value={formData.specifications}
-							onChange={handleChange}
-							className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 min-h-[100px]"
-							disabled={isLoading}
-						/>
+					<div className="flex">
+						{/* Spécifications */}
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-1">
+								Spécifications
+							</label>
+							<textarea
+								name="specifications"
+								value={formData.specifications}
+								onChange={handleChange}
+								className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+								disabled={isLoading}
+							/>
+						</div>
+
+						{/* Prix */}
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-1">
+								Prix
+							</label>
+							<input
+								type="number"
+								name="price"
+								value={formData.price ?? ""}
+								onChange={handleChange}
+								className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+								disabled={isLoading}
+							/>
+						</div>
 					</div>
 
-					{/* Prix */}
-					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-1">
-							Prix
-						</label>
-						<input
-							type="number"
-							name="price"
-							value={formData.price ?? ""}
-							onChange={handleChange}
-							className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-							disabled={isLoading}
-						/>
-					</div>
-				</div>
-			</form>
+					{/* Section Enchères */}
+					<div className="border-t pt-4 mt-4">
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-1">
+								Encherir
+							</label>
 
-			{/* Section Enchères */}
-			<div className="border-t pt-4 mt-4">
-				<div className="space-y-4">
+							<input
+								type="number"
+								name="proposal_price"
+								value={formData.proposal_price ?? ""}
+								onChange={handleChange}
+								min={
+									formData.auctionPrices.length > 0
+										? formData.auctionPrices[formData.auctionPrices.length - 1]
+												.proposal_price + 1
+										: formData.price
+										? formData.price + 1
+										: 0
+								}
+								className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+								disabled={isLoading}
+							/>
+						</div>
+						{/* <div className="space-y-4">
 					<label className="block text-sm font-medium text-gray-700">
 						Nouvelle enchère
 					</label>
-
 					<input
 						type="number"
 						name="auctionPrice"
-						value={formData.auctionPrices[formData.auctionPrices.length - 1]?.proposal_price ?? 0}
+						value={formData.auctionPrice ?? ""} // Utiliser auctionPrice au lieu de auctionPrices
 						onChange={handleChange}
 						min={
 							typeof synth?.price === "object"
-							  ? synth.price.value + 1
-							  : (synth?.price || 0) + 1
-						  }
+								? synth.price.value + 1
+								: (synth?.price || 0) + 1
+						}
 						className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
 						disabled={isLoading}
 					/>
+				</div> */}
 
+						{/* Affichage de la dernière enchère */}
+						<div className="space-y-2 mt-4">
+							<label className="block text-sm font-medium text-gray-700">
+								Dernière enchère
+							</label>
+							<div className="text-lg font-semibold">
+								{Array.isArray(synth?.auctionPrices) &&
+								synth.auctionPrices.length > 0
+									? `${
+											synth.auctionPrices[synth.auctionPrices.length - 1]
+												.proposal_price
+									  }€`
+									: "Aucune enchère"}
+							</div>
+						</div>
+
+						{/* Boutons d'action */}
+						<div className="flex justify-end space-x-2 pt-4">
+							<button
+								type="button"
+								onClick={handleCancel}
+								disabled={isLoading}
+								className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors disabled:opacity-50"
+							>
+								Annuler
+							</button>
+
+							<button
+								type="submit"
+								form="main-form"
+								disabled={isLoading || isSubmitting}
+								className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
+							>
+								{isLoading
+									? "Sauvegarde..."
+									: synth
+									? "Mettre à jour"
+									: "Créer"}
+							</button>
+						</div>
+					</div>
+					{/* Boutons */}
+					<div className="flex justify-end space-x-2 pt-4">
+						<button
+							type="button"
+							onClick={handleCancel}
+							disabled={isLoading}
+							className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors disabled:opacity-50"
+						>
+							Annuler
+						</button>
+
+						<button
+							type="submit"
+							form="main-form"
+							disabled={isLoading || isSubmitting}
+							className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
+						>
+							{isLoading ? "Sauvegarde..." : synth ? "Mettre à jour" : "Créer"}
+						</button>
+					</div>
 				</div>
-			</div>
-
-			{/* Boutons d'action */}
-			<div className="flex justify-end space-x-2 pt-4">
-				<button
-					type="button"
-					onClick={handleAuctionBid}
-					disabled={isLoading || isSubmitting || !formData.auctionPrice}
-					className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors disabled:opacity-50"
-				>
-					{isLoading ? "Enchère en cours..." : "Placer une enchère"}
-				</button>
-
-				<button
-					type="button"
-					onClick={handleCancel}
-					disabled={isLoading}
-					className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors disabled:opacity-50"
-				>
-					Annuler
-				</button>
-
-				<button
-					type="submit"
-					form="main-form"
-					disabled={isLoading || isSubmitting}
-					className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
-				>
-					{isLoading ? "Sauvegarde..." : synth ? "Mettre à jour" : "Créer"}
-				</button>
-			</div>
+			</form>
 		</div>
 	);
 };

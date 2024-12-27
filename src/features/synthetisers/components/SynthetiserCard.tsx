@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { CardImage } from "@/features/synthetisers/components/card/CardImage";
@@ -10,14 +10,20 @@ import { EditorDialog } from "@/features/synthetisers/components/dialogs/EditorD
 import { useSynths } from "@/hooks/useSynths";
 import { Synth } from "@/features/synthetisers/types/synth";
 
+
+
+
+
+
 interface SynthetiserCardProps {
-  synthetiser: Synth;
+  synth: Synth;
   userRoles?: string[];
   onUpdateSuccess?: () => void;
+  isAuthenticated: () => boolean;
 }
 
 export const SynthetiserCard = ({ 
-  synthetiser, 
+  synth, 
   userRoles = [], 
   onUpdateSuccess 
 }: SynthetiserCardProps) => {
@@ -39,13 +45,26 @@ export const SynthetiserCard = ({
     price, 
     posts = [],
     auctionPrices = []
-  } = synthetiser;
+  } = synth;
 
   const fullTitle = `${marque} ${modele}`;
 
-  const isAuthenticated = useCallback(() => 
-    !!localStorage.getItem("userId"), 
-  []);
+  const isAuthenticated = useCallback(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const tokenData = JSON.parse(atob(token.split('.')[1]));
+        // Stockage de l'userId décodé
+        localStorage.setItem('userId', tokenData.userId);
+        return true;
+      } catch (error) {
+        console.error('Erreur de décodage du token:', error);
+        return false;
+      }
+    }
+    return false;
+  }, []);
+  
 
   const handleTogglePost = useCallback(() => 
     setShowPosts(prev => !prev), 
@@ -80,6 +99,29 @@ export const SynthetiserCard = ({
       setIsLoading(false);
     }
   };
+
+
+// gestion des données utilisateur
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const tokenData = JSON.parse(atob(token.split('.')[1]));
+      localStorage.setItem('userId', tokenData.userId.toString());
+    }
+  }, []);
+
+
+
+
+  console.log({
+    token: localStorage.getItem('token'),
+    userId: localStorage.getItem('userId'),
+    price,
+    auctionPrices
+  });
+
+
+
 
   return (
     <article className="bg-white rounded-lg shadow-lg h-full w-full">
@@ -129,13 +171,24 @@ export const SynthetiserCard = ({
             setIsEditing(open);
             if (!open) router.refresh();
           }}
-          synth={synthetiser}
+          synth={synth}
           onSubmit={handleEditSubmit}
           isLoading={isUpdating}
           error={updateError}
           onCancel={() => setIsEditing(false)}
         />
       )}
+
+
+
+
+
+
+      
     </article>
+
+
+
+
   );
 };

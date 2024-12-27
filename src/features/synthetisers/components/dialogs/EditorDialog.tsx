@@ -1,14 +1,14 @@
+import { X } from "lucide-react";
 import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
 	DialogDescription,
+	DialogOverlay,
 } from "@/components/ui/dialog";
 import { EditorForm } from "@features/synthetisers/components/editor/EditorForm";
 import { Synth } from "@/features/synthetisers/types/synth";
-
-
 
 interface EditorDialogProps {
 	isOpen: boolean;
@@ -31,14 +31,25 @@ export const EditorDialog = ({
 }: EditorDialogProps) => {
 	return (
 		<Dialog open={isOpen} onOpenChange={onOpenChange}>
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>
-						{" "}
+			<DialogOverlay className="bg-black/50 backdrop-blur-sm" />{" "}
+			{/* Ajout de l'overlay avec flou */}
+			<DialogContent className="max-h-[95vh] w-[95vw] max-w-5xl overflow-y-auto p-6">
+				<div className="sticky top-0 right-0 z-50 flex justify-end">
+					<button
+						onClick={() => onOpenChange(false)}
+						className="rounded-full p-2 hover:bg-gray-100"
+						aria-label="Fermer"
+					>
+						<X className="h-4 w-4" />
+					</button>
+				</div>
+				<DialogHeader className="pt-6">
+					<DialogTitle className="text-2xl font-bold">
 						{synth
 							? `Modifier ${synth.marque} ${synth.modele}`
 							: "Modifier le synthétiseur"}
 					</DialogTitle>
+
 					<DialogDescription>
 						{" "}
 						{synth
@@ -46,10 +57,8 @@ export const EditorDialog = ({
 							: "Modifiez les informations de votre synthétiseur"}
 					</DialogDescription>
 				</DialogHeader>
-
 				{/* Reste du contenu du dialogue */}
 				{error && <p className="text-red-500">{error}</p>}
-
 				<EditorForm
 					synth={synth}
 					onSubmit={onSubmit}
@@ -57,6 +66,7 @@ export const EditorDialog = ({
 					onCancel={onCancel}
 					error={error}
 					onOpenChange={onOpenChange}
+					isAuthenticated={(): boolean => !!localStorage.getItem("userId")}
 				/>
 			</DialogContent>
 		</Dialog>
