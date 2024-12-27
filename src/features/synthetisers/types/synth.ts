@@ -10,18 +10,11 @@ export interface Synth {
 				currency: string;
 		  }
 		| number; // Pour supporter les deux formats possibles
-        auctionPrices: { 
-			createAt: string;
-            proposal_price: number;
-            status: string;
-			synthetiserId: number;
-			userId: number;
-          }[];
+	auctionPrices?: AuctionPrice[];
 	note?: number;
 	nb_avis?: number;
 	posts?: Post[]; // Tableau des posts associés
 }
-
 
 export interface Post {
 	id: number;
@@ -39,13 +32,12 @@ export interface Post {
 }
 
 export interface AuctionPrice {
-	id:number;
+	id: number;
 	proposal_price: number;
 	status: string;
-	createdAt: string;
-	updateAt: string;
-	userId: number;
 	synthetiserId: number;
-  }
-  
- 
+	userId: number;
+	createAt: string;
+	updateAt: string;
+	createdAt: string;
+}
