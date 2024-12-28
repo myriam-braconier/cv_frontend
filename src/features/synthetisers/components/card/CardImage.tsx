@@ -7,6 +7,9 @@ interface CardImageProps {
 }
 
 export const CardImage = ({ image_url, title, onError }: CardImageProps) => {
+
+
+
   return (
     <div 
       className="relative w-full bg-gray-50 rounded-lg overflow-hidden" 
@@ -27,5 +30,7 @@ export const CardImage = ({ image_url, title, onError }: CardImageProps) => {
       />
     </div>
   );
+
+  
 };
 
