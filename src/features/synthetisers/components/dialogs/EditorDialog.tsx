@@ -18,6 +18,7 @@ interface EditorDialogProps {
 	isLoading?: boolean;
 	error: string | null; // Changé de string | undefined à string | null
 	onCancel: () => void;
+	isAuthenticated: () => boolean; 
 }
 
 export const EditorDialog = ({

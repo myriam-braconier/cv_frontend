@@ -189,6 +189,9 @@ const newAuction: AuctionPrice = {
 					</button>
 				</div>
 			)}
+
+
+			
 		</div>
 	);
 };

@@ -4,8 +4,7 @@ import { JSX } from "react"; // pour le type JSX.Element
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Image from "next/image";
 import { useState, useCallback } from "react";
-import { Synth, AuctionPrice } from "@/features/synthetisers/types/synth";
-
+import { Synth, AuctionPrice, Post } from "@/features/synthetisers/types/synth";
 interface FormData {
 	marque: string;
 	modele: string;
@@ -14,6 +13,7 @@ interface FormData {
 	price: number | null;
 	proposal_price: number | null;
 	auctionPrices: AuctionPrice[];
+	post: Post[];
 }
 interface EditorFormProps extends React.PropsWithChildren {
 	error: string | null;
@@ -36,6 +36,7 @@ export const EditorForm = ({
 	const [formError, setFormError] = useState<string>("");
 	const [imageError, setImageError] = useState<boolean>(false);
 	const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+	const [showPosts, setShowPosts] = useState<boolean>(false);
 
 	const [formData, setFormData] = useState<FormData>({
 		marque: synth?.marque ?? "",
@@ -64,6 +65,8 @@ export const EditorForm = ({
 				updateAt: auction.updateAt,
 				createdAt: auction.createAt,
 			})) || [],
+
+		post: synth?.posts || [],
 	});
 
 	const handleChange = useCallback(
@@ -95,6 +98,9 @@ export const EditorForm = ({
 
 	const handleImageError = useCallback(() => {
 		setImageError(true);
+	}, []);
+	const handleTogglePosts = useCallback(() => {
+		setShowPosts((prev) => !prev);
 	}, []);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -137,6 +143,8 @@ export const EditorForm = ({
 			onOpenChange(false);
 		}
 	}, [formData.marque, formData.modele, onCancel, onOpenChange]);
+
+	// Rendu
 
 	return (
 		<div className="w-full space-y-4">
@@ -231,108 +239,48 @@ export const EditorForm = ({
 								disabled={isLoading}
 							/>
 						</div>
+					</div>
 
-						{/* Prix */}
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1">
-								Prix
-							</label>
-							<input
-								type="number"
-								name="price"
-								value={formData.price ?? ""}
-								onChange={handleChange}
-								className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-								disabled={isLoading}
-							/>
+					{/* Prix */}
+					<div>
+						<label className="block text-sm font-medium text-gray-700 mb-1">
+							Prix
+						</label>
+						<input
+							type="number"
+							name="price"
+							value={formData.price ?? ""}
+							onChange={handleChange}
+							className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+							disabled={isLoading}
+						/>
+					</div>
+				</div>
+
+				{/* Pas de section encherir*/}
+				<div className="border-t pt-4 mt-4">
+					{/* Affichage de la dernière enchère */}
+					<div className="space-y-2 mt-4">
+						<label className="block text-sm font-medium text-gray-700">
+							Dernière enchère
+						</label>
+						<div className="text-lg font-semibold">
+							value={formData.proposal_price}
 						</div>
 					</div>
 
-					{/* Section Enchères */}
-					<div className="border-t pt-4 mt-4">
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1">
-								Encherir
-							</label>
-
-							<input
-								type="number"
-								name="proposal_price"
-								value={formData.proposal_price ?? ""}
-								onChange={handleChange}
-								min={
-									formData.auctionPrices.length > 0
-										? formData.auctionPrices[formData.auctionPrices.length - 1]
-												.proposal_price + 1
-										: formData.price
-										? formData.price + 1
-										: 0
-								}
-								className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-								disabled={isLoading}
-							/>
-						</div>
-						{/* <div className="space-y-4">
-					<label className="block text-sm font-medium text-gray-700">
-						Nouvelle enchère
-					</label>
-					<input
-						type="number"
-						name="auctionPrice"
-						value={formData.auctionPrice ?? ""} // Utiliser auctionPrice au lieu de auctionPrices
-						onChange={handleChange}
-						min={
-							typeof synth?.price === "object"
-								? synth.price.value + 1
-								: (synth?.price || 0) + 1
-						}
-						className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-						disabled={isLoading}
-					/>
-				</div> */}
-
-						{/* Affichage de la dernière enchère */}
-						<div className="space-y-2 mt-4">
-							<label className="block text-sm font-medium text-gray-700">
-								Dernière enchère
-							</label>
-							<div className="text-lg font-semibold">
-								{Array.isArray(synth?.auctionPrices) &&
-								synth.auctionPrices.length > 0
-									? `${
-											synth.auctionPrices[synth.auctionPrices.length - 1]
-												.proposal_price
-									  }€`
-									: "Aucune enchère"}
-							</div>
-						</div>
-
-						{/* Boutons d'action */}
-						<div className="flex justify-end space-x-2 pt-4">
-							<button
-								type="button"
-								onClick={handleCancel}
-								disabled={isLoading}
-								className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors disabled:opacity-50"
-							>
-								Annuler
-							</button>
-
-							<button
-								type="submit"
-								form="main-form"
-								disabled={isLoading || isSubmitting}
-								className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
-							>
-								{isLoading
-									? "Sauvegarde..."
-									: synth
-									? "Mettre à jour"
-									: "Créer"}
-							</button>
-						</div>
+					<div className="mt-4">
+						<button
+							type="button"
+							onClick={handleTogglePosts}
+							className="w-full py-2 px-4 bg-gray-100 text-gray-800 rounded hover:bg-gray-200 flex items-center justify-between"
+						>
+							<span>Posts ({formData.post.length})</span>
+							<span>{showPosts ? "▼" : "▶"}</span>
+						</button>
 					</div>
-					{/* Boutons */}
+
+					{/* Boutons d'action */}
 					<div className="flex justify-end space-x-2 pt-4">
 						<button
 							type="button"
@@ -352,6 +300,25 @@ export const EditorForm = ({
 							{isLoading ? "Sauvegarde..." : synth ? "Mettre à jour" : "Créer"}
 						</button>
 					</div>
+				</div>
+				<div className="flex justify-end space-x-2 pt-4">
+					<button
+						type="button"
+						onClick={handleCancel}
+						disabled={isLoading}
+						className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors disabled:opacity-50"
+					>
+						Annuler
+					</button>
+
+					<button
+						type="submit"
+						form="main-form"
+						disabled={isLoading || isSubmitting}
+						className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
+					>
+						{isLoading ? "Sauvegarde..." : synth ? "Mettre à jour" : "Créer"}
+					</button>
 				</div>
 			</form>
 		</div>
