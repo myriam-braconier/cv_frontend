@@ -7,7 +7,6 @@ import CardPricing from "@/features/synthetisers/components/card/CardPricing";
 import { CardActions } from "@/features/synthetisers/components/card/CardActions";
 import { CardPost } from "@/features/synthetisers/components/card/CardPost";
 import { EditorDialog } from "@/features/synthetisers/components/dialogs/EditorDialog";
-import { useSynths } from "@/hooks/useSynths";
 import { Synth, Post } from "@/features/synthetisers/types/synth";
 
 interface SynthetiserCardProps {
@@ -25,9 +24,10 @@ export const SynthetiserCard = ({
 	const [showPosts, setShowPosts] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
-
+	// Ici on initialise localposts avec les posts du synthetiseur
+	const [localPosts, setLocalPosts] = useState<Post[]>(synth.posts || []);
+	const [updateError, setUpdateError] = useState<string | null>(null);
 	const router = useRouter();
-	const { updateSynth, isUpdating, updateError } = useSynths();
 
 	const isAdmin = useMemo(() => {
 		return userRoles.includes("admin");
@@ -42,14 +42,11 @@ export const SynthetiserCard = ({
 		nb_avis,
 		specifications,
 		price,
-		posts = [],
+		// on supprime posts=[] car localposts est initialisé
 		auctionPrices = [],
 	} = synth;
 
 	const fullTitle = `${marque} ${modele}`;
-
-	// Utiliser un nom différent pour l'état
-	const [localPosts, setLocalPosts] = useState<Post[]>(posts);
 
 	const isAuthenticated = useCallback(() => {
 		const token = localStorage.getItem("token");
@@ -69,14 +66,11 @@ export const SynthetiserCard = ({
 	}, []);
 
 	const handleTogglePost = useCallback(() => setShowPosts((prev) => !prev), []);
-
 	const handleImageError = useCallback(
 		() => console.error("Erreur de chargement d'image"),
 		[]
 	);
-
 	const handleEdit = useCallback(() => setIsEditing(true), []);
-
 	const handleDelete = useCallback(async () => {
 		if (!window.confirm(`Voulez-vous vraiment supprimer ${fullTitle} ?`)) {
 			return;
@@ -117,74 +111,22 @@ export const SynthetiserCard = ({
 		}
 	}, [id, fullTitle, router, onUpdateSuccess]);
 
-	const [refreshKey, setRefreshKey] = useState(0);
-
-	const handleUpdateSuccess = useCallback(() => {
-		setRefreshKey((prev) => prev + 1); // Force un rafraîchissement
-		if (onUpdateSuccess) onUpdateSuccess();
-	}, [onUpdateSuccess]);
-
-	const handleEditSubmit = async (updatedData: Partial<Synth>) => {
-		setIsLoading(true);
-		try {
-			await updateSynth(id, updatedData);
-			toast.success("Mise à jour réussie");
-			setIsEditing(false);
-			handleUpdateSuccess(); // Utilisez la nouvelle fonction
-		} catch (error) {
-			if (error instanceof Error && error.message.includes("401")) {
-				router.push("/login");
-				return;
-			}
-			toast.error("Erreur lors de la mise à jour");
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
-	// gestion des données utilisateur
-	useEffect(() => {
-		const token = localStorage.getItem("token");
-		if (token) {
-			const tokenData = JSON.parse(atob(token.split(".")[1]));
-			localStorage.setItem("userId", tokenData.userId.toString());
-		}
-	}, []);
-
 	useEffect(() => {
 		const fetchPosts = async () => {
-			try {
-				const response = await fetch(`/api/posts?synthetiserId=${id}`);
-				if (!response.ok)
-					throw new Error("Erreur lors du chargement des posts");
-				const data = await response.json();
-				setLocalPosts(data);
-				console.log("Posts chargés:", data);
-			} catch (error) {
-				console.error("Erreur lors du chargement des posts:", error);
-			}
-		};
-
-		if (id) {
-			fetchPosts();
-		}
-	}, [id, refreshKey]); // Ajout de refreshKey comme dépendance
-
-	useEffect(() => {
-		const navigateAfterDelete = () => {
-		  if (!synth) {
-			router.push('/synthetisers');
+		  try {
+			const response = await fetch(`/api/posts?synthetiserId=${id}`);
+			if (!response.ok) throw new Error("Erreur lors du chargement des posts");
+			const data = await response.json();
+			setLocalPosts(data);
+		  } catch (error) {
+			console.error("Erreur lors du chargement des posts:", error);
 		  }
 		};
-		navigateAfterDelete();
-	   }, [synth, router]);
-
-	console.log({
-		token: localStorage.getItem("token"),
-		userId: localStorage.getItem("userId"),
-		price,
-		auctionPrices,
-	});
+	
+		if (id) {
+		  fetchPosts();
+		}
+	  }, [id]);
 
 	// RENDU
 	return (
@@ -226,10 +168,10 @@ export const SynthetiserCard = ({
 				/>
 
 				<CardPost
-					posts={localPosts}
-					showPosts={showPosts}
-					onToggle={handleTogglePost}
-					synthetiserId={synth.id} // Ajout de la prop manquante
+					  posts={localPosts} 
+					  showPosts={showPosts}
+					  onToggle={handleTogglePost}
+					  synthetiserId={synth.id}
 				/>
 			</div>
 
@@ -243,8 +185,27 @@ export const SynthetiserCard = ({
 							if (!open) router.refresh();
 						}}
 						synth={synth}
-						onSubmit={handleEditSubmit}
-						isLoading={isUpdating}
+						onSubmit={async (data) => {
+							try {
+							  await fetch(`/api/synthetisers/${id}`, {
+								method: 'PUT',
+								headers: {
+								  'Content-Type': 'application/json',
+								  'Authorization': `Bearer ${localStorage.getItem('token')}`
+								},
+								body: JSON.stringify(data)
+							  });
+							  router.refresh();
+							  setIsEditing(false);
+							  setUpdateError(null);
+							  toast.success('Synthétiseur mis à jour avec succès');
+							} catch (error) {
+								const errorMessage = error instanceof Error ? error.message : 'Erreur lors de la mise à jour';
+								setUpdateError(errorMessage);
+								toast.error(errorMessage);
+							  }
+						  }}
+						isLoading={isLoading}
 						error={updateError}
 						onCancel={() => setIsEditing(false)}
 						isAuthenticated={isAuthenticated}

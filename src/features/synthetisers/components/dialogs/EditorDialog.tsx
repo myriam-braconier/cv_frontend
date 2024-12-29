@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+// import { X } from "lucide-react";
 import {
 	Dialog,
 	DialogContent,
@@ -34,18 +34,18 @@ export const EditorDialog = ({
 		<Dialog open={isOpen} onOpenChange={onOpenChange}>
 			<DialogOverlay className="bg-black/50 backdrop-blur-sm" />{" "}
 			{/* Ajout de l'overlay avec flou */}
-			<DialogContent className="max-h-[95vh] w-[95vw] max-w-5xl overflow-y-auto p-6">
+			<DialogContent className="max-h-[95vh] w-[200vw] max-w-5xl overflow-y-auto p-6">
 				<div className="sticky top-0 right-0 z-50 flex justify-end">
 					<button
 						onClick={() => onOpenChange(false)}
 						className="rounded-full p-2 hover:bg-gray-100"
 						aria-label="Fermer"
 					>
-						<X className="h-4 w-4" />
+						{/* <X className="h-4 w-4" /> */}
 					</button>
 				</div>
 				<DialogHeader className="pt-6">
-					<DialogTitle className="text-2xl font-bold">
+					<DialogTitle className="text-2xl font-bold text-white">
 						{synth
 							? `Modifier ${synth.marque} ${synth.modele}`
 							: "Modifier le synthétiseur"}
