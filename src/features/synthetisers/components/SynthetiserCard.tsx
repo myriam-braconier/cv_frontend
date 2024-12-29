@@ -1,11 +1,11 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { CardImage } from "@/features/synthetisers/components/card/CardImage";
 import { CardHeader } from "@/features/synthetisers/components/card/CardHeader";
 import CardPricing from "@/features/synthetisers/components/card/CardPricing";
 import { CardActions } from "@/features/synthetisers/components/card/CardActions";
-import { ListPost } from "@/features/synthetisers/components/list/ListMainPost";
+import { CardPost } from "@/features/synthetisers/components/card/CardPost";
 import { EditorDialog } from "@/features/synthetisers/components/dialogs/EditorDialog";
 import { useSynths } from "@/hooks/useSynths";
 import { Synth, Post } from "@/features/synthetisers/types/synth";
@@ -29,9 +29,9 @@ export const SynthetiserCard = ({
 	const router = useRouter();
 	const { updateSynth, isUpdating, updateError } = useSynths();
 
-	const isAdmin = userRoles?.includes("admin");
-	console.log("userRoles:", userRoles);
-	console.log("isAdmin:", isAdmin);
+	const isAdmin = useMemo(() => {
+		return userRoles.includes("admin");
+	}, [userRoles]);
 
 	const {
 		id,
@@ -70,7 +70,6 @@ export const SynthetiserCard = ({
 
 	const handleTogglePost = useCallback(() => setShowPosts((prev) => !prev), []);
 
-
 	const handleImageError = useCallback(
 		() => console.error("Erreur de chargement d'image"),
 		[]
@@ -85,10 +84,16 @@ export const SynthetiserCard = ({
 
 		setIsLoading(true);
 		try {
+			const token = localStorage.getItem("token");
+			if (!token) {
+				router.push("/login");
+				return;
+			}
+
 			const response = await fetch(`/api/synthetisers/${id}`, {
 				method: "DELETE",
 				headers: {
-					Authorization: `Bearer ${localStorage.getItem("token")}`,
+					Authorization: `Bearer ${token}`,
 					"Content-Type": "application/json",
 				},
 			});
@@ -103,6 +108,7 @@ export const SynthetiserCard = ({
 
 			toast.success(`${fullTitle} supprimé avec succès`);
 			if (onUpdateSuccess) onUpdateSuccess();
+			router.push('/synthetisers'); // Redirection explicite
 		} catch (error) {
 			console.error("Erreur lors de la suppression:", error);
 			toast.error(`Erreur lors de la suppression de ${fullTitle}`);
@@ -164,6 +170,15 @@ export const SynthetiserCard = ({
 		}
 	}, [id, refreshKey]); // Ajout de refreshKey comme dépendance
 
+	useEffect(() => {
+		const navigateAfterDelete = () => {
+		  if (!synth) {
+			router.push('/synthetisers');
+		  }
+		};
+		navigateAfterDelete();
+	   }, [synth, router]);
+
 	console.log({
 		token: localStorage.getItem("token"),
 		userId: localStorage.getItem("userId"),
@@ -171,11 +186,21 @@ export const SynthetiserCard = ({
 		auctionPrices,
 	});
 
-
 	// RENDU
 	return (
 		<article className="bg-white rounded-lg shadow-lg h-full w-full">
 			<div className="flex flex-col h-full space-y-4 p-4">
+				{/* Déplacé les actions admin à l'intérieur du div principal */}
+				{isAdmin && (
+					<div className="mt-auto">
+						<CardActions
+							onEdit={() => handleEdit()}
+							onDelete={() => handleDelete()}
+							isAdmin={isAdmin}
+						/>
+					</div>
+				)}
+
 				<div className="relative h-48 w-full">
 					<CardImage
 						image_url={image_url}
@@ -200,7 +225,7 @@ export const SynthetiserCard = ({
 					onUpdateSuccess={onUpdateSuccess}
 				/>
 
-				<ListPost
+				<CardPost
 					posts={localPosts}
 					showPosts={showPosts}
 					onToggle={handleTogglePost}
@@ -208,6 +233,7 @@ export const SynthetiserCard = ({
 				/>
 			</div>
 
+			{/* dialog doit rester en dehors de la div principale */}
 			{isAdmin && (
 				<>
 					<EditorDialog
@@ -222,11 +248,6 @@ export const SynthetiserCard = ({
 						error={updateError}
 						onCancel={() => setIsEditing(false)}
 						isAuthenticated={isAuthenticated}
-					/>
-					<CardActions
-						onEdit={handleEdit}
-						onDelete={handleDelete}
-						isAdmin={isAdmin}
 					/>
 				</>
 			)}
