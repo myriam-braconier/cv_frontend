@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
-import { JSX } from "react"; // pour le type JSX.Element
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { JSX } from "react"; // pour le type JSX.Element
 import Image from "next/image";
 import { useState, useCallback } from "react";
 import { Synth, AuctionPrice, Post } from "@/features/synthetisers/types/synth";
@@ -14,6 +14,7 @@ interface FormData {
 	proposal_price: number | null;
 	auctionPrices: AuctionPrice[];
 	post: Post[];
+	userName?: string;
 }
 interface EditorFormProps extends React.PropsWithChildren {
 	error: string | null;
@@ -24,7 +25,6 @@ interface EditorFormProps extends React.PropsWithChildren {
 	onCancel: () => void;
 	isAuthenticated: () => boolean; // Ajout de la prop
 	onUpdateSuccess?: () => void; // Ajout de cette prop optionnelle
-
 }
 
 export const EditorForm = ({
@@ -39,7 +39,6 @@ export const EditorForm = ({
 	const [formError, setFormError] = useState<string>("");
 	const [imageError, setImageError] = useState<boolean>(false);
 	const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
 
 	const [formData, setFormData] = useState<FormData>({
 		marque: synth?.marque ?? "",
@@ -103,13 +102,23 @@ export const EditorForm = ({
 		setImageError(true);
 	}, []);
 
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setFormError("");
 		setIsSubmitting(true);
 
 		try {
-			const submissionData: Partial<Synth> = {
+			// Récupérer l'userId depuis le token
+			const token = localStorage.getItem("token");
+			if (!token) {
+				throw new Error("Non authentifié");
+			}
+
+			// Décoder le token pour obtenir les informations de l'utilisateur
+			const tokenData = JSON.parse(atob(token.split(".")[1]));
+			const userId = tokenData.userId;
+
+			const submissionData = {
 				id: synth?.id,
 				marque: formData.marque,
 				modele: formData.modele,
@@ -117,19 +126,19 @@ export const EditorForm = ({
 				specifications: formData.specifications || undefined,
 				price:
 					formData.price !== null
-						? { value: formData.price, currency: "EUR" }
+						? {
+								value: formData.price,
+								currency: "EUR",
+						  }
 						: undefined,
+				userId: userId,
+				lastUpdatedBy: userId, // Ajout de l'ID de l'utilisateur qui fait la mise à jour
 			};
 
 			await onSubmit(submissionData);
 			onOpenChange(false);
-
-
-  // Ajoutez cette ligne pour rafraîchir les données
-  if (onUpdateSuccess) onUpdateSuccess();
-
-
-
+			if (onUpdateSuccess) onUpdateSuccess();
+			window.location.reload(); // Force le rafraîchissement des données
 		} catch (error) {
 			setFormError(
 				error instanceof Error ? error.message : "Erreur lors de la mise à jour"
@@ -151,26 +160,21 @@ export const EditorForm = ({
 		}
 	}, [formData.marque, formData.modele, onCancel, onOpenChange]);
 
-
-
-
-
-
 	// Rendu
 
 	return (
 		<div className="w-full space-y-4">
+			 {/* Affichage des erreurs */}
+			 {(formError || error) && (
+        <Alert variant="destructive">
+          <AlertDescription>
+            {formError || error || ""}
+          </AlertDescription>
+        </Alert>
+      )}
 			{/* Formulaire principal */}
-			<form onSubmit={handleSubmit} id="main-form" className="space-y-4 flex">
-				{/* Alertes */}
-				<div>
-					{isSubmitting && <div>Chargement...</div>}
-					{(formError || error) && (
-						<Alert variant="destructive" className="mb-6">
-							<AlertDescription>{formError || error || ""}</AlertDescription>
-						</Alert>
-					)}
-				</div>
+			<form onSubmit={handleSubmit} id="main-form" className="space-y-4 flex justify-between">
+			
 
 				<div>
 					{/* Marque */}
@@ -218,13 +222,14 @@ export const EditorForm = ({
 							className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
 							disabled={isLoading}
 						/>
-						<div className="mt-2 relative h-[150px] w-[150px] mx-auto">
+						<div className="mt-2 relative h-[300px] w-[300px] mx-auto">
 							{formData.image_url && !imageError ? (
 								<Image
 									src={formData.image_url}
 									alt="Aperçu"
-									width={150}
-									height={150}
+									fill
+									// width={300}
+									// height={300}
 									className="object-contain rounded-lg mx-auto"
 									onError={handleImageError}
 								/>
@@ -241,14 +246,14 @@ export const EditorForm = ({
 					<div className="flex">
 						{/* Spécifications */}
 						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1">
+							<label className="block text-sm font-medium text-white mb-1">
 								Spécifications
 							</label>
 							<textarea
 								name="specifications"
 								value={formData.specifications}
 								onChange={handleChange}
-								className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+								className="min-w-[500px] p-2 border rounded focus:ring-2 focus:ring-blue-500 min-h-[200px]"
 								disabled={isLoading}
 							/>
 						</div>
@@ -263,7 +268,7 @@ export const EditorForm = ({
 							name="price"
 							value={formData.price ?? ""}
 							onChange={handleChange}
-							className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+							className="p-2 border rounded focus:ring-2 focus:ring-blue-500"
 							disabled={isLoading}
 						/>
 					</div>
@@ -272,10 +277,10 @@ export const EditorForm = ({
 					<div className="border-t pt-4 mt-4">
 						{/* Affichage de la dernière enchère */}
 						<div className="space-y-2 mt-4">
-							<label className="block text-sm font-medium text-gray-700">
+							<label className="block text-sm font-medium text-white">
 								Dernière enchère
 							</label>
-							<div className="text-lg font-semibold">
+							<div className="text-lg font-semibold text-red-600">
 								value={formData.proposal_price}
 							</div>
 						</div>
@@ -283,32 +288,28 @@ export const EditorForm = ({
 						{/* Boutons d'action */}
 					</div>
 
+					{/* boutons actions */}
+					<div className="justify-end space-x-2 pt-4">
+						<button
+							type="button"
+							onClick={handleCancel}
+							disabled={isLoading}
+							className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors disabled:opacity-50"
+						>
+							Annuler
+						</button>
 
-	{/* boutons actions */}
-	<div className="justify-end space-x-2 pt-4">
-					<button
-						type="button"
-						onClick={handleCancel}
-						disabled={isLoading}
-						className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors disabled:opacity-50"
-					>
-						Annuler
-					</button>
-
-					<button
-						type="submit"
-						form="main-form"
-						disabled={isLoading || isSubmitting}
-						className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
-					>
-						{isLoading ? "Sauvegarde..." : synth ? "Mettre à jour" : "Créer"}
-					</button>
+						<button
+							type="submit"
+							form="main-form"
+							disabled={isLoading || isSubmitting}
+							className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
+						>
+							{isLoading ? "Sauvegarde..." : synth ? "Mettre à jour" : "Créer"}
+						</button>
+					</div>
 				</div>
 
-
-				</div>
-
-			
 			</form>
 		</div>
 	);

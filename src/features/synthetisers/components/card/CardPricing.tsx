@@ -65,52 +65,79 @@ const CardPricing = ({
 
 	const handleCreateAuction = async () => {
 		if (!isAuthenticated() || !newBidAmount) {
-		  router.push("/login");
-		  return;
+			router.push("/login");
+			return;
 		}
-	  
-		try {
-		  const token = localStorage.getItem("token");
-		  if (!token) {
-			throw new Error("Token non trouvé");
-		  }
-	  
-		  const tokenData = JSON.parse(atob(token.split('.')[1]));
-	  
-		  const response = await api.post(`/api/auctions/${synthId}`, {
-			proposal_price: Number(newBidAmount),
-			userId: tokenData.userId,
-			synthetiserId: Number(synthId),
-			status: 'active'
-		  });
 
-// Création d'un objet qui correspond au type AuctionPrice
-const newAuction: AuctionPrice = {
-	id: response.data.id,
-	proposal_price: response.data.proposal_price,
-	status: response.data.status,
-	synthetiserId: response.data.synthetiserId,
-	userId: response.data.userId,
-	createdAt: response.data.createdAt,
-	createAt: response.data.createdAt, // Pour correspondre au type AuctionPrice
-	updateAt: response.data.updatedAt || response.data.createdAt // Fallback si updatedAt n'existe pas
-  };
-	  
-	 // Mettre à jour le state local avec la nouvelle enchère
-	 setLocalAuctionPrices(prev => [newAuction, ...prev]);
-		  setNewBidAmount(null);
-		  if (onUpdateSuccess) onUpdateSuccess();
-		  toast.success("Enchère créée avec succès");
-		} catch (error) {
-		  const errorMsg = error instanceof Error ? error.message : "Erreur lors de la création de l'enchère";
-		  setAuctionError(errorMsg);
-		  toast.error(errorMsg);
-		} finally {
-		  setIsLoadingAuctions(false);
+		// Vérification que la nouvelle enchère est supérieure à la dernière
+		const latestPrice = getLatestAuctionPrice();
+		const minPrice = latestPrice ? latestPrice + 1 : displayPrice + 1;
+
+		if (newBidAmount < minPrice) {
+			setAuctionError(`L'enchère doit être supérieure à ${minPrice - 1}€`);
+			toast.error(`L'enchère doit être supérieure à ${minPrice - 1}€`);
+			return;
 		}
-	  };
-	  
-	  
+
+		try {
+			const token = localStorage.getItem("token");
+			if (!token) {
+				throw new Error("Token non trouvé");
+			}
+
+			const tokenData = JSON.parse(atob(token.split(".")[1]));
+
+			const response = await api.post(`/api/synthetisers/${synthId}/auctions`, {
+				proposal_price: Number(newBidAmount),
+				userId: tokenData.userId,
+				synthetiserId: Number(synthId),
+				status: "active",
+			});
+
+
+
+			console.log('Réponse reçue:', response);
+
+
+			if (!response.data) {
+				throw new Error("Pas de données reçues du serveur");
+			}
+			// Création d'un objet qui correspond au type AuctionPrice
+			const newAuction: AuctionPrice = {
+				id: response.data.id,
+				proposal_price: response.data.proposal_price,
+				status: response.data.status,
+				synthetiserId: response.data.synthetiserId,
+				userId: response.data.userId,
+				createdAt: response.data.createdAt,
+				createAt: response.data.createdAt, // Pour correspondre au type AuctionPrice
+				updateAt: response.data.updatedAt || response.data.createdAt, // Fallback si updatedAt n'existe pas
+			};
+
+			// Mettre à jour le state local avec la nouvelle enchère
+			setLocalAuctionPrices((prev) => [newAuction, ...prev]);
+			setNewBidAmount(null);
+			setAuctionError(null);
+
+			router.refresh(); // Forcer le rafraîchissement des données
+
+			if (onUpdateSuccess) onUpdateSuccess();
+			window.location.reload(); // Force le rafraîchissement des données
+			toast.success("Enchère créée avec succès");
+		} catch (error) {
+			console.error('Erreur détaillée:', error);
+
+			const errorMsg =
+				error instanceof Error
+					? error.message
+					: "Erreur lors de la création de l'enchère";
+			setAuctionError(errorMsg);
+			toast.error(errorMsg);
+		} finally {
+			setIsLoadingAuctions(false);
+		}
+	};
+
 	useEffect(() => {
 		console.log("Debug CardPricing:", {
 			isAuthenticated: isAuthenticated(),
@@ -135,14 +162,12 @@ const newAuction: AuctionPrice = {
 		}
 	}, [auctionPrices]);
 
-
 	console.log({
-		token: localStorage.getItem('token'),
-		userId: localStorage.getItem('userId'),
+		token: localStorage.getItem("token"),
+		userId: localStorage.getItem("userId"),
 		price,
-		auctionPrices
-	  });
-
+		auctionPrices,
+	});
 
 	return (
 		<div className="flex flex-col space-y-4">
@@ -189,9 +214,6 @@ const newAuction: AuctionPrice = {
 					</button>
 				</div>
 			)}
-
-
-			
 		</div>
 	);
 };
