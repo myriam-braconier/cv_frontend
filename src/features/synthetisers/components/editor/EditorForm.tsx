@@ -23,6 +23,8 @@ interface EditorFormProps extends React.PropsWithChildren {
 	isLoading?: boolean;
 	onCancel: () => void;
 	isAuthenticated: () => boolean; // Ajout de la prop
+	onUpdateSuccess?: () => void; // Ajout de cette prop optionnelle
+
 }
 
 export const EditorForm = ({
@@ -32,11 +34,12 @@ export const EditorForm = ({
 	isLoading,
 	onCancel,
 	onOpenChange,
+	onUpdateSuccess, // Ajout ici
 }: EditorFormProps): JSX.Element => {
 	const [formError, setFormError] = useState<string>("");
 	const [imageError, setImageError] = useState<boolean>(false);
 	const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-	const [showPosts, setShowPosts] = useState<boolean>(false);
+
 
 	const [formData, setFormData] = useState<FormData>({
 		marque: synth?.marque ?? "",
@@ -99,9 +102,6 @@ export const EditorForm = ({
 	const handleImageError = useCallback(() => {
 		setImageError(true);
 	}, []);
-	const handleTogglePosts = useCallback(() => {
-		setShowPosts((prev) => !prev);
-	}, []);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -123,6 +123,13 @@ export const EditorForm = ({
 
 			await onSubmit(submissionData);
 			onOpenChange(false);
+
+
+  // Ajoutez cette ligne pour rafraîchir les données
+  if (onUpdateSuccess) onUpdateSuccess();
+
+
+
 		} catch (error) {
 			setFormError(
 				error instanceof Error ? error.message : "Erreur lors de la mise à jour"
@@ -144,12 +151,17 @@ export const EditorForm = ({
 		}
 	}, [formData.marque, formData.modele, onCancel, onOpenChange]);
 
+
+
+
+
+
 	// Rendu
 
 	return (
 		<div className="w-full space-y-4">
 			{/* Formulaire principal */}
-			<form onSubmit={handleSubmit} id="main-form" className="space-y-4">
+			<form onSubmit={handleSubmit} id="main-form" className="space-y-4 flex">
 				{/* Alertes */}
 				<div>
 					{isSubmitting && <div>Chargement...</div>}
@@ -160,8 +172,7 @@ export const EditorForm = ({
 					)}
 				</div>
 
-				{/* Champs du formulaire */}
-				<div className="space-y-4">
+				<div>
 					{/* Marque */}
 					<div>
 						<label className="block text-sm font-medium text-gray-700 mb-1">
@@ -224,7 +235,9 @@ export const EditorForm = ({
 							)}
 						</div>
 					</div>
+				</div>
 
+				<div className="space-y-4 ">
 					<div className="flex">
 						{/* Spécifications */}
 						<div>
@@ -240,7 +253,6 @@ export const EditorForm = ({
 							/>
 						</div>
 					</div>
-
 					{/* Prix */}
 					<div>
 						<label className="block text-sm font-medium text-gray-700 mb-1">
@@ -255,53 +267,25 @@ export const EditorForm = ({
 							disabled={isLoading}
 						/>
 					</div>
-				</div>
 
-				{/* Pas de section encherir*/}
-				<div className="border-t pt-4 mt-4">
-					{/* Affichage de la dernière enchère */}
-					<div className="space-y-2 mt-4">
-						<label className="block text-sm font-medium text-gray-700">
-							Dernière enchère
-						</label>
-						<div className="text-lg font-semibold">
-							value={formData.proposal_price}
+					{/* Pas de section encherir*/}
+					<div className="border-t pt-4 mt-4">
+						{/* Affichage de la dernière enchère */}
+						<div className="space-y-2 mt-4">
+							<label className="block text-sm font-medium text-gray-700">
+								Dernière enchère
+							</label>
+							<div className="text-lg font-semibold">
+								value={formData.proposal_price}
+							</div>
 						</div>
+
+						{/* Boutons d'action */}
 					</div>
 
-					<div className="mt-4">
-						<button
-							type="button"
-							onClick={handleTogglePosts}
-							className="w-full py-2 px-4 bg-gray-100 text-gray-800 rounded hover:bg-gray-200 flex items-center justify-between"
-						>
-							<span>Posts ({formData.post.length})</span>
-							<span>{showPosts ? "▼" : "▶"}</span>
-						</button>
-					</div>
 
-					{/* Boutons d'action */}
-					<div className="flex justify-end space-x-2 pt-4">
-						<button
-							type="button"
-							onClick={handleCancel}
-							disabled={isLoading}
-							className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors disabled:opacity-50"
-						>
-							Annuler
-						</button>
-
-						<button
-							type="submit"
-							form="main-form"
-							disabled={isLoading || isSubmitting}
-							className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
-						>
-							{isLoading ? "Sauvegarde..." : synth ? "Mettre à jour" : "Créer"}
-						</button>
-					</div>
-				</div>
-				<div className="flex justify-end space-x-2 pt-4">
+	{/* boutons actions */}
+	<div className="justify-end space-x-2 pt-4">
 					<button
 						type="button"
 						onClick={handleCancel}
@@ -320,6 +304,11 @@ export const EditorForm = ({
 						{isLoading ? "Sauvegarde..." : synth ? "Mettre à jour" : "Créer"}
 					</button>
 				</div>
+
+
+				</div>
+
+			
 			</form>
 		</div>
 	);

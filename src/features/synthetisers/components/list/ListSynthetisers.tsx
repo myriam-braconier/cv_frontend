@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { Synth } from "@/features/synthetisers/types/synth";
 import { SynthetiserCard } from "../SynthetiserCard";
-import { ListPost } from "./ListMainPost";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
 interface ListSynthetisersProps {
@@ -19,7 +18,7 @@ export const ListSynthetisers = ({
 }: ListSynthetisersProps) => {
 	const [synths, setSynths] = useState<Synth[]>(initialSynths);
 	const [userRoles, setUserRoles] = useState<string[]>(initialUserRoles);
-	const [showPosts, setShowPosts] = useState(false);
+	
 
 	const isAuthenticated = useCallback(() => {
 		const token = localStorage.getItem("token");
@@ -32,9 +31,7 @@ export const ListSynthetisers = ({
 		setUserRoles(initialUserRoles);
 	}, [initialSynths, initialUserRoles]);
 
-	const handleTogglePosts = useCallback(() => {
-		setShowPosts((prev) => !prev);
-	}, []);
+
 
 	return (
 		<ErrorBoundary>
@@ -53,12 +50,7 @@ export const ListSynthetisers = ({
 								onUpdateSuccess={onUpdateSuccess}
 								isAuthenticated={isAuthenticated}
 							/>
-							<ListPost
-								posts={synth.posts}
-								showPosts={showPosts}
-								onToggle={handleTogglePosts}
-								synthetiserId={synth.id}
-							/>
+						
 						</div>
 					))}
 			</div>

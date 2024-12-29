@@ -8,7 +8,7 @@ import { CardActions } from "@/features/synthetisers/components/card/CardActions
 import { ListPost } from "@/features/synthetisers/components/list/ListMainPost";
 import { EditorDialog } from "@/features/synthetisers/components/dialogs/EditorDialog";
 import { useSynths } from "@/hooks/useSynths";
-import { Synth } from "@/features/synthetisers/types/synth";
+import { Synth, Post } from "@/features/synthetisers/types/synth";
 
 interface SynthetiserCardProps {
 	synth: Synth;
@@ -48,6 +48,9 @@ export const SynthetiserCard = ({
 
 	const fullTitle = `${marque} ${modele}`;
 
+	// Utiliser un nom différent pour l'état
+	const [localPosts, setLocalPosts] = useState<Post[]>(posts);
+
 	const isAuthenticated = useCallback(() => {
 		const token = localStorage.getItem("token");
 		if (token) {
@@ -66,6 +69,7 @@ export const SynthetiserCard = ({
 	}, []);
 
 	const handleTogglePost = useCallback(() => setShowPosts((prev) => !prev), []);
+
 
 	const handleImageError = useCallback(
 		() => console.error("Erreur de chargement d'image"),
@@ -107,13 +111,20 @@ export const SynthetiserCard = ({
 		}
 	}, [id, fullTitle, router, onUpdateSuccess]);
 
+	const [refreshKey, setRefreshKey] = useState(0);
+
+	const handleUpdateSuccess = useCallback(() => {
+		setRefreshKey((prev) => prev + 1); // Force un rafraîchissement
+		if (onUpdateSuccess) onUpdateSuccess();
+	}, [onUpdateSuccess]);
+
 	const handleEditSubmit = async (updatedData: Partial<Synth>) => {
 		setIsLoading(true);
 		try {
 			await updateSynth(id, updatedData);
 			toast.success("Mise à jour réussie");
 			setIsEditing(false);
-			if (onUpdateSuccess) onUpdateSuccess();
+			handleUpdateSuccess(); // Utilisez la nouvelle fonction
 		} catch (error) {
 			if (error instanceof Error && error.message.includes("401")) {
 				router.push("/login");
@@ -134,6 +145,25 @@ export const SynthetiserCard = ({
 		}
 	}, []);
 
+	useEffect(() => {
+		const fetchPosts = async () => {
+			try {
+				const response = await fetch(`/api/posts?synthetiserId=${id}`);
+				if (!response.ok)
+					throw new Error("Erreur lors du chargement des posts");
+				const data = await response.json();
+				setLocalPosts(data);
+				console.log("Posts chargés:", data);
+			} catch (error) {
+				console.error("Erreur lors du chargement des posts:", error);
+			}
+		};
+
+		if (id) {
+			fetchPosts();
+		}
+	}, [id, refreshKey]); // Ajout de refreshKey comme dépendance
+
 	console.log({
 		token: localStorage.getItem("token"),
 		userId: localStorage.getItem("userId"),
@@ -141,12 +171,13 @@ export const SynthetiserCard = ({
 		auctionPrices,
 	});
 
+
 	// RENDU
 	return (
 		<article className="bg-white rounded-lg shadow-lg h-full w-full">
 			<div className="flex flex-col h-full space-y-4 p-4">
 				<div className="relative h-48 w-full">
-				<CardImage
+					<CardImage
 						image_url={image_url}
 						title={fullTitle}
 						onError={handleImageError}
@@ -170,35 +201,35 @@ export const SynthetiserCard = ({
 				/>
 
 				<ListPost
-					posts={posts}
+					posts={localPosts}
 					showPosts={showPosts}
 					onToggle={handleTogglePost}
 					synthetiserId={synth.id} // Ajout de la prop manquante
 				/>
-
-				<CardActions
-					onEdit={handleEdit}
-					onDelete={handleDelete}
-					isAdmin={isAdmin}
-				/>
 			</div>
 
 			{isAdmin && (
-				<EditorDialog
-					isOpen={isEditing}
-					onOpenChange={(open) => {
-						setIsEditing(open);
-						if (!open) router.refresh();
-					}}
-					synth={synth}
-					onSubmit={handleEditSubmit}
-					isLoading={isUpdating}
-					error={updateError}
-					onCancel={() => setIsEditing(false)}
-					isAuthenticated={isAuthenticated}
-				/>
+				<>
+					<EditorDialog
+						isOpen={isEditing}
+						onOpenChange={(open) => {
+							setIsEditing(open);
+							if (!open) router.refresh();
+						}}
+						synth={synth}
+						onSubmit={handleEditSubmit}
+						isLoading={isUpdating}
+						error={updateError}
+						onCancel={() => setIsEditing(false)}
+						isAuthenticated={isAuthenticated}
+					/>
+					<CardActions
+						onEdit={handleEdit}
+						onDelete={handleDelete}
+						isAdmin={isAdmin}
+					/>
+				</>
 			)}
-			
 		</article>
 	);
 };

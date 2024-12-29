@@ -1,11 +1,36 @@
+"use client"; // Ajout nécessaire pour utiliser useState et useEffect dans Next.js
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState, useEffect } from "react";
 
 export default function HomePage() {
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setIsAdmin(payload.role === 'admin');
+      } catch (error) {
+        console.error('Erreur lors du décodage du token:', error);
+      }
+    }
+  }, []);
+
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-blue-500 to-red-500 text-white">
+
+
+
+
+
+
+
+
+
         <div className="container mx-auto px-4 py-16">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="md:w-1/2 mb-8 md:mb-0">
@@ -64,32 +89,51 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-gray-100 py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-8">
-            Prêt à rejoindre la communauté ?
-          </h2>
-          <div className="flex justify-center gap-4">
+  {/* CTA Section - Conditionnel basé sur isAdmin */}
+  {!isAdmin && (
+        <section className="bg-gray-100 py-16">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl font-bold mb-8">
+              Prêt à rejoindre la communauté ?
+            </h2>
+            <div className="flex justify-center gap-4">
+              <Link 
+                href="/register" 
+                className="bg-blue-600 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-700 transition-colors"
+              >
+                Inscription
+              </Link>
+              <Link 
+                href="/login" 
+                className="bg-white text-blue-600 px-8 py-3 rounded-full font-bold border border-blue-600 hover:bg-blue-50 transition-colors"
+              >
+                Se connecter
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+
+{/* Section Admin */}
+{isAdmin && (
+        <section className="bg-gray-100 py-16">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl font-bold mb-8">
+              Panel Administrateur
+            </h2>
             <Link 
-              href="/register" 
+              href="/admin/dashboard" 
               className="bg-blue-600 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-700 transition-colors"
             >
-             Inscription
-            </Link>
-            <Link 
-              href="/login" 
-              className="bg-white text-blue-600 px-8 py-3 rounded-full font-bold border border-blue-600 hover:bg-blue-50 transition-colors"
-            >
-              Se connecter
+              Accéder au Dashboard
             </Link>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </main>
   );
 }
-
 // Composant FeatureCard
 interface FeatureCardProps {
   title: string;
