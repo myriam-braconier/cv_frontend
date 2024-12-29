@@ -37,14 +37,15 @@ export default function SynthetisersPage() {
     try {
       setIsLoading(true);
       setError(null);
-
       const [roleResponse, synthResponse] = await Promise.all([
         api.get("/auth/me"),
         api.get("/api/synthetisers"),
       ]);
-
       const userRole = roleResponse.data.role;
-      setUserRoles(userRole === "admin" ? ["admin"] : [userRole]);
+      console.log("Role reçu de l'API:", userRole); // Log du rôle
+      const roles = userRole === "admin" ? ["admin"] : [userRole];
+      console.log("Roles à définir:", roles); // Log des rôles avant setState
+      setUserRoles(roles);
       setSynths(synthResponse.data.data);
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 401) {

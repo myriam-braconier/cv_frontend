@@ -27,9 +27,11 @@ export const ListSynthetisers = ({
 	}, []);
 
 	useEffect(() => {
+		console.log("ListSynthetisers - initialUserRoles:", initialUserRoles);
+		console.log("ListSynthetisers - userRoles avant update:", userRoles);
 		setSynths(initialSynths);
 		setUserRoles(initialUserRoles);
-	}, [initialSynths, initialUserRoles]);
+	}, [initialSynths, initialUserRoles, userRoles]);
 
 
 
