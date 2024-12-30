@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 interface DuplicateSynthFormProps {
 	originalSynth: Synth; // Le synthétiseur à dupliquer
 	onSuccess?: () => void;
+	synthid?: number; // Optionnel car pas utilisé partout
 }
 
 const DuplicateSynthForm = ({

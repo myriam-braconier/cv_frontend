@@ -1,5 +1,5 @@
 "use client";
-
+import { Suspense } from 'react';
 import LoginForm from '@/features/auth/LoginForm/LoginForm';  // Correction de l'import
 
 export default function LoginPage() {
@@ -9,7 +9,9 @@ export default function LoginPage() {
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Connexion
         </h2>
+        <Suspense fallback={<div>Loading...</div>}>
         <LoginForm />
+        </Suspense>
       </div>
     </div>
   );
