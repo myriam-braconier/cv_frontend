@@ -17,7 +17,6 @@ interface AuthResponse {
     roles?: string[];
 }
 
-
 interface AuthError extends Error {
     code?: string;
 }
@@ -25,49 +24,38 @@ interface AuthError extends Error {
 export const useAuth = () => {
     const [userData, setUserData] = useState<UserData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [isCheckingToken, setIsCheckingToken] = useState(false);
 
     const setupToken = useCallback((token: string) => {
-        if (!token) return;
-
-        try {
-            localStorage.setItem("token", token);
-            Cookies.set('token', token, { 
-                expires: 7,
-                path: '/',
-                sameSite: 'lax',
-                secure: window.location.protocol === 'https:'
-            });
-            api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        } catch (error: unknown) {
-            const authError = error as AuthError;
-            console.error("Erreur lors de la configuration du token:", authError.message);
-            throw new Error(`Échec de la configuration du token: ${authError.message}`);
+        if (!token) {
+            console.warn("Tentative de setup d'un token vide");
+            return;
         }
+
+        localStorage.setItem("token", token);
+        Cookies.set('token', token, { 
+            expires: 7,
+            path: '/',
+            sameSite: 'lax',
+            secure: window.location.protocol === 'https:'
+        });
+        api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }, []);
 
     const clearAuthData = useCallback(() => {
-        try {
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-            Cookies.remove('token', { path: '/' });
-            delete api.defaults.headers.common["Authorization"];
-            setUserData(null);
-        } catch (error: unknown) {
-            const authError = error as AuthError;
-            console.error("Erreur lors du nettoyage des données d'auth:", authError.message);
-        }
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        Cookies.remove('token', { path: '/' });
+        delete api.defaults.headers.common["Authorization"];
+        setUserData(null);
     }, []);
 
     const verifyToken = useCallback(async (token: string): Promise<boolean> => {
-        if (!token) return false;
-
         try {
-            await api.get(`${API_URL}/auth/verify`);
-            return true;
-        } catch (error: unknown) {
-            const authError = error as AuthError;
-            console.error("Erreur lors de la vérification du token:", authError.message);
+            const response = await api.get(`${API_URL}/auth/verify`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            return response.status === 200;
+        } catch {
             return false;
         }
     }, []);
@@ -83,8 +71,6 @@ export const useAuth = () => {
                 throw new Error("Token manquant dans la réponse");
             }
 
-            setupToken(data.token);
-
             const newUserData: UserData = {
                 email,
                 username: data.username || email.split("@")[0],
@@ -92,13 +78,13 @@ export const useAuth = () => {
                 token: data.token,
             };
 
+            setupToken(data.token);
             localStorage.setItem("user", JSON.stringify(newUserData));
             setUserData(newUserData);
 
             return newUserData;
         } catch (error) {
             clearAuthData();
-            console.error("Erreur lors du login:", error);
             throw error;
         }
     };
@@ -107,59 +93,48 @@ export const useAuth = () => {
         clearAuthData();
     }, [clearAuthData]);
 
-    const restoreSession = useCallback(async () => {
+    const checkSession = useCallback(async () => {
+        const token = localStorage.getItem("token");
+        const storedUser = localStorage.getItem("user");
+
+        if (!token || !storedUser) {
+            clearAuthData();
+            return;
+        }
+
         try {
-            const storedToken = localStorage.getItem("token");
-            const storedUser = localStorage.getItem("user");
-
-            if (!storedToken || !storedUser) {
-                throw new Error("Données de session manquantes");
-            }
-
-            const isTokenValid = await verifyToken(storedToken);
-            if (!isTokenValid) {
-                throw new Error("Token invalide");
+            const isValid = await verifyToken(token);
+            if (!isValid) {
+                console.warn("Session expirée ou invalide");
+                clearAuthData();
+                return;
             }
 
             const user = JSON.parse(storedUser) as UserData;
-            setupToken(storedToken);
-            setUserData(user);
-        } catch (error) {
-            clearAuthData();
-            console.error("Erreur lors de la restauration de la session:", error);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [setupToken, clearAuthData, verifyToken]);
-
-    const checkTokenValidity = useCallback(async () => {
-        if (isCheckingToken || !userData?.token) return;
-
-        try {
-            setIsCheckingToken(true);
-            const isValid = await verifyToken(userData.token);
-            
-            if (!isValid) {
-                console.warn("Token invalide détecté");
+            if (user.token !== token) {
+                console.warn("Incohérence entre les tokens stockés");
                 clearAuthData();
+                return;
             }
+
+            setUserData(user);
+            setupToken(token);
         } catch (error) {
-            console.error("Erreur lors de la vérification du token:", error);
-        } finally {
-            setIsCheckingToken(false);
+            console.error("Erreur lors de la vérification de session:", error);
+            clearAuthData();
         }
-    }, [userData, verifyToken, clearAuthData, isCheckingToken]);
+    }, [clearAuthData, setupToken, verifyToken]);
 
-    // Initialisation de la session
+    // Initialisation
     useEffect(() => {
-        restoreSession();
-    }, [restoreSession]);
+        checkSession().finally(() => setIsLoading(false));
+    }, [checkSession]);
 
-    // Vérification périodique du token
+    // Vérification périodique
     useEffect(() => {
-        const interval = setInterval(checkTokenValidity, 5 * 60 * 1000); // Toutes les 5 minutes
+        const interval = setInterval(checkSession, 5 * 60 * 1000); // 5 minutes
         return () => clearInterval(interval);
-    }, [checkTokenValidity]);
+    }, [checkSession]);
 
     return {
         userData,
