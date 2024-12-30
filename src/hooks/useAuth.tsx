@@ -22,28 +22,38 @@ export const useAuth = () => {
 	const [isLoading, setIsLoading] = useState(true);
 
 	const setupToken = useCallback((token: string) => {
-		if (!token) {
-			console.warn("Tentative de setup d'un token vide");
-			return;
-		}
-
-		// Cookies.set("token", token, {
-		// 	expires: 7,
-		// 	path: "/",
-		// 	sameSite: "strict",
-		// 	secure: true,
-		// });
-
-		Cookies.set("token", token, {
-			expires: 7,
-			path: "/",
-			sameSite: "none",
-			secure: true, // Obligatoire avec SameSite=None
-		});
-
-		localStorage.setItem("token", token);
-		api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-	}, []);
+        if (!token) return;
+    
+        const cookieOptions: Cookies.CookieAttributes = {
+            expires: 7,
+            path: '/',
+            domain: window.location.hostname,
+            sameSite: 'None',
+            secure: true
+        };
+    
+        try {
+            // Suppression de l'ancien cookie d'abord
+            Cookies.remove('token', { path: '/' });
+            
+            // Configuration du nouveau cookie avec toutes les options
+            Cookies.set('token', token, cookieOptions);
+    
+            // Vérification que le cookie a été correctement défini
+            const storedCookie = Cookies.get('token');
+            if (!storedCookie) {
+                console.warn('Le cookie n\'a pas été correctement défini');
+                
+                // Tentative alternative de définition du cookie
+                document.cookie = `token=${token}; path=/; secure=true; samesite=None; max-age=${7 * 24 * 60 * 60}`;
+            }
+    
+            localStorage.setItem("token", token);
+            api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        } catch (error) {
+            console.error('Erreur lors de la configuration du cookie:', error);
+        }
+    }, []);
 
 	const clearAuthData = useCallback(() => {
 		localStorage.removeItem("token");
