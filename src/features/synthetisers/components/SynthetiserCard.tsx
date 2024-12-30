@@ -69,7 +69,7 @@ export const SynthetiserCard = ({
 		try {
 			const token = localStorage.getItem("token");
 			if (!token) {
-				router.push("/login");
+				router.push(`${API_URL}/login`);
 				return;
 			}
 
@@ -83,7 +83,7 @@ export const SynthetiserCard = ({
 
 			if (!response.ok) {
 				if (response.status === 401) {
-					router.push("/login");
+					router.push(`${API_URL}/login`);
 					return;
 				}
 				throw new Error(`Erreur ${response.status}`);

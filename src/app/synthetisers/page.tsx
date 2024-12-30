@@ -19,21 +19,21 @@ export default function SynthetisersPage() {
 	const checkAuth = useCallback(async () => {
 		const token = localStorage.getItem("token");
 		if (!token) {
-			router.push("/login");
+			router.push(`${API_URL}/login`);
 			return false;
 		}
 		try {
 			const response = await api.get(`${API_URL}/auth/me`);
 			return response.status === 200;
 		} catch {
-			router.push("/login");
+			router.push(`${API_URL}/login`);
 			return false;
 		}
 	}, [router]);
 
 	const fetchSynths = useCallback(async () => {
 		if (!localStorage.getItem("token")) {
-			router.push("/login");
+			router.push(`${API_URL}/login`);
 			return;
 		}
 
@@ -53,7 +53,7 @@ export default function SynthetisersPage() {
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response?.status === 401) {
 				localStorage.removeItem("token");
-				router.push("/login");
+				router.push(`${API_URL}/login`);
 				return;
 			}
 			setError("Une erreur est survenue");

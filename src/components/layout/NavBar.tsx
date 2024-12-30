@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from '@/config/constants';
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -42,7 +43,7 @@ export default function Navbar() {
 		localStorage.removeItem("token");
 		localStorage.removeItem("user");
 		setUser(null);
-		router.push("/");
+		router.push(`${API_URL}/`);
 	};
 
 	return (

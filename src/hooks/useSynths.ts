@@ -45,7 +45,7 @@ export function useSynths(): UseSynthsReturn {
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response?.status === 401) {
 				localStorage.removeItem("token");
-				router.push("/login");
+				router.push(`${API_URL}/login`);
 			} else {
 				setError(
 					"Une erreur est survenue lors de la récupération des données."
@@ -98,7 +98,7 @@ export function useSynths(): UseSynthsReturn {
 					if (status === 401) {
 						errorMessage = "Session expirée";
 						localStorage.removeItem("token");
-						router.push("/login");
+						router.push(`${API_URL}/login`);
 						return;
 					} else if (status === 403) {
 						errorMessage = "Accès non autorisé";
@@ -124,7 +124,7 @@ export function useSynths(): UseSynthsReturn {
 
 	useEffect(() => {
 		if (error === "Non authentifié") {
-			router.push("/login");
+			router.push(`${API_URL}/login`);
 		}
 	}, [error, router]);
 
