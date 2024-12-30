@@ -1,4 +1,6 @@
 // src/features/synthetisers/api/synth.service.ts
+import { API_URL } from '@/config/constants';
+
 import { api } from "@/services/axios";
 import { AxiosError } from "axios";
 import { Synth } from "@/features/synthetisers/types";
@@ -11,7 +13,7 @@ export interface SynthResponse {
 class SynthService {
 	async fetchSynthetisers(): Promise<SynthResponse> {
 		try {
-			const { data } = await api.get<SynthResponse>("/api/synthetisers");
+			const { data } = await api.get<SynthResponse>(`${API_URL}/api/synthetisers`);
 			return data;
 		} catch (error) {
 			throw this.handleAxiosError(error);
@@ -24,7 +26,7 @@ class SynthService {
 	): Promise<Synth> {
 		try {
 			const { data: response } = await api.put<Synth>(
-				`/api/synthetisers/${id}`,
+				`${API_URL}/api/synthetisers/${id}`,
 				data
 			);
 			return response;

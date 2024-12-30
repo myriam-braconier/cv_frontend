@@ -1,10 +1,11 @@
+import { API_URL } from '@/config/constants';
+import { NextResponse } from 'next/server';
 
-import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {
     // Appel à votre API Express
-    const response = await fetch('http://localhost:4000/api', {
+    const response = await fetch(`${API_URL}/api`, {
       headers: {
         'Content-Type': 'application/json',
       },

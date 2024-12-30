@@ -9,6 +9,7 @@ import { CardPost } from "@/features/synthetisers/components/card/CardPost";
 import { EditorDialog } from "@/features/synthetisers/components/dialogs/EditorDialog";
 import { Synth, Post } from "@/features/synthetisers/types/synth";
 import { DuplicateSynthDialog } from "@/features/synthetisers/components/dialogs/DuplicateSynthDialog";
+import { API_URL } from '@/config/constants';
 
 
 interface SynthetiserCardProps {
@@ -72,7 +73,7 @@ export const SynthetiserCard = ({
 				return;
 			}
 
-			const response = await fetch(`/api/synthetisers/${id}`, {
+			const response = await fetch(`${API_URL}/api/synthetisers/${id}`, {
 				method: "DELETE",
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -105,7 +106,7 @@ export const SynthetiserCard = ({
 	useEffect(() => {
 		const fetchPosts = async () => {
 			try {
-				const response = await fetch(`/api/posts?synthetiserId=${id}`);
+				const response = await fetch(`${API_URL}/api/posts?synthetiserId=${id}`);
 				if (!response.ok)
 					throw new Error("Erreur lors du chargement des posts");
 				const data = await response.json();
@@ -192,7 +193,7 @@ export const SynthetiserCard = ({
 					synth={synth}
 					onSubmit={async (data) => {
 						try {
-							await fetch(`/api/synthetisers/${id}`, {
+							await fetch(`${API_URL}/api/synthetisers/${id}`, {
 								method: "PUT",
 								headers: {
 									"Content-Type": "application/json",

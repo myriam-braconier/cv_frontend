@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from '@/config/constants';
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -40,8 +41,8 @@ export default function SynthetisersPage() {
 			setIsLoading(true);
 			setError(null);
 			const [roleResponse, synthResponse] = await Promise.all([
-				api.get("/auth/me"),
-				api.get("/api/synthetisers"),
+				api.get(`${API_URL}/auth/me`),
+				api.get(`${API_URL}/api/synthetisers`),
 			]);
 			const userRole = roleResponse.data.role;
 			console.log("Role reçu de l'API:", userRole); // Log du rôle

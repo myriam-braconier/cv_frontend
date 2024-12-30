@@ -4,6 +4,9 @@ import { Post } from "@/features/synthetisers/types/synth";
 import { AddPost } from "../posts/AddPost";
 import Link from "next/link";
 
+import { API_URL } from '@/config/constants';
+
+
 interface CardPostProps {
   posts?: Post[];
   showPosts: boolean;
@@ -21,7 +24,7 @@ export const CardPost = memo(({
 
   const handlePostAdded = async () => {
     try {
-      const response = await fetch(`/api/posts?synthetiserId=${synthetiserId}`);
+      const response = await fetch(`${API_URL}/api/posts?synthetiserId=${synthetiserId}`);
       if (!response.ok) {
         throw new Error('Erreur lors de la récupération des posts');
       }

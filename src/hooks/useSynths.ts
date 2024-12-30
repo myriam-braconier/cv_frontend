@@ -3,6 +3,7 @@ import axios from "axios";
 import { Synth } from "@/features/synthetisers/types/synth";
 import { useRouter } from "next/navigation";
 import { api } from "@/services/axios";
+import { API_URL } from '@/config/constants';
 
 interface UseSynthsReturn {
 	synths: Synth[];
@@ -34,12 +35,12 @@ export function useSynths(): UseSynthsReturn {
 			setShouldFetch(false); // Empêche les appels répétés
 
 			// Récupération des rôles utilisateur
-			const roleResponse = await api.get("/auth/me");
+			const roleResponse = await api.get(`${API_URL}/auth/me`);
 			const userRole = roleResponse.data.role;
 			setUserRoles(userRole === "admin" ? ["admin"] : [userRole]);
 
 			// Récupération des synthétiseurs
-			const { data } = await api.get("/api/synthetisers");
+			const { data } = await api.get(`${API_URL}/api/synthetisers`);
 			setSynths(data.data);
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response?.status === 401) {
