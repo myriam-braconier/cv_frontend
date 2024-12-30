@@ -28,17 +28,11 @@ const CardPricing = ({
 	synthId,
 	onUpdateSuccess,
 }: CardPricingProps) => {
-	// Mettre à jour le state local quand les props changent
-	useEffect(() => {
-		setLocalAuctionPrices(auctionPrices);
-		if (onUpdateSuccess) {
-			onUpdateSuccess();
-		}
-	}, [auctionPrices, onUpdateSuccess]);
-
-	const router = useRouter();
 	const [localAuctionPrices, setLocalAuctionPrices] =
 		useState<AuctionPrice[]>(auctionPrices);
+
+		const router = useRouter();
+
 	const [isLoadingAuctions, setIsLoadingAuctions] = useState(false);
 	const [auctionError, setAuctionError] = useState<string | null>(null);
 	const [newBidAmount, setNewBidAmount] = useState<number | null>(null);
@@ -49,19 +43,29 @@ const CardPricing = ({
 			: price
 		: 0;
 
-	const getLatestAuctionPrice = useCallback((): number | null => {
+	const getLatestAuction = useCallback((): AuctionPrice | null => {
 		if (!localAuctionPrices || localAuctionPrices.length === 0) return null;
 
-		const highestBid = localAuctionPrices.reduce(
-			(max, current) =>
-				current.proposal_price > max ? current.proposal_price : max,
-			localAuctionPrices[0].proposal_price
+		// Trier les enchères par prix décroissant
+		const sortedAuctions = [...localAuctionPrices].sort(
+			(a, b) => b.proposal_price - a.proposal_price
 		);
 
-		return highestBid;
+		// Log pour debug
+		console.log("Latest auction data:", sortedAuctions[0]);
+		return sortedAuctions[0];
 	}, [localAuctionPrices]);
 
-	const latestAuctionPrice = getLatestAuctionPrice();
+	const getLatestAuctionPrice = useCallback((): number | null => {
+		const latestAuction = getLatestAuction();
+		return latestAuction ? latestAuction.proposal_price : null;
+	}, [getLatestAuction]);
+
+	useEffect(() => {
+		if (auctionPrices && auctionPrices.length > 0) {
+			setLocalAuctionPrices(auctionPrices);
+		}
+	}, [auctionPrices]);
 
 	const handleCreateAuction = async () => {
 		if (!isAuthenticated() || !newBidAmount) {
@@ -94,39 +98,31 @@ const CardPricing = ({
 				status: "active",
 			});
 
-
-
-			console.log('Réponse reçue:', response);
-
+			console.log("Réponse reçue:", response);
 
 			if (!response.data) {
 				throw new Error("Pas de données reçues du serveur");
 			}
-			// Création d'un objet qui correspond au type AuctionPrice
-			const newAuction: AuctionPrice = {
-				id: response.data.id,
-				proposal_price: response.data.proposal_price,
-				status: response.data.status,
-				synthetiserId: response.data.synthetiserId,
-				userId: response.data.userId,
-				createdAt: response.data.createdAt,
-				createAt: response.data.createdAt, // Pour correspondre au type AuctionPrice
-				updateAt: response.data.updatedAt || response.data.createdAt, // Fallback si updatedAt n'existe pas
-			};
 
-			// Mettre à jour le state local avec la nouvelle enchère
-			setLocalAuctionPrices((prev) => [newAuction, ...prev]);
-			setNewBidAmount(null);
-			setAuctionError(null);
+			if (response.status === 201) {
+				const newAuction = {
+					...response.data,
+					createdAt: new Date().toISOString(), // Ajout explicite de la date
+				};
 
-			router.refresh(); // Forcer le rafraîchissement des données
+				setLocalAuctionPrices((prev) => [newAuction, ...prev]);
+				setNewBidAmount(null);
+				setAuctionError(null);
 
-			if (onUpdateSuccess) onUpdateSuccess();
-			window.location.reload(); // Force le rafraîchissement des données
-			toast.success("Enchère créée avec succès");
+				if (onUpdateSuccess) {
+					onUpdateSuccess();
+				}
+				toast.success("Enchère créée avec succès");
+				router.refresh();
+				window.location.reload(); // Force le rafraîchissement complet
+			}
 		} catch (error) {
-			console.error('Erreur détaillée:', error);
-
+			console.error("Erreur détaillée:", error);
 			const errorMsg =
 				error instanceof Error
 					? error.message
@@ -137,30 +133,7 @@ const CardPricing = ({
 			setIsLoadingAuctions(false);
 		}
 	};
-
-	useEffect(() => {
-		console.log("Debug CardPricing:", {
-			isAuthenticated: isAuthenticated(),
-			price,
-			displayPrice,
-			latestAuctionPrice,
-			localAuctionPrices,
-			newBidAmount,
-		});
-	}, [
-		isAuthenticated,
-		price,
-		displayPrice,
-		latestAuctionPrice,
-		localAuctionPrices,
-		newBidAmount,
-	]);
-
-	useEffect(() => {
-		if (auctionPrices && auctionPrices.length > 0) {
-			setLocalAuctionPrices(auctionPrices);
-		}
-	}, [auctionPrices]);
+	
 
 	console.log({
 		token: localStorage.getItem("token"),
@@ -169,6 +142,7 @@ const CardPricing = ({
 		auctionPrices,
 	});
 
+	// RENDU
 	return (
 		<div className="flex flex-col space-y-4">
 			{auctionError && <div className="text-red-500">{auctionError}</div>}
@@ -181,10 +155,34 @@ const CardPricing = ({
 				</div>
 
 				<div>
-					{latestAuctionPrice
-						? `Dernière enchère: ${latestAuctionPrice}€`
-						: "Aucune enchère"}
+					{(() => {
+						const latestAuction = getLatestAuction();
+						if (!latestAuction) return <div>Aucune enchère</div>;
+
+						const date = latestAuction.createdAt 
+							? new Date(latestAuction.createdAt)
+							: new Date();
+
+						return (
+							<div className="text-right">
+								<div className="font-semibold">
+									Dernière enchère: {latestAuction.proposal_price}€
+								</div>
+								<div className="text-sm text-gray-600">
+									Créée le {date.toLocaleString('fr-FR', {
+										year: 'numeric',
+										month: 'long',
+										day: 'numeric',
+										hour: '2-digit',
+										minute: '2-digit'
+									})}
+								</div>
+							</div>
+						);
+					})()}
 				</div>
+
+
 			</div>
 
 			{isAuthenticated() && (
@@ -196,11 +194,9 @@ const CardPricing = ({
 							setNewBidAmount(e.target.value ? Number(e.target.value) : null)
 						}
 						min={
-							latestAuctionPrice
-								? latestAuctionPrice + 1
-								: typeof displayPrice === "number"
-								? displayPrice + 1
-								: 0
+							getLatestAuctionPrice()
+								? getLatestAuctionPrice()! + 1
+								: displayPrice + 1
 						}
 						className="w-full p-2 border rounded"
 						placeholder="Montant de votre enchère"
