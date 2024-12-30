@@ -1,143 +1,150 @@
 // @/hooks/useAuth.ts
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/services/axios";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 import { API_URL } from "@/config/constants";
 
 interface UserData {
-    email: string;
-    username: string;
-    role: string[];
-    token: string;
+	email: string;
+	username: string;
+	role: string[];
+	token: string;
 }
 
 interface AuthResponse {
-    token: string;
-    username?: string;
-    roles?: string[];
+	token: string;
+	username?: string;
+	roles?: string[];
 }
 
-
 export const useAuth = () => {
-    const [userData, setUserData] = useState<UserData | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+	const [userData, setUserData] = useState<UserData | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
 
-    const setupToken = useCallback((token: string) => {
-        if (!token) {
-            console.warn("Tentative de setup d'un token vide");
-            return;
-        }
+	const setupToken = useCallback((token: string) => {
+		if (!token) {
+			console.warn("Tentative de setup d'un token vide");
+			return;
+		}
 
-        localStorage.setItem("token", token);
-        Cookies.set('token', token, { 
-            expires: 7,
-            path: '/',
-            sameSite: 'lax',
-            secure: window.location.protocol === 'https:'
-        });
-        api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    }, []);
+		Cookies.set("token", token, {
+			expires: 7,
+			path: "/",
+			sameSite: "strict",
+			secure: true,
+		});
 
-    const clearAuthData = useCallback(() => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        Cookies.remove('token', { path: '/' });
-        delete api.defaults.headers.common["Authorization"];
-        setUserData(null);
-    }, []);
+		Cookies.set("token", token, {
+			expires: 7,
+			path: "/",
+			sameSite: "none",
+			secure: true, // Obligatoire avec SameSite=None
+		});
 
-    const verifyToken = useCallback(async (token: string): Promise<boolean> => {
-        try {
-            const response = await api.get(`${API_URL}/auth/verify`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            return response.status === 200;
-        } catch {
-            return false;
-        }
-    }, []);
+		localStorage.setItem("token", token);
+		api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+	}, []);
 
-    const login = async (email: string, password: string): Promise<UserData> => {
-        try {
-            const { data } = await api.post<AuthResponse>(`${API_URL}/auth/login`, { 
-                email, 
-                password 
-            });
+	const clearAuthData = useCallback(() => {
+		localStorage.removeItem("token");
+		localStorage.removeItem("user");
+		Cookies.remove("token", { path: "/" });
+		delete api.defaults.headers.common["Authorization"];
+		setUserData(null);
+	}, []);
 
-            if (!data.token) {
-                throw new Error("Token manquant dans la réponse");
-            }
+	const verifyToken = useCallback(async (token: string): Promise<boolean> => {
+		try {
+			const response = await api.get(`${API_URL}/auth/verify`, {
+				headers: { Authorization: `Bearer ${token}` },
+			});
+			return response.status === 200;
+		} catch {
+			return false;
+		}
+	}, []);
 
-            const newUserData: UserData = {
-                email,
-                username: data.username || email.split("@")[0],
-                role: data.roles || [],
-                token: data.token,
-            };
+	const login = async (email: string, password: string): Promise<UserData> => {
+		try {
+			const { data } = await api.post<AuthResponse>(`${API_URL}/auth/login`, {
+				email,
+				password,
+			});
 
-            setupToken(data.token);
-            localStorage.setItem("user", JSON.stringify(newUserData));
-            setUserData(newUserData);
+			if (!data.token) {
+				throw new Error("Token manquant dans la réponse");
+			}
 
-            return newUserData;
-        } catch (error) {
-            clearAuthData();
-            throw error;
-        }
-    };
+			const newUserData: UserData = {
+				email,
+				username: data.username || email.split("@")[0],
+				role: data.roles || [],
+				token: data.token,
+			};
 
-    const logout = useCallback(() => {
-        clearAuthData();
-    }, [clearAuthData]);
+			setupToken(data.token);
+			localStorage.setItem("user", JSON.stringify(newUserData));
+			setUserData(newUserData);
 
-    const checkSession = useCallback(async () => {
-        const token = localStorage.getItem("token");
-        const storedUser = localStorage.getItem("user");
+			return newUserData;
+		} catch (error) {
+			clearAuthData();
+			throw error;
+		}
+	};
 
-        if (!token || !storedUser) {
-            clearAuthData();
-            return;
-        }
+	const logout = useCallback(() => {
+		clearAuthData();
+	}, [clearAuthData]);
 
-        try {
-            const isValid = await verifyToken(token);
-            if (!isValid) {
-                console.warn("Session expirée ou invalide");
-                clearAuthData();
-                return;
-            }
+	const checkSession = useCallback(async () => {
+		const token = localStorage.getItem("token");
+		const storedUser = localStorage.getItem("user");
 
-            const user = JSON.parse(storedUser) as UserData;
-            if (user.token !== token) {
-                console.warn("Incohérence entre les tokens stockés");
-                clearAuthData();
-                return;
-            }
+		if (!token || !storedUser) {
+			clearAuthData();
+			return;
+		}
 
-            setUserData(user);
-            setupToken(token);
-        } catch (error) {
-            console.error("Erreur lors de la vérification de session:", error);
-            clearAuthData();
-        }
-    }, [clearAuthData, setupToken, verifyToken]);
+		try {
+			const isValid = await verifyToken(token);
+			if (!isValid) {
+				console.warn("Session expirée ou invalide");
+				clearAuthData();
+				return;
+			}
 
-    // Initialisation
-    useEffect(() => {
-        checkSession().finally(() => setIsLoading(false));
-    }, [checkSession]);
+			const user = JSON.parse(storedUser) as UserData;
+			if (user.token !== token) {
+				console.warn("Incohérence entre les tokens stockés");
+				clearAuthData();
+				return;
+			}
 
-    // Vérification périodique
-    useEffect(() => {
-        const interval = setInterval(checkSession, 5 * 60 * 1000); // 5 minutes
-        return () => clearInterval(interval);
-    }, [checkSession]);
+			setUserData(user);
+			setupToken(token);
+		} catch (error) {
+			console.error("Erreur lors de la vérification de session:", error);
+			clearAuthData();
+		}
+	}, [clearAuthData, setupToken, verifyToken]);
 
-    return {
-        userData,
-        isLoading,
-        login,
-        logout,
-        isAuthenticated: !!userData,
-    };
+	// Initialisation
+	useEffect(() => {
+		checkSession().finally(() => setIsLoading(false));
+	}, [checkSession]);
+
+	// Vérification périodique
+	useEffect(() => {
+		const interval = setInterval(checkSession, 5 * 60 * 1000); // 5 minutes
+		return () => clearInterval(interval);
+	}, [checkSession]);
+
+	return {
+		userData,
+		isLoading,
+		login,
+		logout,
+		isAuthenticated: !!userData,
+	};
 };
