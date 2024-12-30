@@ -10,6 +10,7 @@ import { EditorDialog } from "@/features/synthetisers/components/dialogs/EditorD
 import { Synth, Post } from "@/features/synthetisers/types/synth";
 import { DuplicateSynthDialog } from "@/features/synthetisers/components/dialogs/DuplicateSynthDialog";
 
+
 interface SynthetiserCardProps {
 	synth: Synth;
 	userRoles?: string[];
@@ -30,6 +31,8 @@ export const SynthetiserCard = ({
 	const [localPosts, setLocalPosts] = useState<Post[]>(synth.posts || []);
 	const [updateError, setUpdateError] = useState<string | null>(null);
 	const router = useRouter();
+
+
 
 	const isAdmin = useMemo(() => {
 		return userRoles.includes("admin");
