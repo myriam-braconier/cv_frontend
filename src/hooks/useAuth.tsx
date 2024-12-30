@@ -27,12 +27,12 @@ export const useAuth = () => {
 			return;
 		}
 
-		Cookies.set("token", token, {
-			expires: 7,
-			path: "/",
-			sameSite: "strict",
-			secure: true,
-		});
+		// Cookies.set("token", token, {
+		// 	expires: 7,
+		// 	path: "/",
+		// 	sameSite: "strict",
+		// 	secure: true,
+		// });
 
 		Cookies.set("token", token, {
 			expires: 7,
