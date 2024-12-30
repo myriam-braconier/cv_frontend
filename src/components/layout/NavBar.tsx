@@ -69,6 +69,14 @@ export default function Navbar() {
                   Synthétiseurs
                 </Link>
               </div>
+              <div className="flex items-baseline space-x-4">
+<Link
+href="/synthetisers/duplicate"
+className="hover:bg-gray-700 px-3 py-2 rounded-md"
+>
+  Ajouter un instrument
+</Link>
+              </div>
             </div>
           </div>
 
