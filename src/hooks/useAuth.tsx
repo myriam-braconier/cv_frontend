@@ -17,9 +17,6 @@ interface AuthResponse {
     roles?: string[];
 }
 
-interface AuthError extends Error {
-    code?: string;
-}
 
 export const useAuth = () => {
     const [userData, setUserData] = useState<UserData | null>(null);
