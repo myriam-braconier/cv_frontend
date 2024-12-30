@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { api } from "@/services/axios";
 import Cookies from 'js-cookie';
+import { API_URL } from "@/config/constants";
 
 interface UserData {
     email: string;
@@ -32,7 +33,7 @@ export const useAuth = () => {
 
     const login = async (email: string, password: string) => {
         try {
-            const response = await api.post("/auth/login", { email, password });
+            const response = await api.post(`${API_URL}/auth/login`, { email, password });
             
             if (!response.data.token) {
                 throw new Error("Token manquant dans la réponse");

@@ -76,7 +76,7 @@ export function useSynths(): UseSynthsReturn {
 					data: JSON.stringify(requestData, null, 2),
 				});
 
-				const response = await api.put(`/api/synthetisers/${id}`, requestData);
+				const response = await api.put(`${API_URL}/api/synthetisers/${id}`, requestData);
 
 				if (!response?.data) {
 					throw new Error("Réponse invalide");

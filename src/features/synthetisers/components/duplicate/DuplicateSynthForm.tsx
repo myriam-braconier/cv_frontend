@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Synth } from "@/features/synthetisers/types/synth";
 import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
+import { API_URL } from '@/config/constants';
 
 interface DuplicateSynthFormProps {
 	originalSynth: Synth; // Le synthétiseur à dupliquer
@@ -120,7 +121,7 @@ const DuplicateSynthForm = ({
 				userId: tokenData.userId,
 			};
 
-			const response = await api.post("/api/synthetisers", newSynthData);
+			const response = await api.post(`${API_URL}/api/synthetisers`, newSynthData);
 
 			if (response.status === 201) {
 				toast.success("Synthétiseur dupliqué avec succès");

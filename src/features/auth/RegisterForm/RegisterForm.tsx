@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { API_URL } from '@/config/constants';
 
 export default function RegisterForm() {
     const [username, setUsername] = useState("");
@@ -27,7 +28,7 @@ export default function RegisterForm() {
         try {
             const roleId = hasInstrument ? 5 : 2; // 5 pour owner, 1 pour user
             console.log('Role ID attribué:', roleId); // Pour déboguer
-            const response = await axios.post("http://localhost:4000/auth/register", {
+            const response = await axios.post(`${API_URL}/auth/register`, {
                 username,
                 email,
                 password,

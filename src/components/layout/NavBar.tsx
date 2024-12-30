@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import Image from "next/image";
+// import Image from "next/image";
 
 interface User {
 	username?: string;
@@ -51,7 +51,7 @@ export default function Navbar() {
 				<div className="flex justify-between h-16 items-center">
 					{/* Logo et liens principaux */}
 					<div className="flex items-center">
-						<Link href="/" className="flex-shrink-0">
+						{/* <Link href="/" className="flex-shrink-0">
 							<Image
 								src="/images/logo.png"
 								alt="Logo"
@@ -59,7 +59,7 @@ export default function Navbar() {
 								height={32}
 								className="rounded-full"
 							/>
-						</Link>
+						</Link> */}
 						<div className="hidden md:block ml-10">
 							<div className="flex items-baseline space-x-4">
 								<Link

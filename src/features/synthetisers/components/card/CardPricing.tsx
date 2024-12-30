@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { api } from "@/services/axios";
 import { toast } from "react-hot-toast";
 import { AuctionPrice } from "@/features/synthetisers/types/synth"; // Import direct des types
+import { API_URL } from '@/config/constants';
 
 interface Price {
 	value: number;
@@ -91,7 +92,7 @@ const CardPricing = ({
 
 			const tokenData = JSON.parse(atob(token.split(".")[1]));
 
-			const response = await api.post(`/api/synthetisers/${synthId}/auctions`, {
+			const response = await api.post(`${API_URL}/api/synthetisers/${synthId}/auctions`, {
 				proposal_price: Number(newBidAmount),
 				userId: tokenData.userId,
 				synthetiserId: Number(synthId),

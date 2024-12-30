@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { api } from "@/services/axios";
+import { API_URL } from '@/config/constants';
 
 interface AddPostProps {
   synthetiserId: number;
@@ -19,10 +20,10 @@ export function AddPost({ synthetiserId, onPostAdded }: AddPostProps) {
     setError(null);
 
     try {
-      const userResponse = await api.get('/auth/me');
+      const userResponse = await api.get(`${API_URL}/auth/me`);
       const userId = userResponse.data.id;
 
-      await api.post('/api/posts', {
+      await api.post(`${API_URL}/api/posts`, {
         titre,
         commentaire,
         synthetiserId,

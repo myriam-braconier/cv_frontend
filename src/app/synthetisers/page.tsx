@@ -23,7 +23,7 @@ export default function SynthetisersPage() {
 			return false;
 		}
 		try {
-			const response = await api.get("/auth/me");
+			const response = await api.get(`${API_URL}/auth/me`);
 			return response.status === 200;
 		} catch {
 			router.push("/login");
