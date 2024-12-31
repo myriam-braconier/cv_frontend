@@ -4,6 +4,7 @@ import Cookies from 'js-cookie';
 import { toast } from "react-hot-toast";
 import { API_URL } from '@/config/constants';
 
+axios.defaults.withCredentials = true;
 
 // création de l'instance
 export const api = axios.create({
