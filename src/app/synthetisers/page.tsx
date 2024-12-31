@@ -8,7 +8,6 @@ import ListSynthetisers from "@/features/synthetisers/components/list/ListSynthe
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import api from "@/lib/axios/index";
 
-
 export default function SynthetisersPage() {
 	const router = useRouter();
 	const [synths, setSynths] = useState([]);
@@ -36,25 +35,24 @@ export default function SynthetisersPage() {
 			router.push(`${API_URL}/login`);
 			return;
 		}
-	
+
 		try {
 			setIsLoading(true);
 			setError(null);
-	
+
 			const [roleResponse, synthResponse] = await Promise.all([
 				api.get(`${API_URL}/auth/verify`),
 				api.get(`${API_URL}/api/synthetisers`),
 			]);
-	
+
 			// Vérification correcte du rôle admin
 			const userRole = roleResponse.data?.user?.role;
-			const isAdmin = userRole?.includes('admin');  // si role est un tableau			
+			const isAdmin = userRole?.includes("admin"); // si role est un tableau
 			console.log("Response complète:", roleResponse.data);
 			console.log("Role reçu de l'API:", userRole);
-			
-			setUserRoles(isAdmin ? ['admin'] : ['user']);
+
+			setUserRoles(isAdmin ? ["admin"] : ["user"]);
 			setSynths(synthResponse.data.data);
-	
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response?.status === 401) {
 				localStorage.removeItem("token");
@@ -66,7 +64,10 @@ export default function SynthetisersPage() {
 			setIsLoading(false);
 		}
 	}, [router]);
-	
+
+	const onUpdateSuccess = useCallback(() => {
+        fetchSynths(); // Recharge les synthétiseurs après une mise à jour
+    }, [fetchSynths]);
 
 	useEffect(() => {
 		const initPage = async () => {
@@ -90,7 +91,10 @@ export default function SynthetisersPage() {
 				) : error ? (
 					<div className="text-red-500 text-center">{error}</div>
 				) : (
-					<ListSynthetisers synths={synths} userRoles={userRoles} />
+					<ListSynthetisers 
+					synths={synths} 
+					userRoles={userRoles}
+					onUpdateSuccess={onUpdateSuccess} />
 				)}
 			</div>
 		</main>
