@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { CardImage } from "@/features/synthetisers/components/card/CardImage";
@@ -35,9 +35,7 @@ export const SynthetiserCard = ({
 
 	const router = useRouter();
 
-	const hasAdminRole = useMemo(() => {
-		return userRoles.includes("admin");
-	}, [userRoles]);
+	const hasAdminRole = userRoles?.includes('admin');
 
 	const {
 		id,
@@ -165,7 +163,7 @@ export const SynthetiserCard = ({
 						onError={handleImageError}
 					/>
 				</div>
-
+	
 				{/* Informations */}
 				<CardHeader
 					title={fullTitle}
@@ -173,7 +171,7 @@ export const SynthetiserCard = ({
 					nb_avis={nb_avis}
 					specifications={specifications}
 				/>
-
+	
 				{/* Prix */}
 				<CardPricing
 					price={price}
@@ -183,7 +181,7 @@ export const SynthetiserCard = ({
 					synthId={id.toString()}
 					onUpdateSuccess={onUpdateSuccess}
 				/>
-
+	
 				{/* Posts */}
 				<CardPost
 					posts={localPosts}
@@ -191,43 +189,48 @@ export const SynthetiserCard = ({
 					onToggle={handleTogglePost}
 					synthetiserId={synth.id}
 				/>
-
+	
 				{/* Actions admin */}
 				{hasAdminRole && (
-					 <div className="mt-4">
+					<div className="mt-4">
 						<CardActions
 							onEdit={handleEdit}
 							onDelete={handleDelete}
 							onDuplicate={handleDuplicate}
 							isLoading={isLoading}
-							isAdmin={true}  // Si l'interface demande isAdmin, on met true car on est dans le block hasAdminRole
+							isAdmin={true}
 						/>
-
-						{isEditing && <EditorDialog
-							 isOpen={isEditing}
-							 onOpenChange={setIsEditing}
-							 synth={synth}
-							 onSubmit={handleSubmit}
-							 onCancel={handleCloseEditor}
-							 onClose={handleCloseEditor} // Ajout de onClose
-							 error={null}
-							 isLoading={isLoading}
-							 isAuthenticated={isAuthenticated}
-							 isAdmin={true} 
-						/>}
-
-						{isDuplicating && <DuplicateSynthDialog
-							isOpen={isDuplicating}
-							onOpenChange={setIsDuplicating}
-							synth={synth}
-							onClose={handleCloseDuplicate}
-							onSuccess={onUpdateSuccess}
-							originalSynth= {synth}
-							isAdmin={true} 
-						/>}
+						
+						{isEditing && (
+							<EditorDialog
+								isOpen={isEditing}
+								onOpenChange={setIsEditing}
+								synth={synth}
+								onSubmit={handleSubmit}
+								onCancel={handleCloseEditor}
+								onClose={handleCloseEditor}
+								error={null}
+								isLoading={isLoading}
+								isAuthenticated={isAuthenticated}
+								isAdmin={true}
+							/>
+						)}
+						
+						{isDuplicating && (
+							<DuplicateSynthDialog
+								isOpen={isDuplicating}
+								onOpenChange={setIsDuplicating}
+								synth={synth}
+								onClose={handleCloseDuplicate}
+								onSuccess={onUpdateSuccess}
+								originalSynth={synth}
+								isAdmin={true}
+							/>
+						)}
 					</div>
 				)}
 			</div>
 		</article>
 	);
+	
 };

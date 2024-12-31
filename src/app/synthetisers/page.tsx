@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import ListSynthetisers from "@/features/synthetisers/components/list/ListSynthetisers";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-
 import api from "@/lib/axios/index";
+
 
 export default function SynthetisersPage() {
 	const router = useRouter();
@@ -45,6 +45,10 @@ export default function SynthetisersPage() {
 				api.get(`${API_URL}/auth/verify`),
 				api.get(`${API_URL}/api/synthetisers`),
 			]);
+
+			const isAdmin = roleResponse.data?.user?.role?.includes('admin');
+			setSynths(synthResponse.data.data);
+			setUserRoles(isAdmin ? ['admin'] : ['user']);
 
 			const userRole = roleResponse.data?.user?.role === 1 ? "admin" : "user";
 			console.log("Response complète:", roleResponse.data); // Pour debugger
