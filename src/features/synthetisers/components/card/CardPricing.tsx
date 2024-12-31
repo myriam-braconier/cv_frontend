@@ -19,6 +19,7 @@ interface CardPricingProps {
 	isLoading?: boolean;
 	synthId: string;
 	onUpdateSuccess?: () => void;
+	isAdmin?: boolean;
 }
 
 const CardPricing = ({
@@ -28,6 +29,7 @@ const CardPricing = ({
 	isLoading = false,
 	synthId,
 	onUpdateSuccess,
+	isAdmin = false, // Valeur par defaut
 }: CardPricingProps) => {
 	const [localAuctionPrices, setLocalAuctionPrices] =
 		useState<AuctionPrice[]>(auctionPrices);
@@ -186,7 +188,7 @@ const CardPricing = ({
 
 			</div>
 
-			{isAuthenticated() && (
+			{isAuthenticated() && isAdmin && ( // Ajout de la condition isAdmin
 				<div className="space-y-2">
 					<input
 						type="number"
