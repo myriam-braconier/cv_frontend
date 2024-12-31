@@ -41,7 +41,7 @@ export default function SynthetisersPage() {
 			setIsLoading(true);
 			setError(null);
 			const [roleResponse, synthResponse] = await Promise.all([
-				api.get(`${API_URL}/auth/me`),
+				api.get(`${API_URL}/auth/verify`),
 				api.get(`${API_URL}/api/synthetisers`),
 			]);
 			const userRole = roleResponse.data.role;

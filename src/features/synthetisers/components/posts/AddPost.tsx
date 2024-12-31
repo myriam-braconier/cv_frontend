@@ -20,7 +20,7 @@ export function AddPost({ synthetiserId, onPostAdded }: AddPostProps) {
     setError(null);
 
     try {
-      const userResponse = await api.get(`${API_URL}/auth/me`);
+      const userResponse = await api.get(`${API_URL}/auth/verify`);
       const userId = userResponse.data.id;
 
       await api.post(`${API_URL}/api/posts`, {

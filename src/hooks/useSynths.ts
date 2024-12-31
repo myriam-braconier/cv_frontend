@@ -35,7 +35,7 @@ export function useSynths(): UseSynthsReturn {
 			setShouldFetch(false); // Empêche les appels répétés
 
 			// Récupération des rôles utilisateur
-			const roleResponse = await api.get(`${API_URL}/auth/me`);
+			const roleResponse = await api.get(`${API_URL}/auth/verify`);
 			const userRole = roleResponse.data.role;
 			setUserRoles(userRole === "admin" ? ["admin"] : [userRole]);
 
