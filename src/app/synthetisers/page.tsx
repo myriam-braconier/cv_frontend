@@ -32,7 +32,7 @@ export default function SynthetisersPage() {
 
 	const fetchSynths = useCallback(async () => {
 		if (!localStorage.getItem("token")) {
-			router.push(`${API_URL}/login`);
+			router.push('/login');
 			return;
 		}
 
@@ -46,7 +46,7 @@ export default function SynthetisersPage() {
 			]);
 
 			// Vérification correcte du rôle admin
-			const userRole = roleResponse.data?.user?.role;
+			const userRole = roleResponse.data?.user?.roleId;
 			const isAdmin = userRole?.includes("admin"); // si role est un tableau
 			console.log("Response complète:", roleResponse.data);
 			console.log("Role reçu de l'API:", userRole);
