@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 interface User {
@@ -17,46 +17,11 @@ export default function Navbar() {
     const router = useRouter();
     const pathname = usePathname();
 
-    useEffect(() => {
-        const loadUserData = async () => {
-            try {
-                const token = localStorage.getItem("token");
-                if (token) {
-                    // Vérifier la validité du token avec le backend
-                    const response = await fetch(`${API_URL}/auth/verify`, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                        },
-                        credentials: 'include'
-                    });
-
-                    if (!response.ok) {
-                        // Si le token n'est pas valide, déconnectez l'utilisateur
-                        handleLogout();
-                        return;
-                    }
-
-                    const storedUser = localStorage.getItem("user");
-                    if (storedUser) {
-                        const userData = JSON.parse(storedUser);
-                        setUser(userData);
-                    }
-                }
-            } catch (error) {
-                console.error("Erreur lors du chargement des données:", error);
-                handleLogout();
-            }
-        };
-
-        loadUserData();
-    }, [pathname]);
-
-    const handleLogout = async () => {
+    // Définir handleLogout avec useCallback
+    const handleLogout = useCallback(async () => {
         try {
             const token = localStorage.getItem("token");
             if (token) {
-                // Appeler le endpoint de déconnexion
                 await fetch(`${API_URL}/auth/logout`, {
                     method: 'POST',
                     headers: {
@@ -73,9 +38,43 @@ export default function Navbar() {
             setUser(null);
             router.push('/');
         }
-    };
+    }, [router]);
 
-  
+    // Définir loadUserData avec useCallback
+    const loadUserData = useCallback(async () => {
+        try {
+            const token = localStorage.getItem("token");
+            if (token) {
+                const response = await fetch(`${API_URL}/auth/verify`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    handleLogout();
+                    return;
+                }
+
+                const storedUser = localStorage.getItem("user");
+                if (storedUser) {
+                    const userData = JSON.parse(storedUser);
+                    setUser(userData);
+                }
+            }
+        } catch (error) {
+            console.error("Erreur lors du chargement des données:", error);
+            handleLogout();
+        }
+    }, [handleLogout]);
+
+    // useEffect pour charger les données utilisateur
+    useEffect(() => {
+        loadUserData();
+    }, [pathname, loadUserData]);
+
 
 
 	return (
@@ -227,4 +226,5 @@ export default function Navbar() {
 			)}
 		</nav>
 	);
+
 }
