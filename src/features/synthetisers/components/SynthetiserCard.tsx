@@ -10,6 +10,7 @@ import { EditorDialog } from "@/features/synthetisers/components/dialogs/EditorD
 import { Synth, Post } from "@/features/synthetisers/types/synth";
 import { DuplicateSynthDialog } from "@/features/synthetisers/components/dialogs/DuplicateSynthDialog";
 import { API_URL } from "@/config/constants";
+import { api } from "@/services/axios";
 
 interface SynthetiserCardProps {
 	synth: Synth;
@@ -112,38 +113,52 @@ export const SynthetiserCard = ({
 	
 	const handleDuplicate = useCallback(async () => {
 		try {
-			// Vérification de l'authentification
 			const token = localStorage.getItem("token");
 			if (!token) {
+				toast.error("Session expirée");
 				router.push("/login");
 				return;
 			}
-
-			// Vérification du rôle admin
-			const response = await fetch(`${API_URL}/auth/verify`, {
+	
+			// Utilisation de l'instance API configurée
+			const response = await api.get(`${API_URL}/auth/verify`, {
 				headers: {
-					Authorization: `Bearer ${token}`,
-				},
+					Authorization: `Bearer ${token}`
+				}
 			});
-
-			if (!response.ok) {
-				throw new Error("Vérification du rôle échouée");
-			}
-
-			const userData = await response.json();
+	
+			const userData = response.data;
 			if (userData?.user?.roleId !== 2) {
 				toast.error("Accès non autorisé");
 				return;
 			}
-
-			// Si tout est OK, ouvrir la modal de duplication
+	
 			setIsDuplicating(true);
-		} catch (error) {
-			console.error("Erreur lors de la duplication:", error);
-			toast.error("Erreur lors de la duplication");
-			router.push("/login");
+	
+		} catch (error: unknown) {
+			// Vérification du type d'erreur
+			let message = "Une erreur inattendue est survenue";
+			
+			if (error instanceof Error) {
+				message = error.message;
+			} else if (typeof error === 'object' && error && 'message' in error) {
+				message = String((error as { message: unknown }).message);
+			}
+	
+			console.error("Erreur:", message);
+			toast.error(message);
+			
+			// Gestion de la déconnexion
+			if (typeof error === 'object' && error && 'response' in error) {
+				const axiosError = error as { response?: { status: number } };
+				if (axiosError.response?.status === 401) {
+					localStorage.removeItem("token");
+					router.push("/login");
+				}
+			}
 		}
 	}, [router]);
+	
 
 	const handleSubmit = useCallback(
 		async (data: Partial<Synth>) => {
