@@ -180,7 +180,7 @@ export const SynthetiserCard = ({
 					isLoading={isLoading}
 					synthId={id.toString()}
 					onUpdateSuccess={onUpdateSuccess}
-					isAdmin={hasAdminRole}
+					isAdmin={true}
 				/>
 	
 				{/* Posts */}

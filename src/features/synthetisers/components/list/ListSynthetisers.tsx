@@ -54,10 +54,10 @@ export const ListSynthetisers = ({
 							<SynthetiserCard
 								key={synth.id}
 								synth={synth}
-								userRoles={userRoles}
+								hasAdminRole={userRoles?.includes("admin")}
 								onUpdateSuccess={onUpdateSuccess}
 								isAuthenticated={isAuthenticated}
-								hasAdminRole={hasAdminRole}
+							
 							/>
 						</div>
 					))}
