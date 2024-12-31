@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { api } from "@/services/axios";
+import { AxiosError } from 'axios';
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Synth } from "@/features/synthetisers/types/synth";
 import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
-import { API_URL } from '@/config/constants';
+import { API_URL } from "@/config/constants";
 
 interface DuplicateSynthFormProps {
 	originalSynth: Synth; // Le synthétiseur à dupliquer
@@ -30,6 +31,57 @@ const DuplicateSynthForm = ({
 			: originalSynth.price
 		: 0;
 
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setError(null);
+		setIsLoading(true);
+
+		try {
+			const token = localStorage.getItem("token");
+			if (!token) {
+				throw new Error("Non authentifié");
+			}
+
+			// Appel à l'endpoint de duplication
+			const response = await api.post(
+				`${API_URL}/api/synthetisers/${originalSynth.id}/duplicate`,
+				{
+					price: {
+						value: formData.price || 0,
+						currency: "EUR",
+					},
+				}
+			);
+
+			if (response.status === 201) {
+				toast.success("Synthétiseur dupliqué avec succès");
+				if (onSuccess) {
+					onSuccess();
+				}
+				router.refresh();
+				router.replace("/synthetisers");
+			}
+		} catch (error: unknown) {
+			if (error instanceof AxiosError) {
+				const errorMessage = error.response?.data?.message || 
+								   "Erreur lors de la duplication du synthétiseur";
+				setError(errorMessage);
+				toast.error(errorMessage);
+				
+				if (error.response?.status === 403) {
+					router.push('/login');
+				}
+			} else if (error instanceof Error) {
+				setError(error.message);
+				toast.error(error.message);
+			} else {
+				setError("Une erreur inattendue est survenue");
+				toast.error("Une erreur inattendue est survenue");
+			}
+		}finally {
+			setIsLoading(false);
+		}
+	};
 
 	// Précharger les données du synthétiseur original
 	useEffect(() => {
@@ -51,16 +103,13 @@ const DuplicateSynthForm = ({
 		}
 	}, [originalSynth]);
 
-
-  const [formData, setFormData] = useState({
+	const [formData, setFormData] = useState({
 		marque: originalSynth.marque,
 		modele: originalSynth.modele,
 		specifications: originalSynth.specifications || "",
 		image_url: originalSynth.image_url || "",
 		price: initialPrice,
 	});
-
-
 
 	// Si le prix est 0 ou nul, afficher uniquement le message
 	if (initialPrice === 0) {
@@ -78,70 +127,21 @@ const DuplicateSynthForm = ({
 						Vous êtes le premier à mettre en vente cet instrument, vous pouvez
 						l&apos;éditer pour fixer le prix
 					</p>
-          <Button 
-            onClick={() => {
-              if (onSuccess) {
-                onSuccess(); // Ferme le dialog
-              }
-              router.push('/synthetisers');
-            }} 
-            className="mt-4"
-          >
-            Retour à la liste
-          </Button>
+					<Button
+						onClick={() => {
+							if (onSuccess) {
+								onSuccess(); // Ferme le dialog
+							}
+							router.push("/synthetisers");
+						}}
+						className="mt-4"
+					>
+						Retour à la liste
+					</Button>
 				</div>
 			</div>
 		);
 	}
-
-	
-
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		setError(null);
-		setIsLoading(true);
-
-		try {
-			const token = localStorage.getItem("token");
-			if (!token) {
-				throw new Error("Non authentifié");
-			}
-
-			const tokenData = JSON.parse(atob(token.split(".")[1]));
-
-			const newSynthData = {
-				marque: formData.marque,
-				modele: formData.modele,
-				specifications: formData.specifications,
-				image_url: formData.image_url,
-				price: {
-					value: formData.price || 0,
-					currency: "EUR",
-				},
-				userId: tokenData.userId,
-			};
-
-			const response = await api.post(`${API_URL}/api/synthetisers`, newSynthData);
-
-			if (response.status === 201) {
-				toast.success("Synthétiseur dupliqué avec succès");
-				if (onSuccess) {
-					onSuccess();
-				}
-				router.refresh();
-				router.replace("/synthetisers");
-			}
-		} catch (error) {
-			const errorMessage =
-				error instanceof Error
-					? error.message
-					: "Erreur lors de la duplication du synthétiseur";
-			setError(errorMessage);
-			toast.error(errorMessage);
-		} finally {
-			setIsLoading(false);
-		}
-	};
 
 	const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = Number(e.target.value);
@@ -151,13 +151,12 @@ const DuplicateSynthForm = ({
 		}));
 	};
 
-
-
 	// Vérifier si originalSynth après la déclaration des hooks
 	if (!originalSynth) {
 		return <div>Chargement...</div>;
 	}
 
+	// RENDU
 	return (
 		<div className="w-full max-w-4xl mx-auto p-6">
 			<div className="mb-6">
