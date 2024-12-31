@@ -47,7 +47,7 @@ export default function SynthetisersPage() {
 
 			// Vérification correcte du rôle admin
 			const userRole = roleResponse.data?.user?.roleId;
-			const isAdmin = userRole?.includes("admin"); // si role est un tableau
+			const isAdmin = userRole === 2; // Supposant que roleId 1 = admin
 			console.log("Response complète:", roleResponse.data);
 			console.log("Role reçu de l'API:", userRole);
 
