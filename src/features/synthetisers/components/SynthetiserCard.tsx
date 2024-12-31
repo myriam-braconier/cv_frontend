@@ -16,16 +16,16 @@ interface SynthetiserCardProps {
 	userRoles?: string[];
 	onUpdateSuccess?: () => void;
 	isAuthenticated: () => boolean;
-	isAdmin?: boolean;
+	hasAdminRole?: boolean;  
 }
 
 
 
 export const SynthetiserCard = ({
 	synth,
-	userRoles = [],
 	onUpdateSuccess,
 	isAuthenticated,
+	hasAdminRole = false  
 }: SynthetiserCardProps) => {
 	const [showPosts, setShowPosts] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
@@ -36,7 +36,6 @@ export const SynthetiserCard = ({
 
 	const router = useRouter();
 
-	const hasAdminRole = userRoles?.includes('admin');
 
 	const {
 		id,

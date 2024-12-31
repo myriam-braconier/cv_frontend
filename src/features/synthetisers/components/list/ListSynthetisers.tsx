@@ -56,7 +56,7 @@ export const ListSynthetisers = ({
 								userRoles={userRoles}
 								onUpdateSuccess={onUpdateSuccess}
 								isAuthenticated={isAuthenticated}
-								isAdmin={hasAdminRole}
+								hasAdminRole={hasAdminRole}
 							/>
 						</div>
 					))}

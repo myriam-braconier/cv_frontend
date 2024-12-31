@@ -85,7 +85,7 @@ const CardPricing = ({
 			router.push("/login");
 			return;
 		}
-	
+
 		try {
 			setIsLoadingAuctions(true);
 			const response = await api.post(
@@ -93,10 +93,11 @@ const CardPricing = ({
 				{
 					proposal_price: Number(newBidAmount),
 					status: "active",
-					userId: JSON.parse(atob(localStorage.getItem("token")!.split(".")[1])).id
+					userId: JSON.parse(atob(localStorage.getItem("token")!.split(".")[1]))
+						.id,
 				}
 			);
-	
+
 			if (response.status === 201) {
 				await fetchLatestAuction();
 				setNewBidAmount(null);
@@ -118,7 +119,6 @@ const CardPricing = ({
 			setIsLoadingAuctions(false);
 		}
 	};
-	
 
 	useEffect(() => {
 		if (auctionPrices && auctionPrices.length > 0) {
