@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AxiosError } from 'axios';
 import { useAuth } from "@/hooks/useAuth";
-import { API_URL } from '@/config/constants';
+
 
 export default function LoginForm() {
     const [email, setEmail] = useState('');
@@ -25,7 +25,7 @@ export default function LoginForm() {
             // Get the callback URL if it exists
             const callbackUrl = searchParams.get('callbackUrl');
             // Redirect to callback URL or home
-            router.push(callbackUrl || `${API_URL}/`);
+            router.push(callbackUrl || `/`);
             
         } catch (err) {
             setError(
