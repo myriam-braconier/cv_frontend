@@ -67,14 +67,17 @@ export default function SynthetisersPage() {
     }, [fetchSynths]);
 
 	useEffect(() => {
-		const initPage = async () => {
-			const isAuth = await checkAuth();
-			if (isAuth) {
-				fetchSynths();
-			}
-		};
-		initPage();
-	}, [checkAuth, fetchSynths]); // Dépendances vides pour n'exécuter qu'au montage
+		if (typeof window !== 'undefined') {
+			const initPage = async () => {
+				const isAuth = await checkAuth();
+				if (isAuth) {
+					fetchSynths();
+				}
+			};
+			initPage();
+		}
+	}, [checkAuth, fetchSynths]);
+	
 
 	return (
 		<main className="min-h-screen">
