@@ -194,7 +194,7 @@ export const SynthetiserCard = ({
 
 				{/* Actions admin */}
 				{hasAdminRole && (
-					<>
+					 <div className="mt-4">
 						<CardActions
 							onEdit={handleEdit}
 							onDelete={handleDelete}
@@ -223,7 +223,7 @@ export const SynthetiserCard = ({
 							onSuccess={onUpdateSuccess}
 							originalSynth= {synth}
 						/>}
-					</>
+					</div>
 				)}
 			</div>
 		</article>
