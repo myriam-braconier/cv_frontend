@@ -48,6 +48,9 @@ export default function SynthetisersPage() {
 
 			console.log("Response complète:", roleResponse.data); // Pour debugger
 
+
+			
+
 			 const userRole = roleResponse.data?.user?.role || roleResponse.data?.role;
 			console.log("Role reçu de l'API:", userRole); // Log du rôle
 			const roles = userRole ? [userRole] : [];

@@ -21,6 +21,7 @@ interface EditorDialogProps {
 	isAuthenticated: () => boolean; 
 	onClose: () => void;
 	onSuccess?: () => void;
+	isAdmin: boolean;
 }
 
 export const EditorDialog = ({
@@ -30,7 +31,7 @@ export const EditorDialog = ({
 	error,
 	isLoading,
 	onSubmit,
-	onCancel,
+	onCancel
 
 }: EditorDialogProps) => {
 	return (

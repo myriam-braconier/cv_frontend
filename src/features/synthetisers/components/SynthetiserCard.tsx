@@ -213,6 +213,7 @@ export const SynthetiserCard = ({
 							 error={null}
 							 isLoading={isLoading}
 							 isAuthenticated={isAuthenticated}
+							 isAdmin={true} 
 						/>}
 
 						{isDuplicating && <DuplicateSynthDialog
@@ -222,6 +223,7 @@ export const SynthetiserCard = ({
 							onClose={handleCloseDuplicate}
 							onSuccess={onUpdateSuccess}
 							originalSynth= {synth}
+							isAdmin={true} 
 						/>}
 					</div>
 				)}
