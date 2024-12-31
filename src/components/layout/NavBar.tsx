@@ -1,5 +1,4 @@
 "use client";
-import { API_URL } from '@/config/constants';
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -63,7 +62,7 @@ export default function Navbar() {
 						<div className="hidden md:block ml-10">
 							<div className="flex items-baseline space-x-4">
 								<Link
-									href="${API_URL}/synthetisers"
+									href="/synthetisers"
 									className="hover:bg-gray-700 px-3 py-2 rounded-md"
 								>
 									Synthétiseurs
