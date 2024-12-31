@@ -56,7 +56,7 @@ export default function SynthetisersPage() {
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response?.status === 401) {
 				localStorage.removeItem("token");
-				router.push(`${API_URL}/login`);
+				router.push('/login');
 				return;
 			}
 			setError("Une erreur est survenue");
