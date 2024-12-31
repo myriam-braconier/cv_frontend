@@ -98,7 +98,7 @@ export default function Navbar() {
 									href="/synthetisers"
 									className="hover:bg-gray-700 px-3 py-2 rounded-md"
 								>
-									Synthétiseurs
+									Synthétiseurs de tous types
 								</Link>
 								<Link
 									href="/synthetisers/duplicate"
