@@ -3,7 +3,6 @@ import { API_URL } from "@/config/constants";
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import ListSynthetisers from "@/features/synthetisers/components/list/ListSynthetisers";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import api from "@/lib/axios/index";
@@ -14,8 +13,10 @@ export default function SynthetisersPage() {
 	const [userRoles, setUserRoles] = useState<string[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	
 
 	const checkAuth = useCallback(async () => {
+		
 		const token = localStorage.getItem("token");
 		if (!token) {
 			router.push(`/login`);
@@ -31,39 +32,35 @@ export default function SynthetisersPage() {
 	}, [router]);
 
 	const fetchSynths = useCallback(async () => {
-		if (!localStorage.getItem("token")) {
-			router.push('/login');
-			return;
-		}
-
 		try {
 			setIsLoading(true);
 			setError(null);
-
-			const [roleResponse, synthResponse] = await Promise.all([
-				api.get(`${API_URL}/auth/verify`),
-				api.get(`${API_URL}/api/synthetisers`),
-			]);
-
-			// Vérification correcte du rôle admin
-			const userRole = roleResponse.data?.user?.roleId;
-			const isAdmin = userRole === 2; // Supposant que roleId 2 = admin
-			console.log("Response complète:", roleResponse.data);
-			console.log("Role reçu de l'API:", userRole);
-
-			setUserRoles(isAdmin ? ["admin"] : ["user"]);
-			setSynths(synthResponse.data.data);
-		} catch (error) {
-			if (axios.isAxiosError(error) && error.response?.status === 401) {
-				localStorage.removeItem("token");
-				router.push('/login');
-				return;
+	
+			const token = localStorage.getItem("token");
+			if (!token) {
+				throw new Error("No token");
 			}
-			setError("Une erreur est survenue");
+	
+			const roleResponse = await api.get(`${API_URL}/auth/verify`);
+			const userRole = roleResponse.data?.user?.roleId;
+			
+			if (userRole !== 2) {
+				throw new Error("Unauthorized");
+			}
+	
+			const synthResponse = await api.get(`${API_URL}/api/synthetisers`);
+			setUserRoles(["admin"]);
+			setSynths(synthResponse.data.data);
+			
+		} catch (error) {
+			console.error(error)
+			localStorage.removeItem("token");
+			router.push('/login');
 		} finally {
 			setIsLoading(false);
 		}
 	}, [router]);
+	
 
 	const onUpdateSuccess = useCallback(() => {
         fetchSynths(); // Recharge les synthétiseurs après une mise à jour
