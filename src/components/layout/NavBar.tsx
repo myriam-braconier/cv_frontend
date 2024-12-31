@@ -1,6 +1,5 @@
 "use client";
 import { API_URL } from '@/config/constants';
-
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -43,7 +42,7 @@ export default function Navbar() {
 		localStorage.removeItem("token");
 		localStorage.removeItem("user");
 		setUser(null);
-		router.push(`${API_URL}/`);
+		router.push(`/`);
 	};
 
 	return (
@@ -64,7 +63,7 @@ export default function Navbar() {
 						<div className="hidden md:block ml-10">
 							<div className="flex items-baseline space-x-4">
 								<Link
-									href="/synthetisers"
+									href="${API_URL}/synthetisers"
 									className="hover:bg-gray-700 px-3 py-2 rounded-md"
 								>
 									Synthétiseurs
