@@ -99,7 +99,7 @@ export default function SynthetisersPage() {
 				) : (
 					<ListSynthetisers 
 					synths={synths} 
-					userRoles={userRoles}
+					userRoles={["admin"]} 
 					onUpdateSuccess={onUpdateSuccess} />
 				)}
 			</div>
