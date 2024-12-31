@@ -37,7 +37,7 @@ export default function RegisterForm() {
             });
 
             if (response.status === 201) {
-                router.push(`${API_URL}/login`);
+                router.push('/login');
             }
         } catch (error) {
             if (axios.isAxiosError(error)) {
