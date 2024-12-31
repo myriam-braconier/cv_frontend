@@ -16,6 +16,7 @@ interface SynthetiserCardProps {
 	userRoles?: string[];
 	onUpdateSuccess?: () => void;
 	isAuthenticated: () => boolean;
+	isAdmin?: boolean;
 }
 
 
