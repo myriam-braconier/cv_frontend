@@ -36,30 +36,26 @@ export default function SynthetisersPage() {
 			router.push(`${API_URL}/login`);
 			return;
 		}
-
+	
 		try {
 			setIsLoading(true);
 			setError(null);
-
+	
 			const [roleResponse, synthResponse] = await Promise.all([
 				api.get(`${API_URL}/auth/verify`),
 				api.get(`${API_URL}/api/synthetisers`),
 			]);
-
-			const isAdmin = roleResponse.data?.user?.role?.includes('admin');
-			setSynths(synthResponse.data.data);
+	
+			// Vérification correcte du rôle admin
+			const userRole = roleResponse.data?.user?.role;
+			const isAdmin = Array.isArray(userRole) ? userRole.includes('admin') : userRole === 'admin';
+			
+			console.log("Response complète:", roleResponse.data);
+			console.log("Role reçu de l'API:", userRole);
+			
 			setUserRoles(isAdmin ? ['admin'] : ['user']);
-
-			const userRole = roleResponse.data?.user?.role === 1 ? "admin" : "user";
-			console.log("Response complète:", roleResponse.data); // Pour debugger
-
-			console.log("Role reçu de l'API:", userRole); // Log du rôle
-			const roles = userRole ? [userRole] : [];
-
-			setUserRoles(roles);
-			console.log("Roles à définir:", roles); // Log des rôles avant setState
-			setUserRoles(roles);
 			setSynths(synthResponse.data.data);
+	
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response?.status === 401) {
 				localStorage.removeItem("token");
@@ -71,6 +67,7 @@ export default function SynthetisersPage() {
 			setIsLoading(false);
 		}
 	}, [router]);
+	
 
 	useEffect(() => {
 		const initPage = async () => {
