@@ -13,12 +13,14 @@ import { Synth } from "@/features/synthetisers/types/synth";
 interface EditorDialogProps {
 	isOpen: boolean;
 	onOpenChange: (open: boolean) => void;
-	synth?: Synth; // Rendu optionnel pour correspondre à EditorFormProps
+	synth: Synth; // Rendu optionnel pour correspondre à EditorFormProps
 	onSubmit: (data: Partial<Synth>) => Promise<void>;
 	isLoading?: boolean;
 	error: string | null; // Changé de string | undefined à string | null
 	onCancel: () => void;
 	isAuthenticated: () => boolean; 
+	onClose: () => void;
+	onSuccess?: () => void;
 }
 
 export const EditorDialog = ({
@@ -29,6 +31,7 @@ export const EditorDialog = ({
 	isLoading,
 	onSubmit,
 	onCancel,
+
 }: EditorDialogProps) => {
 	return (
 		<Dialog open={isOpen} onOpenChange={onOpenChange}>

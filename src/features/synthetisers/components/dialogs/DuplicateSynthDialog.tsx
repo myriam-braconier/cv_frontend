@@ -15,6 +15,10 @@ import DuplicateSynthForm from "@features/synthetisers/components/duplicate/Dupl
 interface DuplicateSynthDialogProps {
 	originalSynth: Synth;
 	trigger?: React.ReactNode;
+	isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  synth: Synth;
+  onClose: () => void;
 	onSuccess?: () => void;
 }
 

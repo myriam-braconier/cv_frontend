@@ -1,6 +1,8 @@
 interface CardActionsProps {
 	onEdit: () => void;
 	onDelete: () => void;
+	onDuplicate: () => void;
+	isLoading: boolean;
 	isAdmin: boolean;
 }
 
