@@ -17,6 +17,9 @@ interface AuthResponse {
 	roles?: string[];
 }
 
+
+api.defaults.withCredentials = true;
+
 export const useAuth = () => {
 	const [userData, setUserData] = useState<UserData | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
@@ -64,48 +67,73 @@ export const useAuth = () => {
 	}, []);
 
 	const verifyToken = useCallback(async (token: string): Promise<boolean> => {
-		try {
-			const response = await api.get(`${API_URL}/auth/verify`, {
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			return response.status === 200;
-		} catch {
-			return false;
-		}
-	}, []);
+        try {
+            const response = await api.get(`${API_URL}/auth/verify`, {
+                headers: { Authorization: `Bearer ${token}` },
+                withCredentials: true // Ajouter explicitement ici aussi
+            });
+            return response.status === 200;
+        } catch {
+            return false;
+        }
+    }, []);
 
 	const login = async (email: string, password: string): Promise<UserData> => {
-		try {
-			const { data } = await api.post<AuthResponse>(`${API_URL}/auth/login`, {
-				email,
-				password,
-			});
+        try {
+            const { data } = await api.post<AuthResponse>(
+                `${API_URL}/auth/login`, 
+                { email, password },
+                { 
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
 
-			if (!data.token) {
-				throw new Error("Token manquant dans la réponse");
-			}
+            if (!data.token) {
+                throw new Error("Token manquant dans la réponse");
+            }
 
-			const newUserData: UserData = {
-				email,
-				username: data.username || email.split("@")[0],
-				role: data.roles || [],
-				token: data.token,
-			};
+            const newUserData: UserData = {
+                email,
+                username: data.username || email.split("@")[0],
+                role: data.roles || [],
+                token: data.token,
+            };
 
-			setupToken(data.token);
-			localStorage.setItem("user", JSON.stringify(newUserData));
-			setUserData(newUserData);
+            setupToken(data.token);
+            localStorage.setItem("user", JSON.stringify(newUserData));
+            setUserData(newUserData);
 
-			return newUserData;
-		} catch (error) {
-			clearAuthData();
-			throw error;
-		}
-	};
+            return newUserData;
+        } catch (error) {
+            clearAuthData();
+            throw error;
+        }
+    };
 
-	const logout = useCallback(() => {
-		clearAuthData();
-	}, [clearAuthData]);
+
+
+	const logout = useCallback(async () => {
+        try {
+            // Ajouter l'appel API pour la déconnexion
+            await api.post(
+                `${API_URL}/auth/logout`, 
+                {},
+                { 
+                    withCredentials: true,
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
+            );
+        } catch (error) {
+            console.error('Erreur lors de la déconnexion:', error);
+        } finally {
+            clearAuthData();
+        }
+    }, [clearAuthData]);
 
 	const checkSession = useCallback(async () => {
 		const token = localStorage.getItem("token");

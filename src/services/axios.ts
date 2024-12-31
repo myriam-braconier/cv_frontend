@@ -2,16 +2,16 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { toast } from "react-hot-toast";
+import { API_URL } from '@/config/constants';
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 // création de l'instance
 export const api = axios.create({
-    baseURL,
+    baseURL: API_URL,
+    withCredentials: true,
     headers: {
-        'Content-Type': 'application/json',
-    },
-    withCredentials: true
+        'Content-Type': 'application/json'
+    }
 });
 
 // Intercepteur pour ajouter le token à chaque requête
@@ -65,13 +65,12 @@ return Promise.reject(error);
 
 // Intercepteur pour gérer les erreurs d'authentification
 api.interceptors.response.use(
-    (response) => response,
-    (error) => {
+    response => response,
+    error => {
         if (error.response?.status === 401) {
-            // Si on reçoit une erreur 401, on nettoie les tokens
+            // Gérer l'expiration du token ici
             localStorage.removeItem('token');
-            Cookies.remove('token');
-            window.location.href = '/login';
+            localStorage.removeItem('user');
         }
         return Promise.reject(error);
     }
