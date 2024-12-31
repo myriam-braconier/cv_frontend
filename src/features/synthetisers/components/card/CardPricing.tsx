@@ -64,79 +64,68 @@ const CardPricing = ({
 		return latestAuction ? latestAuction.proposal_price : null;
 	}, [getLatestAuction]);
 
-	useEffect(() => {
-		if (auctionPrices && auctionPrices.length > 0) {
-			setLocalAuctionPrices(auctionPrices);
+
+
+	const fetchLatestAuction = useCallback(async () => {
+		try {
+			const response = await api.get(`${API_URL}/api/synthetisers/${synthId}/auctions/latest`);
+			if (response.data) {
+				setLocalAuctionPrices(prev => [response.data, ...prev]);
+			}
+		} catch (error) {
+			console.error("Erreur lors de la récupération de la dernière enchère:", error);
 		}
-	}, [auctionPrices]);
+	}, [synthId]);
+	
+
 
 	const handleCreateAuction = async () => {
 		if (!isAuthenticated() || !newBidAmount) {
 			router.push("/login");
 			return;
 		}
-
-		// Vérification que la nouvelle enchère est supérieure à la dernière
-		const latestPrice = getLatestAuctionPrice();
-		const minPrice = latestPrice ? latestPrice + 1 : displayPrice + 1;
-
-		if (newBidAmount < minPrice) {
-			setAuctionError(`L'enchère doit être supérieure à ${minPrice - 1}€`);
-			toast.error(`L'enchère doit être supérieure à ${minPrice - 1}€`);
-			return;
-		}
-
+	
 		try {
-			const token = localStorage.getItem("token");
-			if (!token) {
-				throw new Error("Token non trouvé");
-			}
-
-			const tokenData = JSON.parse(atob(token.split(".")[1]));
-
+			setIsLoadingAuctions(true);
 			const response = await api.post(`${API_URL}/api/synthetisers/${synthId}/auctions`, {
 				proposal_price: Number(newBidAmount),
-				userId: tokenData.userId,
-				synthetiserId: Number(synthId),
-				status: "active",
+				status: "active"
 			});
-
-			console.log("Réponse reçue:", response);
-
-			if (!response.data) {
-				throw new Error("Pas de données reçues du serveur");
-			}
-
+	
 			if (response.status === 201) {
-				const newAuction = {
-					...response.data,
-					createdAt: new Date().toISOString(), // Ajout explicite de la date
-				};
-
-				setLocalAuctionPrices((prev) => [newAuction, ...prev]);
+				await fetchLatestAuction(); // Récupérer la dernière enchère
 				setNewBidAmount(null);
 				setAuctionError(null);
-
+				toast.success("Enchère créée avec succès");
 				if (onUpdateSuccess) {
 					onUpdateSuccess();
 				}
-				toast.success("Enchère créée avec succès");
-				router.refresh();
-				window.location.reload(); // Force le rafraîchissement complet
 			}
-		} catch (error) {
-			console.error("Erreur détaillée:", error);
-			const errorMsg =
-				error instanceof Error
-					? error.message
-					: "Erreur lors de la création de l'enchère";
-			setAuctionError(errorMsg);
-			toast.error(errorMsg);
+		} catch (error: unknown) {
+			if (error instanceof Error) {
+				setAuctionError(error.message);
+				toast.error(error.message);
+			} else {
+				setAuctionError("Erreur lors de la création de l'enchère");
+				toast.error("Erreur lors de la création de l'enchère");
+			}
 		} finally {
 			setIsLoadingAuctions(false);
 		}
 	};
 	
+	
+	useEffect(() => {
+		if (auctionPrices && auctionPrices.length > 0) {
+			setLocalAuctionPrices(auctionPrices);
+		}
+	}, [auctionPrices]);
+
+	useEffect(() => {
+		if (synthId) {
+			fetchLatestAuction();
+		}
+	}, [fetchLatestAuction, synthId])
 
 	console.log({
 		token: localStorage.getItem("token"),
