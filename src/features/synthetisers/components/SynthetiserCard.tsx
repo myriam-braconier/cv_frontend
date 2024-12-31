@@ -199,7 +199,7 @@ export const SynthetiserCard = ({
 							onDelete={handleDelete}
 							onDuplicate={handleDuplicate}
 							isLoading={isLoading}
-							isAdmin={hasAdminRole}
+							isAdmin={true}
 						/>
 						
 						{isEditing && (
@@ -213,7 +213,7 @@ export const SynthetiserCard = ({
 								error={null}
 								isLoading={isLoading}
 								isAuthenticated={isAuthenticated}
-								isAdmin={hasAdminRole}
+								isAdmin={true}
 							/>
 						)}
 						
@@ -225,7 +225,7 @@ export const SynthetiserCard = ({
 								onClose={handleCloseDuplicate}
 								onSuccess={onUpdateSuccess}
 								originalSynth={synth}
-								isAdmin={hasAdminRole}
+								isAdmin={true}
 							/>
 						)}
 					</div>

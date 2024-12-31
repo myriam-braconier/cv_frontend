@@ -52,6 +52,7 @@ export const ListSynthetisers = ({
 					.map((synth) => (
 						<div key={synth.id} className="flex flex-col space-y-4">
 							<SynthetiserCard
+								key={synth.id}
 								synth={synth}
 								userRoles={userRoles}
 								onUpdateSuccess={onUpdateSuccess}
