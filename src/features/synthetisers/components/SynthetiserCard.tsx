@@ -261,7 +261,7 @@ export const SynthetiserCard = ({
 								isOpen={isDuplicating}
 								onOpenChange={setIsDuplicating}
 								synth={synth}
-								onClose={handleCloseDuplicate}
+								onClose={() => setIsDuplicating(false)}
 								onSuccess={onUpdateSuccess}
 								originalSynth={synth}
 								isAdmin={true}
