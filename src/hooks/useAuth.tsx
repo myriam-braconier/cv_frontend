@@ -17,7 +17,6 @@ interface AuthResponse {
 	roles?: string[];
 }
 
-
 api.defaults.withCredentials = true;
 
 export const useAuth = () => {
@@ -25,38 +24,40 @@ export const useAuth = () => {
 	const [isLoading, setIsLoading] = useState(true);
 
 	const setupToken = useCallback((token: string) => {
-        if (!token) return;
-    
-        const cookieOptions: Cookies.CookieAttributes = {
-            expires: 7,
-            path: '/',
-            domain: window.location.hostname,
-            sameSite: 'None',
-            secure: true
-        };
-    
-        try {
-            // Suppression de l'ancien cookie d'abord
-            Cookies.remove('token', { path: '/' });
-            
-            // Configuration du nouveau cookie avec toutes les options
-            Cookies.set('token', token, cookieOptions);
-    
-            // Vérification que le cookie a été correctement défini
-            const storedCookie = Cookies.get('token');
-            if (!storedCookie) {
-                console.warn('Le cookie n\'a pas été correctement défini');
-                
-                // Tentative alternative de définition du cookie
-                document.cookie = `token=${token}; path=/; secure=true; samesite=None; max-age=${7 * 24 * 60 * 60}`;
-            }
-    
-            localStorage.setItem("token", token);
-            api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        } catch (error) {
-            console.error('Erreur lors de la configuration du cookie:', error);
-        }
-    }, []);
+		if (!token) return;
+
+		const cookieOptions: Cookies.CookieAttributes = {
+			expires: 7,
+			path: "/",
+			domain: window.location.hostname,
+			sameSite: "None",
+			secure: true,
+		};
+
+		try {
+			// Suppression de l'ancien cookie d'abord
+			Cookies.remove("token", { path: "/" });
+
+			// Configuration du nouveau cookie avec toutes les options
+			Cookies.set("token", token, cookieOptions);
+
+			// Vérification que le cookie a été correctement défini
+			const storedCookie = Cookies.get("token");
+			if (!storedCookie) {
+				console.warn("Le cookie n'a pas été correctement défini");
+
+				// Tentative alternative de définition du cookie
+				document.cookie = `token=${token}; path=/; secure=true; samesite=None; max-age=${
+					7 * 24 * 60 * 60
+				}`;
+			}
+
+			localStorage.setItem("token", token);
+			api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+		} catch (error) {
+			console.error("Erreur lors de la configuration du cookie:", error);
+		}
+	}, []);
 
 	const clearAuthData = useCallback(() => {
 		localStorage.removeItem("token");
@@ -67,67 +68,65 @@ export const useAuth = () => {
 	}, []);
 
 	const verifyToken = useCallback(async (token: string): Promise<boolean> => {
-        try {
-            const response = await api.get(`${API_URL}/auth/verify`, {
-                headers: { Authorization: `Bearer ${token}` },
-                withCredentials: true // Ajouter explicitement ici aussi
-            });
-            return response.status === 200;
-        } catch {
-            return false;
-        }
-    }, []);
+		try {
+			const response = await api.get(`${API_URL}/auth/verify`, {
+				headers: { Authorization: `Bearer ${token}` },
+				withCredentials: true, // Ajouter explicitement ici aussi
+			});
+			return response.status === 200;
+		} catch {
+			return false;
+		}
+	}, []);
 
 	const login = async (email: string, password: string): Promise<UserData> => {
-        try {
-			const { data } = await api.post<AuthResponse>('/auth/login', {
+		try {
+			const { data } = await api.post<AuthResponse>("/auth/login", {
 				email,
-				password
+				password,
 			});
 
-            if (!data.token) {
-                throw new Error("Token manquant dans la réponse");
-            }
+			if (!data.token) {
+				throw new Error("Token manquant dans la réponse");
+			}
 
-            const newUserData: UserData = {
-                email,
-                username: data.username || email.split("@")[0],
-                role: data.roles || [],
-                token: data.token,
-            };
+			const newUserData: UserData = {
+				email,
+				username: data.username || email.split("@")[0],
+				role: data.roles || [],
+				token: data.token,
+			};
 
-            setupToken(data.token);
-            localStorage.setItem("user", JSON.stringify(newUserData));
-            setUserData(newUserData);
+			setupToken(data.token);
+			localStorage.setItem("user", JSON.stringify(newUserData));
+			setUserData(newUserData);
 
-            return newUserData;
-        } catch (error) {
-            clearAuthData();
-            throw error;
-        }
-    };
-
-
+			return newUserData;
+		} catch (error) {
+			clearAuthData();
+			throw error;
+		}
+	};
 
 	const logout = useCallback(async () => {
-        try {
-            // Ajouter l'appel API pour la déconnexion
-            await api.post(
-                `${API_URL}/auth/logout`, 
-                {},
-                { 
-                    withCredentials: true,
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
-                    }
-                }
-            );
-        } catch (error) {
-            console.error('Erreur lors de la déconnexion:', error);
-        } finally {
-            clearAuthData();
-        }
-    }, [clearAuthData]);
+		try {
+			// Ajouter l'appel API pour la déconnexion
+			await api.post(
+				`${API_URL}/auth/logout`,
+				{},
+				{
+					withCredentials: true,
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem("token")}`,
+					},
+				}
+			);
+		} catch (error) {
+			console.error("Erreur lors de la déconnexion:", error);
+		} finally {
+			clearAuthData();
+		}
+	}, [clearAuthData]);
 
 	const checkSession = useCallback(async () => {
 		const token = localStorage.getItem("token");

@@ -16,16 +16,14 @@ interface SynthetiserCardProps {
 	userRoles?: string[];
 	onUpdateSuccess?: () => void;
 	isAuthenticated: () => boolean;
-	hasAdminRole?: boolean;  
+	hasAdminRole?: boolean;
 }
-
-
 
 export const SynthetiserCard = ({
 	synth,
 	onUpdateSuccess,
 	isAuthenticated,
-	hasAdminRole = false  
+	hasAdminRole = false,
 }: SynthetiserCardProps) => {
 	const [showPosts, setShowPosts] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
@@ -33,9 +31,7 @@ export const SynthetiserCard = ({
 	const [localPosts, setLocalPosts] = useState<Post[]>(synth.posts || []);
 	const [isDuplicating, setIsDuplicating] = useState(false);
 
-
 	const router = useRouter();
-
 
 	const {
 		id,
@@ -52,8 +48,6 @@ export const SynthetiserCard = ({
 
 	const fullTitle = `${marque} ${modele}`;
 
-	
-
 	const handleTogglePost = useCallback(() => setShowPosts((prev) => !prev), []);
 	const handleImageError = useCallback(
 		() => console.error("Erreur de chargement d'image"),
@@ -61,18 +55,24 @@ export const SynthetiserCard = ({
 	);
 	const handleEdit = useCallback(() => setIsEditing(true), []);
 	const handleCloseEditor = useCallback(() => setIsEditing(false), []);
+
 	const handleDelete = useCallback(async () => {
+		// Vérification de la confirmation
 		if (!window.confirm(`Voulez-vous vraiment supprimer ${fullTitle} ?`)) {
 			return;
 		}
+
 		setIsLoading(true);
+
 		try {
+			// Vérification du token
 			const token = localStorage.getItem("token");
 			if (!token) {
-				router.push(`${API_URL}/login`);
+				router.push("/login");
 				return;
 			}
 
+			// Appel API
 			const response = await fetch(`${API_URL}/api/synthetisers/${id}`, {
 				method: "DELETE",
 				headers: {
@@ -81,19 +81,26 @@ export const SynthetiserCard = ({
 				},
 			});
 
+			// Gestion des réponses
 			if (!response.ok) {
 				if (response.status === 401) {
-					router.push(`${API_URL}/login`);
+					localStorage.removeItem("token");
+					router.push("/login");
 					return;
 				}
 				throw new Error(`Erreur ${response.status}`);
 			}
 
+			// Succès
 			toast.success(`${fullTitle} supprimé avec succès`);
-			router.refresh(); // on rafraichit d'abord les données
-			if (onUpdateSuccess) onUpdateSuccess(); // on met à jour le parent
 
-			router.replace("/synthetisers"); // Redirection via replace ua lieu de push cela évite l'ajout dans l'historique
+			// Mise à jour et redirection
+			if (onUpdateSuccess) {
+				await onUpdateSuccess();
+			}
+
+			router.refresh();
+			router.replace("/synthetisers");
 		} catch (error) {
 			console.error("Erreur lors de la suppression:", error);
 			toast.error(`Erreur lors de la suppression de ${fullTitle}`);
@@ -103,34 +110,66 @@ export const SynthetiserCard = ({
 	}, [id, fullTitle, router, onUpdateSuccess]);
 
 	const handleCloseDuplicate = useCallback(() => setIsDuplicating(false), []);
-	const handleDuplicate = useCallback(() => {
-		if (!isAuthenticated()) {
-			router.push(`${API_URL}/login`);
-			return;
-		}
-		setIsDuplicating(true);
-	}, [isAuthenticated, router]);
 
-	const handleSubmit = useCallback(async (data: Partial<Synth>) => {
+	const handleDuplicate = useCallback(async () => {
 		try {
-		  const response = await fetch(`${API_URL}/api/synthetisers/${id}`, {
-			method: 'PUT',
-			headers: {
-			  'Content-Type': 'application/json',
-			  Authorization: `Bearer ${localStorage.getItem('token')}`
-			},
-			body: JSON.stringify(data)		  });
-		  
-		  if (!response.ok) throw new Error();
-		  
-		  toast.success('Synthétiseur mis à jour');
-		  if (onUpdateSuccess) onUpdateSuccess();
-		  setIsEditing(false);
-		} catch  {
-		  toast.error('Erreur lors de la mise à jour');
+			// Vérification de l'authentification
+			const token = localStorage.getItem("token");
+			if (!token) {
+				router.push("/login");
+				return;
+			}
+
+			// Vérification du rôle admin
+			const response = await fetch(`${API_URL}/auth/verify`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
+			if (!response.ok) {
+				throw new Error("Errification du rôle échouée");
+			}
+
+			const userData = await response.json();
+			if (userData?.user?.roleId !== 2) {
+				toast.error("Accès non autorisé");
+				return;
+			}
+
+			// Si tout est OK, ouvrir la modal de duplication
+			setIsDuplicating(true);
+		} catch (error) {
+			console.error("Erreur lors de la duplication:", error);
+			toast.error("Erreur lors de la duplication");
+			router.push("/login");
 		}
-	   }, [id, onUpdateSuccess]);
-	
+	}, [router]);
+
+	const handleSubmit = useCallback(
+		async (data: Partial<Synth>) => {
+			try {
+				const response = await fetch(`${API_URL}/api/synthetisers/${id}`, {
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${localStorage.getItem("token")}`,
+					},
+					body: JSON.stringify(data),
+				});
+
+				if (!response.ok) throw new Error();
+
+				toast.success("Synthétiseur mis à jour");
+				if (onUpdateSuccess) onUpdateSuccess();
+				setIsEditing(false);
+			} catch {
+				toast.error("Erreur lors de la mise à jour");
+			}
+		},
+		[id, onUpdateSuccess]
+	);
+
 	useEffect(() => {
 		const fetchPosts = async () => {
 			try {
@@ -163,7 +202,7 @@ export const SynthetiserCard = ({
 						onError={handleImageError}
 					/>
 				</div>
-	
+
 				{/* Informations */}
 				<CardHeader
 					title={fullTitle}
@@ -171,7 +210,7 @@ export const SynthetiserCard = ({
 					nb_avis={nb_avis}
 					specifications={specifications}
 				/>
-	
+
 				{/* Prix */}
 				<CardPricing
 					price={price}
@@ -182,7 +221,7 @@ export const SynthetiserCard = ({
 					onUpdateSuccess={onUpdateSuccess}
 					isAdmin={true}
 				/>
-	
+
 				{/* Posts */}
 				<CardPost
 					posts={localPosts}
@@ -190,7 +229,7 @@ export const SynthetiserCard = ({
 					onToggle={handleTogglePost}
 					synthetiserId={synth.id}
 				/>
-	
+
 				{/* Actions admin */}
 				{hasAdminRole && (
 					<div className="mt-4">
@@ -201,7 +240,7 @@ export const SynthetiserCard = ({
 							isLoading={isLoading}
 							isAdmin={true}
 						/>
-						
+
 						{isEditing && (
 							<EditorDialog
 								isOpen={isEditing}
@@ -216,7 +255,7 @@ export const SynthetiserCard = ({
 								isAdmin={true}
 							/>
 						)}
-						
+
 						{isDuplicating && (
 							<DuplicateSynthDialog
 								isOpen={isDuplicating}
@@ -233,5 +272,4 @@ export const SynthetiserCard = ({
 			</div>
 		</article>
 	);
-	
 };

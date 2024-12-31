@@ -101,7 +101,7 @@ export default function Navbar() {
 									Synthétiseurs de tous types
 								</Link>
 								<Link
-									href="/synthetisers/duplicate"
+									href="/synthetisers"
 									className="hover:bg-gray-700 px-3 py-2 rounded-md"
 								>
 									Tableau d&apos;enchères
