@@ -21,7 +21,6 @@ export const ListSynthetisers = ({
 	const [synths, setSynths] = useState<Synth[]>(initialSynths);
 	const [userRoles, setUserRoles] = useState<string[]>(initialUserRoles);
 	// const router = useRouter();
-	const hasAdminRole = userRoles?.includes("2"); // Vérifie si le rôle 2 est présent
 
 	const isAuthenticated = useCallback(() => {
 		const token = localStorage.getItem("token");

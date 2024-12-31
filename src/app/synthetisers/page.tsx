@@ -1,6 +1,5 @@
 "use client";
 import { API_URL } from "@/config/constants";
-
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ListSynthetisers from "@/features/synthetisers/components/list/ListSynthetisers";
@@ -8,101 +7,83 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import api from "@/lib/axios/index";
 
 export default function SynthetisersPage() {
-	const router = useRouter();
-	const [synths, setSynths] = useState([]);
-	const [userRoles, setUserRoles] = useState<string[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-	
+    const router = useRouter();
+    const [synths, setSynths] = useState([]);
+    const [userRoles, setUserRoles] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-	const checkAuth = useCallback(async () => {
-		
-		const token = localStorage.getItem("token");
-		if (!token) {
-			router.push(`/login`);
-			return false;
-		}
-		try {
-			const response = await api.get(`${API_URL}/auth/verify`);
-			return response.status === 200;
-		} catch {
-			router.push('/login');
-			return false;
-		}
-	}, [router]);
+    const determineUserRoles = useCallback(async () => {
+        try {
+            const response = await api.get(`${API_URL}/auth/verify`);
+            const roleId = response.data?.user?.roleId;
+            const roles = [];
+            
+            switch (roleId) {
+                case 2:
+                    roles.push("admin", "editor", "user");
+                    break;
+                case 1:
+                    roles.push("editor", "user");
+                    break;
+                default:
+                    roles.push("user");
+            }
+            
+            setUserRoles(roles);
+            return roles.includes("admin");
+        } catch {
+            setUserRoles(["user"]);
+            return false;
+        }
+    }, []);
 
-	const fetchSynths = useCallback(async () => {
-		try {
-			setIsLoading(true);
-			setError(null);
-	
-			if (typeof window === 'undefined') return;
-	
-			const token = localStorage.getItem("token");
-			if (!token) {
-				router.push('/login');
-				return;
-			}
-	
-			const roleResponse = await api.get(`${API_URL}/auth/verify`);
-			const userRole = roleResponse.data?.user?.roleId;
-			
-			if (userRole !== 2) {
-				setError("Accès non autorisé");
-				router.push('/login');
-				return;
-			}
-	
-			const synthResponse = await api.get(`${API_URL}/api/synthetisers`);
-			setUserRoles(["admin"]);
-			setSynths(synthResponse.data.data);
-			
-		} catch (error) {
-			console.error(error);
-			setError("Erreur d'authentification");
-			router.push('/login');
-		} finally {
-			setIsLoading(false);
-		}
-	}, [router]);
-	
-	
+    const fetchSynths = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            setError(null);
 
-	const onUpdateSuccess = useCallback(() => {
-        fetchSynths(); // Recharge les synthétiseurs après une mise à jour
+            const isAdmin = await determineUserRoles();
+            if (!isAdmin) {
+                router.push('/login');
+                return;
+            }
+
+            const synthResponse = await api.get(`${API_URL}/api/synthetisers`);
+            setSynths(synthResponse.data.data);
+        } catch (error) {
+            console.error(error);
+            setError("Une erreur est survenue");
+            router.push('/login');
+        } finally {
+            setIsLoading(false);
+        }
+    }, [router, determineUserRoles]);
+
+    const onUpdateSuccess = useCallback(() => {
+        fetchSynths();
     }, [fetchSynths]);
 
-	useEffect(() => {
-		if (typeof window !== 'undefined') {
-			const initPage = async () => {
-				const isAuth = await checkAuth();
-				if (isAuth) {
-					fetchSynths();
-				}
-			};
-			initPage();
-		}
-	}, [checkAuth, fetchSynths]);
-	
+    useEffect(() => {
+        fetchSynths();
+    }, [fetchSynths]);
 
-	return (
-		<main className="min-h-screen">
-			<div className="w-full px-4 py-6">
-				<h1 className="text-3xl font-bold mb-8 text-center">
-					Liste des Synthétiseurs
-				</h1>
+    if (isLoading) return <LoadingSpinner />;
+    if (error) return <div className="text-red-500 text-center">{error}</div>;
 
-				{isLoading ? (
-					<LoadingSpinner />
-				) : error ? (
-					<div className="text-red-500 text-center">{error}</div>
-				) : (
-					<ListSynthetisers 
-					synths={synths} 
-					userRoles={["admin"]} 
-					onUpdateSuccess={onUpdateSuccess} />
-				)}
-			</div>
-		</main>
-	);
+    return (
+        <main className="min-h-screen">
+            <div className="w-full px-4 py-6">
+                <h1 className="text-3xl font-bold mb-8 text-center">
+                    Liste des Synthétiseurs
+                </h1>
+                
+                <ListSynthetisers 
+                    synths={synths} 
+                    userRoles={userRoles}
+                    onUpdateSuccess={onUpdateSuccess}
+                />
+            </div>
+        </main>
+    );
 }
