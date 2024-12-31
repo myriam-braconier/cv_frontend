@@ -109,8 +109,7 @@ export const SynthetiserCard = ({
 		}
 	}, [id, fullTitle, router, onUpdateSuccess]);
 
-	const handleCloseDuplicate = useCallback(() => setIsDuplicating(false), []);
-
+	
 	const handleDuplicate = useCallback(async () => {
 		try {
 			// Vérification de l'authentification
@@ -128,7 +127,7 @@ export const SynthetiserCard = ({
 			});
 
 			if (!response.ok) {
-				throw new Error("Errification du rôle échouée");
+				throw new Error("Vérification du rôle échouée");
 			}
 
 			const userData = await response.json();
