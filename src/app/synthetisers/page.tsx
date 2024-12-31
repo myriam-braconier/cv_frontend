@@ -40,6 +40,7 @@ export default function SynthetisersPage() {
 		try {
 			setIsLoading(true);
 			setError(null);
+
 			const [roleResponse, synthResponse] = await Promise.all([
 				api.get(`${API_URL}/auth/verify`),
 				api.get(`${API_URL}/api/synthetisers`),
@@ -50,7 +51,7 @@ export default function SynthetisersPage() {
 			 const userRole = roleResponse.data?.user?.role || roleResponse.data?.role;
 			console.log("Role reçu de l'API:", userRole); // Log du rôle
 			const roles = userRole ? [userRole] : [];
-			
+
 			setUserRoles(roles);
 			console.log("Roles à définir:", roles); // Log des rôles avant setState
 			setUserRoles(roles);

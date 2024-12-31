@@ -5,15 +5,6 @@ module.exports = {
   output: 'standalone',
   poweredByHeader: false,
   reactStrictMode: true,
-  rewrites: async () => {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:4000/api/:path*'
-      }
-    ]
-  },
-  
   images: {
     remotePatterns: [
       {
