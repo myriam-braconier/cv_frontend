@@ -2,47 +2,81 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-// import Image from "next/image";
 
 interface User {
-	username?: string;
-	email?: string;
-	role?: string[];
+    username?: string;
+    email?: string;
+    role?: string[];
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
 export default function Navbar() {
-	const [isOpen, setIsOpen] = useState<boolean>(false);
-	const [user, setUser] = useState<User | null>(null);
-	const router = useRouter();
-	const pathname = usePathname();
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [user, setUser] = useState<User | null>(null);
+    const router = useRouter();
+    const pathname = usePathname();
 
-	// Effet pour charger les données utilisateur
-	useEffect(() => {
-		const loadUserData = () => {
-			try {
-				// Récupération des données utilisateur
-				const token = localStorage.getItem("token");
-				const storedUser = localStorage.getItem("user");
+    useEffect(() => {
+        const loadUserData = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                if (token) {
+                    // Vérifier la validité du token avec le backend
+                    const response = await fetch(`${API_URL}/auth/verify`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        },
+                        credentials: 'include'
+                    });
 
-				if (token && storedUser) {
-					const userData = JSON.parse(storedUser);
-					setUser(userData);
-					console.log("Données utilisateur chargées:", userData);
-				}
-			} catch (error) {
-				console.error("Erreur lors du chargement des données:", error);
-			}
-		};
+                    if (!response.ok) {
+                        // Si le token n'est pas valide, déconnectez l'utilisateur
+                        handleLogout();
+                        return;
+                    }
 
-		loadUserData();
-	}, [pathname]);
+                    const storedUser = localStorage.getItem("user");
+                    if (storedUser) {
+                        const userData = JSON.parse(storedUser);
+                        setUser(userData);
+                    }
+                }
+            } catch (error) {
+                console.error("Erreur lors du chargement des données:", error);
+                handleLogout();
+            }
+        };
 
-	const handleLogout = () => {
-		localStorage.removeItem("token");
-		localStorage.removeItem("user");
-		setUser(null);
-		router.push(`/`);
-	};
+        loadUserData();
+    }, [pathname]);
+
+    const handleLogout = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            if (token) {
+                // Appeler le endpoint de déconnexion
+                await fetch(`${API_URL}/auth/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    credentials: 'include'
+                });
+            }
+        } catch (error) {
+            console.error("Erreur lors de la déconnexion:", error);
+        } finally {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            setUser(null);
+            router.push('/');
+        }
+    };
+
+  
+
 
 	return (
 		<nav className="bg-gray-900 text-white">
