@@ -36,16 +36,21 @@ export default function SynthetisersPage() {
 			setIsLoading(true);
 			setError(null);
 	
+			if (typeof window === 'undefined') return;
+	
 			const token = localStorage.getItem("token");
 			if (!token) {
-				throw new Error("No token");
+				router.push('/login');
+				return;
 			}
 	
 			const roleResponse = await api.get(`${API_URL}/auth/verify`);
 			const userRole = roleResponse.data?.user?.roleId;
 			
 			if (userRole !== 2) {
-				throw new Error("Unauthorized");
+				setError("Accès non autorisé");
+				router.push('/login');
+				return;
 			}
 	
 			const synthResponse = await api.get(`${API_URL}/api/synthetisers`);
@@ -53,13 +58,14 @@ export default function SynthetisersPage() {
 			setSynths(synthResponse.data.data);
 			
 		} catch (error) {
-			console.error(error)
-			localStorage.removeItem("token");
+			console.error(error);
+			setError("Erreur d'authentification");
 			router.push('/login');
 		} finally {
 			setIsLoading(false);
 		}
 	}, [router]);
+	
 	
 
 	const onUpdateSuccess = useCallback(() => {
