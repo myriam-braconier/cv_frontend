@@ -19,7 +19,7 @@ export default function SynthetisersPage() {
 	const checkAuth = useCallback(async () => {
 		const token = localStorage.getItem("token");
 		if (!token) {
-			router.push(`${API_URL}/login`);
+			router.push(`/login`);
 			return false;
 		}
 		try {
@@ -46,12 +46,7 @@ export default function SynthetisersPage() {
 				api.get(`${API_URL}/api/synthetisers`),
 			]);
 
-
-
-			
-
-			 
-			const userRole = roleResponse.data?.user?.roleId === 1 ? 'admin' : 'user';			
+			const userRole = roleResponse.data?.user?.role === 1 ? "admin" : "user";
 			console.log("Response complète:", roleResponse.data); // Pour debugger
 
 			console.log("Role reçu de l'API:", userRole); // Log du rôle
