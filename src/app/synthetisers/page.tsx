@@ -25,7 +25,7 @@ export default function SynthetisersPage() {
 			const response = await api.get(`${API_URL}/auth/verify`);
 			return response.status === 200;
 		} catch {
-			router.push(`${API_URL}/login`);
+			router.push('/login');
 			return false;
 		}
 	}, [router]);
@@ -47,7 +47,7 @@ export default function SynthetisersPage() {
 
 			// Vérification correcte du rôle admin
 			const userRole = roleResponse.data?.user?.roleId;
-			const isAdmin = userRole === 2; // Supposant que roleId 1 = admin
+			const isAdmin = userRole === 2; // Supposant que roleId 2 = admin
 			console.log("Response complète:", roleResponse.data);
 			console.log("Role reçu de l'API:", userRole);
 
