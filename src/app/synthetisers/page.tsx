@@ -1,11 +1,11 @@
 "use client";
-import { API_URL } from '@/config/constants';
+import { API_URL } from "@/config/constants";
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import ListSynthetisers from "@/features/synthetisers/components/list/ListSynthetisers";
-import { LoadingSpinner } from "@/components/LoadingSpinner"; // Ajout de l'import
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 import api from "@/lib/axios/index";
 
@@ -44,9 +44,14 @@ export default function SynthetisersPage() {
 				api.get(`${API_URL}/auth/verify`),
 				api.get(`${API_URL}/api/synthetisers`),
 			]);
-			const userRole = roleResponse.data.role;
+
+			console.log("Response complète:", roleResponse.data); // Pour debugger
+
+			 const userRole = roleResponse.data?.user?.role || roleResponse.data?.role;
 			console.log("Role reçu de l'API:", userRole); // Log du rôle
-			const roles = userRole === "admin" ? ["admin"] : [userRole];
+			const roles = userRole ? [userRole] : [];
+			
+			setUserRoles(roles);
 			console.log("Roles à définir:", roles); // Log des rôles avant setState
 			setUserRoles(roles);
 			setSynths(synthResponse.data.data);
