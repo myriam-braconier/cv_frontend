@@ -21,7 +21,7 @@ export const ListSynthetisers = ({
 	const [synths, setSynths] = useState<Synth[]>(initialSynths);
 	const [userRoles, setUserRoles] = useState<string[]>(initialUserRoles);
 	// const router = useRouter();
-	const hasAdminRole = userRoles?.includes('2'); // Vérifie si le rôle 2 est présent
+	const hasAdminRole = userRoles?.includes("2"); // Vérifie si le rôle 2 est présent
 
 	const isAuthenticated = useCallback(() => {
 		const token = localStorage.getItem("token");
@@ -29,9 +29,14 @@ export const ListSynthetisers = ({
 		return !!(token && userId);
 	}, []);
 
-	// const handleDuplicate = (synthId: string | number) => {
-	// 	router.push(`/synthetisers/duplicate/${synthId}`);
-	// };
+	const checkAdminRole = useCallback(() => {
+		return initialUserRoles?.includes("admin") || userRoles?.includes("admin");
+	}, [initialUserRoles, userRoles]);
+
+	useEffect(() => {
+		setSynths(initialSynths);
+		setUserRoles(initialUserRoles);
+	}, [initialSynths, initialUserRoles]);
 
 	useEffect(() => {
 		console.log("ListSynthetisers - initialUserRoles:", initialUserRoles);
@@ -54,37 +59,13 @@ export const ListSynthetisers = ({
 							<SynthetiserCard
 								key={synth.id}
 								synth={synth}
-								hasAdminRole={userRoles?.includes("admin")}
+								hasAdminRole={checkAdminRole()}
 								onUpdateSuccess={onUpdateSuccess}
 								isAuthenticated={isAuthenticated}
-							
 							/>
 						</div>
 					))}
 			</div>
-			{/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-				{synths.map((synth) => (
-					<div key={synth.id} className="border p-4 rounded-lg">
-						<h3 className="font-bold">
-							{synth.marque} {synth.modele}
-						</h3>
-						<p>
-							Prix:{" "}
-							{synth.price === null
-								? "Non défini"
-								: typeof synth.price === "object"
-								? `${synth.price.value} ${synth.price.currency}`
-								: `${synth.price} EUR`}
-						</p>
-						<button
-							onClick={() => handleDuplicate(synth.id)}
-							className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-						>
-							Dupliquer
-						</button>
-					</div>
-				))}
-			</div> */}
 		</ErrorBoundary>
 	);
 };
