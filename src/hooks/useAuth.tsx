@@ -80,16 +80,10 @@ export const useAuth = () => {
 
 	const login = async (email: string, password: string): Promise<UserData> => {
         try {
-            const { data } = await api.post<AuthResponse>(
-                `${API_URL}/auth/login`, 
-                { email, password },
-                { 
-                    withCredentials: true,
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
+			const { data } = await api.post<AuthResponse>('/auth/login', {
+				email,
+				password
+			});
 
             if (!data.token) {
                 throw new Error("Token manquant dans la réponse");
