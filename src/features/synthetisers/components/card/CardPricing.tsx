@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { api } from "@/services/axios";
 import { toast } from "react-hot-toast";
 import { AuctionPrice } from "@/features/synthetisers/types/synth"; // Import direct des types
-import { API_URL } from '@/config/constants';
+import { API_URL } from "@/config/constants";
 
 interface Price {
 	value: number;
@@ -34,7 +34,7 @@ const CardPricing = ({
 	const [localAuctionPrices, setLocalAuctionPrices] =
 		useState<AuctionPrice[]>(auctionPrices);
 
-		const router = useRouter();
+	const router = useRouter();
 
 	const [isLoadingAuctions, setIsLoadingAuctions] = useState(false);
 	const [auctionError, setAuctionError] = useState<string | null>(null);
@@ -64,20 +64,21 @@ const CardPricing = ({
 		return latestAuction ? latestAuction.proposal_price : null;
 	}, [getLatestAuction]);
 
-
-
 	const fetchLatestAuction = useCallback(async () => {
 		try {
-			const response = await api.get(`${API_URL}/api/synthetisers/${synthId}/auctions/latest`);
+			const response = await api.get(
+				`${API_URL}/api/synthetisers/${synthId}/auctions/latest`
+			);
 			if (response.data) {
-				setLocalAuctionPrices(prev => [response.data, ...prev]);
+				setLocalAuctionPrices((prev) => [response.data, ...prev]);
 			}
 		} catch (error) {
-			console.error("Erreur lors de la récupération de la dernière enchère:", error);
+			console.error(
+				"Erreur lors de la récupération de la dernière enchère:",
+				error
+			);
 		}
 	}, [synthId]);
-	
-
 
 	const handleCreateAuction = async () => {
 		if (!isAuthenticated() || !newBidAmount) {
@@ -87,13 +88,17 @@ const CardPricing = ({
 	
 		try {
 			setIsLoadingAuctions(true);
-			const response = await api.post(`${API_URL}/api/synthetisers/${synthId}/auctions`, {
-				proposal_price: Number(newBidAmount),
-				status: "active"
-			});
+			const response = await api.post(
+				`${API_URL}/api/synthetisers/${synthId}/auctions`,
+				{
+					proposal_price: Number(newBidAmount),
+					status: "active",
+					userId: JSON.parse(atob(localStorage.getItem("token")!.split(".")[1])).id
+				}
+			);
 	
 			if (response.status === 201) {
-				await fetchLatestAuction(); // Récupérer la dernière enchère
+				await fetchLatestAuction();
 				setNewBidAmount(null);
 				setAuctionError(null);
 				toast.success("Enchère créée avec succès");
@@ -114,7 +119,7 @@ const CardPricing = ({
 		}
 	};
 	
-	
+
 	useEffect(() => {
 		if (auctionPrices && auctionPrices.length > 0) {
 			setLocalAuctionPrices(auctionPrices);
@@ -125,7 +130,7 @@ const CardPricing = ({
 		if (synthId) {
 			fetchLatestAuction();
 		}
-	}, [fetchLatestAuction, synthId])
+	}, [fetchLatestAuction, synthId]);
 
 	console.log({
 		token: localStorage.getItem("token"),
@@ -151,7 +156,7 @@ const CardPricing = ({
 						const latestAuction = getLatestAuction();
 						if (!latestAuction) return <div>Aucune enchère</div>;
 
-						const date = latestAuction.createdAt 
+						const date = latestAuction.createdAt
 							? new Date(latestAuction.createdAt)
 							: new Date();
 
@@ -161,47 +166,47 @@ const CardPricing = ({
 									Dernière enchère: {latestAuction.proposal_price}€
 								</div>
 								<div className="text-sm text-gray-600">
-									Créée le {date.toLocaleString('fr-FR', {
-										year: 'numeric',
-										month: 'long',
-										day: 'numeric',
-										hour: '2-digit',
-										minute: '2-digit'
+									Créée le{" "}
+									{date.toLocaleString("fr-FR", {
+										year: "numeric",
+										month: "long",
+										day: "numeric",
+										hour: "2-digit",
+										minute: "2-digit",
 									})}
 								</div>
 							</div>
 						);
 					})()}
 				</div>
-
-
 			</div>
 
-			{isAuthenticated() && isAdmin && ( // Ajout de la condition isAdmin
-				<div className="space-y-2">
-					<input
-						type="number"
-						value={newBidAmount || ""}
-						onChange={(e) =>
-							setNewBidAmount(e.target.value ? Number(e.target.value) : null)
-						}
-						min={
-							getLatestAuctionPrice()
-								? getLatestAuctionPrice()! + 1
-								: displayPrice + 1
-						}
-						className="w-full p-2 border rounded"
-						placeholder="Montant de votre enchère"
-					/>
-					<button
-						onClick={handleCreateAuction}
-						disabled={isLoading || isLoadingAuctions || !newBidAmount}
-						className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-					>
-						{isLoadingAuctions ? "Enchère en cours..." : "Placer l'enchère"}
-					</button>
-				</div>
-			)}
+			{isAuthenticated() &&
+				isAdmin && ( // Ajout de la condition isAdmin
+					<div className="space-y-2">
+						<input
+							type="number"
+							value={newBidAmount || ""}
+							onChange={(e) =>
+								setNewBidAmount(e.target.value ? Number(e.target.value) : null)
+							}
+							min={
+								getLatestAuctionPrice()
+									? getLatestAuctionPrice()! + 1
+									: displayPrice + 1
+							}
+							className="w-full p-2 border rounded"
+							placeholder="Montant de votre enchère"
+						/>
+						<button
+							onClick={handleCreateAuction}
+							disabled={isLoading || isLoadingAuctions || !newBidAmount}
+							className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+						>
+							{isLoadingAuctions ? "Enchère en cours..." : "Placer l'enchère"}
+						</button>
+					</div>
+				)}
 		</div>
 	);
 };

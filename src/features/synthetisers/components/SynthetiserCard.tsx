@@ -181,6 +181,7 @@ export const SynthetiserCard = ({
 					isLoading={isLoading}
 					synthId={id.toString()}
 					onUpdateSuccess={onUpdateSuccess}
+					isAdmin={hasAdminRole}
 				/>
 	
 				{/* Posts */}
