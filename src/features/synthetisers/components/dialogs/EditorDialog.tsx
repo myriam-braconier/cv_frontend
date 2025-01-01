@@ -71,7 +71,7 @@ export const EditorDialog = ({
 					onCancel={onCancel}
 					error={error}
 					onOpenChange={onOpenChange}
-					isAuthenticated={() => true}
+					isAuthenticated={true}
 					/>
 			</DialogContent>
 		</Dialog>
