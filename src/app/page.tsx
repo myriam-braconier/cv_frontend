@@ -26,7 +26,7 @@ export default function HomePage() {
 				className="bg-gradient-to-b from-blue-500 to-red-500 text-white "
 				id="sectionAccueil"
 			>
-				{/* Image de fond */}
+				{/* Image de fond
 				<div
 					className="absolute inset-0 z-0"
 					style={{
@@ -35,7 +35,7 @@ export default function HomePage() {
 						backgroundPosition: "center",
 						opacity: "1", // Ajustez l'opacité si nécessaire
 					}}
-				/>
+				/> */}
 				  {/* Contenu existant avec z-index pour le placer au-dessus du fond */}
 				<div className="container mx-auto px-4 py-16 relative z-10">
 					<div className="flex flex-col md:flex-row items-center justify-between">
