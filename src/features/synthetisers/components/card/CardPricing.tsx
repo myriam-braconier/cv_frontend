@@ -29,7 +29,7 @@ const CardPricing = ({
 	isLoading = false,
 	synthId,
 	onUpdateSuccess,
-	isAdmin = false, // Valeur par defaut
+	isAdmin = true, // Valeur par defaut pour que le conditionnel soit effectif
 }: CardPricingProps) => {
 	const [localAuctionPrices, setLocalAuctionPrices] =
 		useState<AuctionPrice[]>(auctionPrices);
