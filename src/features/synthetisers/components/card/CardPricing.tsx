@@ -64,7 +64,7 @@ const CardPricing = ({
     
                 const formattedData = {
                     ...response.data,
-                    createdAt: new Date(response.data.createdAt).getTime()
+                    createdAt: response.data.createdAt || Date.now()
                 };
                 console.log('Formatted data:', formattedData); // Voir les données après formatage
 
