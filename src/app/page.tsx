@@ -21,9 +21,23 @@ export default function HomePage() {
 	return (
 		<main className="min-h-screen">
 			{/* Hero Section */}
-     
-			<section className="bg-gradient-to-b from-blue-500 to-red-500 text-white " id="sectionAccueil">
-				<div className="container mx-auto px-4 py-16">
+
+			<section
+				className="bg-gradient-to-b from-blue-500 to-red-500 text-white "
+				id="sectionAccueil"
+			>
+				{/* Image de fond */}
+				<div
+					className="absolute inset-0 z-0"
+					style={{
+						backgroundImage: 'url("/images/spatsz.jpg")',
+						backgroundSize: "cover",
+						backgroundPosition: "center",
+						opacity: "0.5", // Ajustez l'opacité si nécessaire
+					}}
+				/>
+				  {/* Contenu existant avec z-index pour le placer au-dessus du fond */}
+				<div className="container mx-auto px-4 py-16 relative z-10">
 					<div className="flex flex-col md:flex-row items-center justify-between">
 						<div className="md:w-1/2 mb-8 md:mb-0">
 							<h1 className="text-4xl md:text-6xl font-bold mb-4 text-red-500">
