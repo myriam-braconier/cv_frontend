@@ -8,7 +8,7 @@ import { AuctionPrice } from "@/features/synthetisers/types/synth";
 import { API_URL } from "@/config/constants";
 
 interface CardPricingProps {
-    price: number  | Price | null;
+    price: number | Price | null;
     auctionPrices: AuctionPrice[];
     isAuthenticated: () => boolean;
     isLoading?: boolean;
@@ -17,7 +17,6 @@ interface CardPricingProps {
     isAdmin?: boolean;
 }
 
-// Définition correcte de l'interface Price
 interface Price {
     value: number;
     currency: string;
@@ -37,13 +36,13 @@ const CardPricing = ({
     const [newBidAmount, setNewBidAmount] = useState<number | null>(null);
     const router = useRouter();
 
-	const displayPrice: number = price 
-	? typeof price === "object" && 'value' in price 
-		? price.value 
-		: typeof price === "number" 
-			? price 
-			: 0
-	: 0;
+    const displayPrice: number = price 
+        ? typeof price === "object" && 'value' in price 
+            ? price.value 
+            : typeof price === "number" 
+                ? price 
+                : 0
+        : 0;
 
     const getLatestAuction = useCallback((): AuctionPrice | null => {
         if (!localAuctionPrices || localAuctionPrices.length === 0) return null;
@@ -88,9 +87,14 @@ const CardPricing = ({
             return;
         }
 
-        const latestPrice = getLatestAuction()?.proposal_price || displayPrice;
-        if (newBidAmount <= latestPrice) {
-            toast.error("Le montant doit être supérieur à la dernière enchère");
+        const latestAuction = getLatestAuction();
+        const minimumBid = latestAuction ? latestAuction.proposal_price : displayPrice;
+
+        if (newBidAmount <= minimumBid) {
+            toast.error(latestAuction 
+                ? "Le montant doit être supérieur à la dernière enchère"
+                : "Le montant doit être supérieur au prix initial"
+            );
             return;
         }
 
@@ -134,13 +138,11 @@ const CardPricing = ({
         }
     }, [fetchLatestAuction, synthId]);
 
+    const latestAuction = getLatestAuction();
+    const minimumBid = latestAuction ? latestAuction.proposal_price + 1 : displayPrice + 1;
+
     return (
         <div className="flex flex-col space-y-4">
-			  {/* Ajoutez ces lignes pour debug */}
-			  <div className="text-sm text-gray-500">
-            État authentification : {isAuthenticated() ? 'Connecté' : 'Non connecté'}
-            Token présent : {localStorage.getItem('token') ? 'Oui' : 'Non'}
-        </div>
             {auctionError && <div className="text-red-500">{auctionError}</div>}
 
             <div className="flex justify-between items-center">
@@ -149,27 +151,24 @@ const CardPricing = ({
                 </div>
 
                 <div>
-                    {(() => {
-                        const latestAuction = getLatestAuction();
-                        if (!latestAuction) return <div>Aucune enchère</div>;
-
-                        return (
-                            <div className="text-right">
-                                <div className="font-semibold">
-                                    Dernière enchère: {latestAuction.proposal_price}€
-                                </div>
-                                <div className="text-sm text-gray-600">
-                                    {new Date(latestAuction.createdAt).toLocaleString("fr-FR", {
-                                        year: "numeric",
-                                        month: "long",
-                                        day: "numeric",
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                    })}
-                                </div>
+                    {latestAuction ? (
+                        <div className="text-right">
+                            <div className="font-semibold">
+                                Dernière enchère: {latestAuction.proposal_price}€
                             </div>
-                        );
-                    })()}
+                            <div className="text-sm text-gray-600">
+                                {new Date(latestAuction.createdAt).toLocaleString("fr-FR", {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                })}
+                            </div>
+                        </div>
+                    ) : (
+                        <div>Aucune enchère - Soyez le premier à enchérir!</div>
+                    )}
                 </div>
             </div>
 
@@ -179,13 +178,13 @@ const CardPricing = ({
                         type="number"
                         value={newBidAmount || ""}
                         onChange={(e) => setNewBidAmount(e.target.value ? Number(e.target.value) : null)}
-                        min={getLatestAuction()?.proposal_price ? getLatestAuction()!.proposal_price + 1 : displayPrice + 1}
+                        min={minimumBid}
                         className="w-full p-2 border rounded"
-                        placeholder="Montant de votre enchère"
+                        placeholder={`Montant minimum: ${minimumBid}€`}
                     />
                     <button
                         onClick={handleCreateAuction}
-                        disabled={isLoading || isLoadingAuctions || !newBidAmount}
+                        disabled={isLoading || isLoadingAuctions || !newBidAmount || (newBidAmount < minimumBid)}
                         className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
                     >
                         {isLoadingAuctions ? "Enchère en cours..." : "Placer l'enchère"}
