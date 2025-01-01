@@ -60,20 +60,9 @@ const CardPricing = ({
 				`${API_URL}/api/synthetisers/${synthId}/auctions/latest`
 			);
 			if (response.data) {
-				console.group("Auction Data");
-				console.log("Response:", response.data);
-				console.log("CreatedAt:", response.data.createdAt);
-				console.log("Date Object:", new Date(response.data.createdAt));
-				console.groupEnd();
-
-				// Assurez-vous que la date est un timestamp valide
-				const createdAt = response.data.createdAt
-					? Number(response.data.createdAt) * 1000 // Convertir les secondes en millisecondes si nécessaire
-					: new Date().getTime();
-
 				const formattedData = {
 					...response.data,
-					createdAt,
+					createdAt: new Date(response.data.createdAt).getTime(),
 				};
 
 				setLocalAuctionPrices((prev) => {
@@ -198,19 +187,18 @@ const CardPricing = ({
 								Dernière enchère: {latestAuction.proposal_price}€
 							</div>
 							<div className="text-sm text-gray-600">
-								{(() => {
-									if (!latestAuction?.createdAt) return "Date non disponible";
-									const timestamp = parseInt(latestAuction.createdAt as string);
-									if (isNaN(timestamp)) return "Date non disponible";
-									const date = new Date(timestamp);
-									return date.toLocaleString("fr-FR", {
-										year: "numeric",
-										month: "long",
-										day: "numeric",
-										hour: "2-digit",
-										minute: "2-digit",
-									});
-								})()}
+								{latestAuction?.createdAt
+									? new Date(Number(latestAuction.createdAt)).toLocaleString(
+											"fr-FR",
+											{
+												year: "numeric",
+												month: "long",
+												day: "numeric",
+												hour: "2-digit",
+												minute: "2-digit",
+											}
+									  )
+									: "Date non disponible"}
 							</div>
 						</div>
 					) : (
