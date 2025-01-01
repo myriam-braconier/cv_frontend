@@ -19,3 +19,7 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+#sectionAccueil {
+  background-image: url("/public/images/Spatsz\ 2.jpg");
+}

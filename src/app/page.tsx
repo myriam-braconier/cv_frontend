@@ -21,7 +21,7 @@ export default function HomePage() {
 	return (
 		<main className="min-h-screen">
 			{/* Hero Section */}
-			<section className="bg-gradient-to-b from-blue-500 to-red-500 text-white">
+			<section className="bg-gradient-to-b from-blue-500 to-red-500 text-white " id="sectionAccueil">
 				<div className="container mx-auto px-4 py-16">
 					<div className="flex flex-col md:flex-row items-center justify-between">
 						<div className="md:w-1/2 mb-8 md:mb-0">
