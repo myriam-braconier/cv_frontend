@@ -31,8 +31,14 @@ export const ListSynthetisers = ({
 	const checkAdminRole = useCallback(() => {
 		const token = localStorage.getItem('token');
 		if (!token) return false;
-		const payload = JSON.parse(atob(token.split('.')[1]));
-		return payload.role === 'admin' || payload.roleId === 1 || payload.roleId === 2;
+		
+		try {
+			const payload = JSON.parse(atob(token.split('.')[1]));
+			return payload.roleId === 2; // Seulement roleId 2 pour admin
+		} catch (error) {
+			console.error("Erreur token:", error);
+			return false;
+		}
 	}, []);
 
 	useEffect(() => {
