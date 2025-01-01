@@ -164,6 +164,11 @@ const CardPricing = ({
 		}
 	}, [latestAuction]);
 
+	console.log("latestAuction complet:", latestAuction);
+	console.log("updatedAt valeur:", latestAuction?.updatedAt);
+	console.log("Type de updatedAt:", typeof latestAuction?.updatedAt);
+	console.log("Test de conversion:", new Date(latestAuction?.updatedAt));
+
 	// RENDU
 	return (
 		<div className="flex flex-col space-y-4">
@@ -180,13 +185,14 @@ const CardPricing = ({
 								Dernière enchère: {latestAuction.proposal_price}€
 							</div>
 							<div className="text-sm text-gray-600">
-								{new Date(latestAuction.updatedAt).toLocaleString("fr-FR", {
-									year: "numeric",
-									month: "long",
-									day: "numeric",
-									hour: "2-digit",
-									minute: "2-digit",
-								})}
+								{latestAuction.updatedAt &&
+									new Date(latestAuction.updatedAt).toLocaleString("fr-FR", {
+										year: "numeric",
+										month: "long",
+										day: "numeric",
+										hour: "2-digit",
+										minute: "2-digit",
+									})}
 							</div>
 						</div>
 					) : (
