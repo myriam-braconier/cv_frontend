@@ -157,36 +157,57 @@ const CardPricing = ({
     const latestAuction = getLatestAuction();
     const minimumBid = latestAuction ? latestAuction.proposal_price + 1 : displayPrice + 1;
 
+    useEffect(() => {
+        console.log('Latest Auction:', latestAuction);
+        if (latestAuction) {
+            console.log('CreatedAt raw:', latestAuction.createdAt);
+            console.log('CreatedAt as Date:', new Date(latestAuction.createdAt));
+        }
+    }, [latestAuction]);
+
+
+
+    // RENDU
     return (
         <div className="flex flex-col space-y-4">
-            {auctionError && <div className="text-red-500">{auctionError}</div>}
-
-            <div className="flex justify-between items-center">
-                <div className="text-lg font-semibold">
-                    Prix initial: {displayPrice}€
-                </div>
-
-                <div>
-                    {latestAuction ? (
-                        <div className="text-right">
-                            <div className="font-semibold">
-                                Dernière enchère: {latestAuction.proposal_price}€
-                            </div>
-                            <div className="text-sm text-gray-600">
-                                {new Date(latestAuction.createdAt).toLocaleString("fr-FR", {
-                                    year: "numeric",
-                                    month: "long",
-                                    day: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                })}
-                            </div>
-                        </div>
-                    ) : (
-                        <div>Aucune enchère - Soyez le premier à enchérir!</div>
-                    )}
-                </div>
+        {auctionError && <div className="text-red-500">{auctionError}</div>}
+        <div className="flex justify-between items-center">
+            <div className="text-lg font-semibold">
+                Prix initial: {displayPrice}€
             </div>
+            <div>
+                {latestAuction ? (
+                    <div className="text-right">
+                        <div className="font-semibold">
+                            Dernière enchère: {latestAuction.proposal_price}€
+                        </div>
+                        <div className="text-sm text-gray-600">
+                            {(() => {
+                                try {
+                                    const date = new Date(latestAuction.createdAt);
+                                    if (isNaN(date.getTime())) {
+                                        console.log('Date invalide:', latestAuction.createdAt);
+                                        return 'Date non disponible';
+                                    }
+                                    return date.toLocaleString("fr-FR", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit"
+                                    });
+                                } catch (error) {
+                                    console.log('Erreur date:', error, 'CreatedAt:', latestAuction.createdAt);
+                                    return 'Date non disponible';
+                                }
+                            })()}
+                        </div>
+                    </div>
+                ) : (
+                    <div>Aucune enchère - Soyez le premier à enchérir!</div>
+                )}
+            </div>
+        </div>
 
             {isAuthenticated() && (
                 <div className="space-y-2">
