@@ -191,27 +191,21 @@ const CardPricing = ({
 					Prix initial: {displayPrice}€
 				</div>
 				<div>
-					{latestAuction ? (
-						<div className="text-right">
-							<div className="font-semibold">
-								Dernière enchère: {latestAuction.proposal_price}€
-							</div>
+					{(() => {
+						if (!latestAuction?.createdAt) return "Date non disponible";
 
-							<div className="text-sm text-gray-600">
-								{latestAuction.createdAt
-									? new Date(latestAuction.createdAt).toLocaleString("fr-FR", {
-											year: "numeric",
-											month: "long",
-											day: "numeric",
-											hour: "2-digit",
-											minute: "2-digit",
-									  })
-									: "Date non disponible"}
-							</div>
-						</div>
-					) : (
-						<div>Aucune enchère - Soyez le premier à enchérir!</div>
-					)}
+						const timestamp = parseInt(latestAuction.createdAt as string);
+						if (isNaN(timestamp)) return "Date non disponible";
+
+						const date = new Date(timestamp);
+						return date.toLocaleString("fr-FR", {
+							year: "numeric",
+							month: "long",
+							day: "numeric",
+							hour: "2-digit",
+							minute: "2-digit",
+						});
+					})()}
 				</div>
 			</div>
 
