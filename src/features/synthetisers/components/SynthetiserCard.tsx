@@ -11,6 +11,7 @@ import { Synth, Post } from "@/features/synthetisers/types/synth";
 import { DuplicateSynthDialog } from "@/features/synthetisers/components/dialogs/DuplicateSynthDialog";
 import { API_URL } from "@/config/constants";
 import { api } from "@/services/axios";
+import axios from 'axios';
 
 interface SynthetiserCardProps {
 	synth: Synth;
@@ -120,42 +121,47 @@ export const SynthetiserCard = ({
 				return;
 			}
 	
-			// Utilisation de l'instance API configurée
+			// Ajout du type de contenu et du token dans les headers
 			const response = await api.get(`${API_URL}/auth/verify`, {
 				headers: {
-					Authorization: `Bearer ${token}`
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
 				}
 			});
 	
-			const userData = response.data;
-			if (userData?.user?.roleId !== 2) {
+			// Vérification plus stricte de la réponse
+			if (!response.data?.user?.roleId) {
+				throw new Error("Données utilisateur invalides");
+			}
+	
+			const isAdmin = response.data.user.roleId === 2;
+			if (!isAdmin) {
 				toast.error("Accès non autorisé");
 				return;
 			}
 	
+			// Activation de la duplication
 			setIsDuplicating(true);
+			console.log("Modal de duplication activée");
 	
 		} catch (error: unknown) {
-			// Vérification du type d'erreur
-			let message = "Une erreur inattendue est survenue";
+			console.error("Erreur complète:", error);
 			
-			if (error instanceof Error) {
-				message = error.message;
-			} else if (typeof error === 'object' && error && 'message' in error) {
-				message = String((error as { message: unknown }).message);
+			// Gestion spécifique des erreurs Axios
+			if (axios.isAxiosError(error)) {
+				if (error.response?.status === 401) {
+					localStorage.removeItem("token");
+					toast.error("Session expirée");
+					router.push("/login");
+				} else {
+					toast.error(error.response?.data?.message || "Erreur de connexion");
+				}
+				return;
 			}
 	
-			console.error("Erreur:", message);
+			// Autres types d'erreurs
+			const message = error instanceof Error ? error.message : "Erreur inattendue";
 			toast.error(message);
-			
-			// Gestion de la déconnexion
-			if (typeof error === 'object' && error && 'response' in error) {
-				const axiosError = error as { response?: { status: number } };
-				if (axiosError.response?.status === 401) {
-					localStorage.removeItem("token");
-					router.push("/login");
-				}
-			}
 		}
 	}, [router]);
 	
@@ -272,13 +278,13 @@ export const SynthetiserCard = ({
 
 						{isDuplicating && (
 							<DuplicateSynthDialog
-								isOpen={isDuplicating}
-								onOpenChange={setIsDuplicating}
-								synth={synth}
-								onClose={() => setIsDuplicating(false)}
-								onSuccess={onUpdateSuccess}
-								originalSynth={synth}
-								isAdmin={true}
+							isOpen={isDuplicating}
+							onOpenChange={setIsDuplicating}
+							synth={synth}
+							onClose={() => setIsDuplicating(false)}
+							onSuccess={onUpdateSuccess}
+							originalSynth={synth}
+							isAdmin={true}
 							/>
 						)}
 					</div>
