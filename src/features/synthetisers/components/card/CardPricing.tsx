@@ -167,7 +167,12 @@ const CardPricing = ({
 	console.log("latestAuction complet:", latestAuction);
 	console.log("updatedAt valeur:", latestAuction?.updatedAt);
 	console.log("Type de updatedAt:", typeof latestAuction?.updatedAt);
-	console.log("Test de conversion:", new Date(latestAuction?.updatedAt));
+	console.log("Test de conversion:", latestAuction && latestAuction.updatedAt 
+		? new Date(latestAuction.updatedAt)
+		: latestAuction?.createdAt 
+			? new Date(latestAuction.createdAt)
+			: "Pas de date disponible"
+	);
 
 	// RENDU
 	return (
@@ -178,27 +183,37 @@ const CardPricing = ({
 					Prix initial: {displayPrice}€
 				</div>
 
+
 				<div>
-					{latestAuction ? (
-						<div className="text-right">
-							<div className="font-semibold">
-								Dernière enchère: {latestAuction.proposal_price}€
-							</div>
-							<div className="text-sm text-gray-600">
-								{latestAuction.updatedAt &&
-									new Date(latestAuction.updatedAt).toLocaleString("fr-FR", {
-										year: "numeric",
-										month: "long",
-										day: "numeric",
-										hour: "2-digit",
-										minute: "2-digit",
-									})}
-							</div>
-						</div>
-					) : (
-						<div>Aucune enchère - Soyez le premier à enchérir!</div>
-					)}
-				</div>
+    {latestAuction ? (
+        <div className="text-right">
+            <div className="font-semibold">
+                Dernière enchère: {latestAuction.proposal_price}€
+            </div>
+            <div className="text-sm text-gray-600">
+                {latestAuction.updatedAt 
+                    ? new Date(latestAuction.updatedAt).toLocaleString("fr-FR", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : new Date(latestAuction.createdAt).toLocaleString("fr-FR", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+            </div>
+        </div>
+    ) : (
+        <div>Aucune enchère - Soyez le premier à enchérir!</div>
+    )}
+</div>
+
+
 			</div>
 
 			{isAuthenticated() && (
