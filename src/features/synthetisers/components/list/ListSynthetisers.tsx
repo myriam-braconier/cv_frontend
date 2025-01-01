@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { Synth } from "@/features/synthetisers/types/synth";
 import { SynthetiserCard } from "../SynthetiserCard";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { useRouter } from "next/navigation";
 
 interface ListSynthetisersProps {
     synths: Synth[];
@@ -16,47 +15,10 @@ export const ListSynthetisers = ({
     onUpdateSuccess,
 }: ListSynthetisersProps) => {
     const [synths, setSynths] = useState<Synth[]>(initialSynths);
-    const [isAdmin, setIsAdmin] = useState<boolean>(false);
-    const [authState, setAuthState] = useState<boolean>(false);
-    const router = useRouter();
-
-    const isAuthenticated = useCallback(() => {
-        return authState;
-    }, [authState]);
-
-    useEffect(() => {
-        const checkAuth = async () => {
-            if (typeof window !== 'undefined') {
-                const token = localStorage.getItem("token");
-                const userId = localStorage.getItem("userId");
-                
-                if (!token || !userId) {
-                    router.push('/login');
-                    return;
-                }
-
-                try {
-                    const payload = JSON.parse(atob(token.split('.')[1]));
-                    const isAdminUser = payload.roleId === 2;
-                    setIsAdmin(isAdminUser);
-                    setAuthState(true);
-                } catch (error) {
-                    console.error("Erreur de vérification du token:", error);
-                    router.push('/login');
-                }
-            }
-        };
-
-        checkAuth();
-    }, [router]);
 
     useEffect(() => {
         setSynths(initialSynths);
     }, [initialSynths]);
-
-    if (!authState) {
-        return null;
-    }
 
     return (
         <ErrorBoundary>
@@ -72,9 +34,9 @@ export const ListSynthetisers = ({
                             <SynthetiserCard
                                 key={synth.id}
                                 synth={synth}
-                                hasAdminRole={isAdmin}
+                                hasAdminRole={true}
                                 onUpdateSuccess={onUpdateSuccess}
-                                isAuthenticated={isAuthenticated}
+                                isAuthenticated={() => true}
                             />
                         </div>
                     ))}
@@ -82,5 +44,3 @@ export const ListSynthetisers = ({
         </ErrorBoundary>
     );
 };
-
-export default ListSynthetisers;
