@@ -24,7 +24,7 @@ interface SynthetiserCardProps {
 export const SynthetiserCard = ({
 	synth,
 	onUpdateSuccess,
-	isAuthenticated,
+	
 	hasAdminRole = false,
 }: SynthetiserCardProps) => {
 	const [showPosts, setShowPosts] = useState(false);
@@ -201,6 +201,11 @@ export const SynthetiserCard = ({
 		},
 		[id, onUpdateSuccess]
 	);
+
+	const isAuthenticated = () => {
+		const token = localStorage.getItem('token');
+		return !!token;
+	};
 
 	useEffect(() => {
 		const fetchPosts = async () => {

@@ -136,6 +136,11 @@ const CardPricing = ({
 
     return (
         <div className="flex flex-col space-y-4">
+			  {/* Ajoutez ces lignes pour debug */}
+			  <div className="text-sm text-gray-500">
+            État authentification : {isAuthenticated() ? 'Connecté' : 'Non connecté'}
+            Token présent : {localStorage.getItem('token') ? 'Oui' : 'Non'}
+        </div>
             {auctionError && <div className="text-red-500">{auctionError}</div>}
 
             <div className="flex justify-between items-center">
