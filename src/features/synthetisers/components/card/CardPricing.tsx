@@ -54,25 +54,30 @@ const CardPricing = ({
 	}, [localAuctionPrices]);
 
 	const fetchLatestAuction = useCallback(async () => {
-        try {
-            const response = await api.get(`${API_URL}/api/synthetisers/${synthId}/auctions/latest`);
-            console.log('Raw API response:', response.data); // Vérifiez tous les champs disponibles
-            if (response.data) {
-                console.log('Raw data:', response.data);
-                const formattedData = {
-                    ...response.data,
-                    createdAt: response.data.timestamp || response.data.created || response.data.created_at,
-                    proposal_price: parseFloat(response.data.proposal_price)
-                };
-                setLocalAuctionPrices([formattedData]); // Remplace toutes les enchères par la dernière
-            }
-        } catch (error) {
-            console.error("Erreur:", error);
-            toast.error("Impossible de récupérer la dernière enchère");
-        } finally {
-            setIsLoadingAuctions(false);
-        }
-    }, [synthId]);
+		try {
+			const response = await api.get(
+				`${API_URL}/api/synthetisers/${synthId}/auctions/latest`
+			);
+			if (response.data) {
+				const lastAuctionDate = Date.now();
+				const formattedData = {
+					...response.data,
+					createdAt: lastAuctionDate,
+					proposal_price: parseFloat(response.data.proposal_price),
+				};
+				localStorage.setItem(
+					`auction_${formattedData.id}_date`,
+					lastAuctionDate.toString()
+				);
+				setLocalAuctionPrices([formattedData]);
+			}
+		} catch (error) {
+			console.error("Erreur:", error);
+			toast.error("Impossible de récupérer la dernière enchère");
+		} finally {
+			setIsLoadingAuctions(false);
+		}
+	}, [synthId]);
 
 	const handleCreateAuction = async () => {
 		if (!isAuthenticated()) {
@@ -175,17 +180,18 @@ const CardPricing = ({
 								Dernière enchère: {latestAuction.proposal_price}€
 							</div>
 							<div className="text-sm text-gray-600">
-								{latestAuction?.createdAt
-									? new Date(Number(latestAuction.createdAt)).toLocaleString(
-											"fr-FR",
-											{
-												year: "numeric",
-												month: "long",
-												day: "numeric",
-												hour: "2-digit",
-												minute: "2-digit",
-											}
-									  )
+								{latestAuction?.id
+									? new Date(
+											Number(
+												localStorage.getItem(`auction_${latestAuction.id}_date`)
+											)
+									  ).toLocaleString("fr-FR", {
+											year: "numeric",
+											month: "long",
+											day: "numeric",
+											hour: "2-digit",
+											minute: "2-digit",
+									  })
 									: "Date non disponible"}
 							</div>
 						</div>
