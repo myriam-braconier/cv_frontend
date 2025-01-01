@@ -19,17 +19,21 @@ export default function SynthetisersPage() {
             router.push('/login');
             return false;
         }
-
+    
         try {
             const response = await api.get(`${API_URL}/auth/verify`);
             const roleId = response.data?.user?.roleId;
-            if (roleId !== 2) {
+            // Acceptez plusieurs rôles valides
+            const validRoles = [1, 2]; // Par exemple, admin et autres rôles autorisés
+            if (!validRoles.includes(roleId)) {
                 router.push('/login');
                 return false;
             }
             return true;
         } catch (error) {
             console.error("Erreur de vérification:", error);
+            // Ne redirigez pas automatiquement en cas d'erreur API
+            setError("Erreur de vérification de l'authentification");
             return false;
         }
     }, [router]);
@@ -40,13 +44,20 @@ export default function SynthetisersPage() {
             setError(null);
             
             const isAuthorized = await verifyAuth();
-            if (!isAuthorized) return;
-
+            if (!isAuthorized) {
+                setError("Accès non autorisé");
+                return;
+            }
+    
             const synthResponse = await api.get(`${API_URL}/api/synthetisers`);
+            if (!synthResponse.data.data) {
+                throw new Error("Format de données invalide");
+            }
             setSynths(synthResponse.data.data);
         } catch (error) {
             console.error(error);
             setError("Une erreur est survenue lors du chargement des données");
+            // Ne pas rediriger automatiquement ici
         } finally {
             setIsLoading(false);
         }
@@ -59,6 +70,20 @@ export default function SynthetisersPage() {
     useEffect(() => {
         fetchSynths();
     }, [fetchSynths]);
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        console.log("Token présent:", !!token);
+        
+        if (token) {
+            try {
+                const decodedToken = JSON.parse(atob(token.split('.')[1]));
+                console.log("Token décodé:", decodedToken);
+            } catch (e) {
+                console.error("Erreur décodage token:", e);
+            }
+        }
+    }, []);
 
     if (isLoading) return <LoadingSpinner />;
     if (error) return <div className="text-red-500 text-center">{error}</div>;
