@@ -167,13 +167,16 @@ const CardPricing = ({
 	console.log("latestAuction complet:", latestAuction);
 	console.log("updatedAt valeur:", latestAuction?.updatedAt);
 	console.log("Type de updatedAt:", typeof latestAuction?.updatedAt);
-	console.log("Test de conversion:", (() => {
-		if (!latestAuction) return "Pas de date disponible";
-		if (latestAuction.updatedAt) {
-			return new Date(latestAuction.updatedAt);
-		}
-		return new Date(latestAuction.createdAt);
-	})());
+	console.log(
+		"Test de conversion:",
+		(() => {
+			if (!latestAuction) return "Pas de date disponible";
+			if (latestAuction.updatedAt) {
+				return new Date(latestAuction.updatedAt);
+			}
+			return new Date(latestAuction.createdAt);
+		})()
+	);
 
 	// RENDU
 	return (
@@ -184,7 +187,6 @@ const CardPricing = ({
 					Prix initial: {displayPrice}€
 				</div>
 
-
 				<div>
     {latestAuction ? (
         <div className="text-right">
@@ -192,28 +194,33 @@ const CardPricing = ({
                 Dernière enchère: {latestAuction.proposal_price}€
             </div>
             <div className="text-sm text-gray-600">
-                {latestAuction.updatedAt 
-                    ? new Date(latestAuction.updatedAt).toLocaleString("fr-FR", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : new Date(latestAuction.createdAt).toLocaleString("fr-FR", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                {(() => {
+                    if (typeof latestAuction.updatedAt === 'string') {
+                        return new Date(latestAuction.updatedAt).toLocaleString("fr-FR", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        });
+                    }
+                    if (typeof latestAuction.createdAt === 'number') {
+                        return new Date(latestAuction.createdAt).toLocaleString("fr-FR", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        });
+                    }
+                    return "Date non disponible";
+                })()}
             </div>
         </div>
     ) : (
         <div>Aucune enchère - Soyez le premier à enchérir!</div>
     )}
 </div>
-
 
 			</div>
 

@@ -5,6 +5,8 @@ import { JSX } from "react"; // pour le type JSX.Element
 import Image from "next/image";
 import { useState, useCallback } from "react";
 import { Synth, AuctionPrice, Post } from "@/features/synthetisers/types/synth";
+import { useRouter } from "next/navigation";
+
 interface FormData {
 	marque: string;
 	modele: string;
@@ -39,6 +41,8 @@ export const EditorForm = ({
 	const [formError, setFormError] = useState<string>("");
 	const [imageError, setImageError] = useState<boolean>(false);
 	const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+	const router = useRouter();
 
 	const [formData, setFormData] = useState<FormData>({
 		marque: synth?.marque ?? "",
@@ -105,39 +109,59 @@ export const EditorForm = ({
 		e.preventDefault();
 		setFormError("");
 		setIsSubmitting(true);
-
 		try {
-			// Récupérer l'userId depuis le token
+			// Récupérer le token
 			const token = localStorage.getItem("token");
 			if (!token) {
-				throw new Error("Non authentifié");
+				// Rediriger vers la page de connexion plutôt que de throw une erreur
+				router.push("/login"); // ou votre route de connexion
+				return;
 			}
-
-			// Décoder le token pour obtenir les informations de l'utilisateur
-			const tokenData = JSON.parse(atob(token.split(".")[1]));
-			const userId = tokenData.userId;
-
-			const submissionData = {
-				id: synth?.id,
-				marque: formData.marque,
-				modele: formData.modele,
-				image_url: formData.image_url || undefined,
-				specifications: formData.specifications || undefined,
-				price:
-					formData.price !== null
+	
+			try {
+				// Vérifier si le token est valide avant de le décoder
+				const tokenData = JSON.parse(atob(token.split(".")[1]));
+				// Vérifier si le token n'est pas expiré
+				if (tokenData.exp && tokenData.exp * 1000 < Date.now()) {
+					// Token expiré
+					localStorage.removeItem("token"); // Nettoyer le token expiré
+					router.push("/login");
+					return;
+				}
+	
+				const userId = tokenData.userId;
+				const submissionData = {
+					id: synth?.id,
+					marque: formData.marque,
+					modele: formData.modele,
+					image_url: formData.image_url || undefined,
+					specifications: formData.specifications || undefined,
+					price: formData.price !== null
 						? {
-								value: formData.price,
-								currency: "EUR",
-						  }
+							value: formData.price,
+							currency: "EUR",
+						}
 						: undefined,
-				userId: userId,
-				lastUpdatedBy: userId, // Ajout de l'ID de l'utilisateur qui fait la mise à jour
-			};
-
-			await onSubmit(submissionData);
-			onOpenChange(false);
-			if (onUpdateSuccess) onUpdateSuccess();
-			window.location.reload(); // Force le rafraîchissement des données
+					userId: userId,
+					lastUpdatedBy: userId,
+				};
+	
+				await onSubmit(submissionData);
+				onOpenChange(false);
+				if (onUpdateSuccess) onUpdateSuccess();
+				
+				// Au lieu de recharger toute la page, vous pourriez :
+				// 1. Soit mettre à jour l'état local
+				// 2. Soit faire un nouveau fetch des données
+				// window.location.reload(); // À éviter si possible
+				
+			} catch {
+				// Erreur lors du décodage du token
+				localStorage.removeItem("token");
+				router.push("/login");
+				return;
+			}
+	
 		} catch (error) {
 			setFormError(
 				error instanceof Error ? error.message : "Erreur lors de la mise à jour"
