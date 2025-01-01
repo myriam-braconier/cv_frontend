@@ -38,6 +38,6 @@ export interface AuctionPrice {
 	synthetiserId: number;
 	userId: number;
 	createAt: string;
-	updateAt: string;
+	updatedAt: string;
 	createdAt: string | number;  
 }
