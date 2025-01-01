@@ -1,4 +1,5 @@
 "use client";
+
 import { API_URL } from "@/config/constants";
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -9,31 +10,15 @@ import api from "@/lib/axios/index";
 export default function SynthetisersPage() {
     const router = useRouter();
     const [synths, setSynths] = useState([]);
-    const [userRoles, setUserRoles] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const determineUserRoles = useCallback(async () => {
+    const checkAdminAccess = useCallback(async () => {
         try {
             const response = await api.get(`${API_URL}/auth/verify`);
             const roleId = response.data?.user?.roleId;
-            const roles = [];
-            
-            switch (roleId) {
-                case 2:
-                    roles.push("admin", "editor", "user");
-                    break;
-                case 1:
-                    roles.push("editor", "user");
-                    break;
-                default:
-                    roles.push("user");
-            }
-            
-            setUserRoles(roles);
-            return roles.includes("admin");
+            return roleId === 2; // Retourne true si l'utilisateur est admin
         } catch {
-            setUserRoles(["user"]);
             return false;
         }
     }, []);
@@ -42,8 +27,8 @@ export default function SynthetisersPage() {
         try {
             setIsLoading(true);
             setError(null);
-
-            const isAdmin = await determineUserRoles();
+            
+            const isAdmin = await checkAdminAccess();
             if (!isAdmin) {
                 router.push('/login');
                 return;
@@ -58,7 +43,7 @@ export default function SynthetisersPage() {
         } finally {
             setIsLoading(false);
         }
-    }, [router, determineUserRoles]);
+    }, [router, checkAdminAccess]);
 
     const onUpdateSuccess = useCallback(() => {
         fetchSynths();
@@ -78,9 +63,8 @@ export default function SynthetisersPage() {
                     Liste des Synthétiseurs
                 </h1>
                 
-                <ListSynthetisers 
-                    synths={synths} 
-                    userRoles={userRoles}
+                <ListSynthetisers
+                    synths={synths}
                     onUpdateSuccess={onUpdateSuccess}
                 />
             </div>
