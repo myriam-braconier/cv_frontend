@@ -83,6 +83,18 @@ export const SynthetiserCard = ({
 				},
 			});
 
+			// Ajouter ceci pour debug
+			const data = await response.json();
+			if (!response.ok) {
+				console.error('Erreur détaillée:', data);
+				if (response.status === 401) {
+					localStorage.removeItem("token");
+					router.push("/login");
+					return;
+				}
+				throw new Error(`Erreur ${response.status}: ${data.error || data.message}`);
+			}
+
 			// Gestion des réponses
 			if (!response.ok) {
 				if (response.status === 401) {
