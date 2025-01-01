@@ -180,12 +180,8 @@ const CardPricing = ({
 								Dernière enchère: {latestAuction.proposal_price}€
 							</div>
 							<div className="text-sm text-gray-600">
-								{latestAuction?.id
-									? new Date(
-											Number(
-												localStorage.getItem(`auction_${latestAuction.id}_date`)
-											)
-									  ).toLocaleString("fr-FR", {
+								{latestAuction.createdAt
+									? new Date(latestAuction.createdAt).toLocaleString("fr-FR", {
 											year: "numeric",
 											month: "long",
 											day: "numeric",
