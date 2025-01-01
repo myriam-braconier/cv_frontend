@@ -56,20 +56,15 @@ const CardPricing = ({
 	const fetchLatestAuction = useCallback(async () => {
         try {
             const response = await api.get(`${API_URL}/api/synthetisers/${synthId}/auctions/latest`);
+            console.log('Raw API response:', response.data); // Vérifiez tous les champs disponibles
             if (response.data) {
                 console.log('Raw data:', response.data);
                 const formattedData = {
                     ...response.data,
-                    createdAt: response.data.created_at || response.data.createdAt || Date.now(),
+                    createdAt: response.data.timestamp || response.data.created || response.data.created_at,
                     proposal_price: parseFloat(response.data.proposal_price)
                 };
-                setLocalAuctionPrices(prev => {
-                    const newAuctions = [...prev];
-                    const existingIndex = newAuctions.findIndex(a => a.id === formattedData.id);
-                    if (existingIndex >= 0) newAuctions[existingIndex] = formattedData;
-                    else newAuctions.unshift(formattedData);
-                    return newAuctions;
-                });
+                setLocalAuctionPrices([formattedData]); // Remplace toutes les enchères par la dernière
             }
         } catch (error) {
             console.error("Erreur:", error);
