@@ -57,6 +57,7 @@ const CardPricing = ({
             setIsLoadingAuctions(true);
             const response = await api.get(`${API_URL}/api/synthetisers/${synthId}/auctions/latest`);
             if (response.data) {
+				console.log('Format de la date reçue:', response.data.createdAt);
                 setLocalAuctionPrices(prev => {
                     const newAuctions = [...prev];
                     const existingIndex = newAuctions.findIndex(auction => auction.id === response.data.id);
