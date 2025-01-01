@@ -169,6 +169,7 @@ const CardPricing = ({
 	}, [fetchLatestAuction, synthId]);
 
 	const latestAuction = getLatestAuction();
+	console.log("Full auction data:", latestAuction); // Pour voir toutes les données
 	const minimumBid = latestAuction
 		? latestAuction.proposal_price + 1
 		: displayPrice + 1;
@@ -195,28 +196,17 @@ const CardPricing = ({
 							<div className="font-semibold">
 								Dernière enchère: {latestAuction.proposal_price}€
 							</div>
+
 							<div className="text-sm text-gray-600">
-								{(() => {
-									if (!latestAuction.createdAt) return "Date non disponible";
-
-									// Conversion en millisecondes si c'est un timestamp Unix
-									const timestamp =
-										typeof latestAuction.createdAt === "number"
-											? latestAuction.createdAt * 1000
-											: Date.parse(latestAuction.createdAt);
-
-									if (isNaN(timestamp)) return "Date non disponible";
-
-									const date = new Date(timestamp);
-
-									return date.toLocaleString("fr-FR", {
-										year: "numeric",
-										month: "long",
-										day: "numeric",
-										hour: "2-digit",
-										minute: "2-digit",
-									});
-								})()}
+								{latestAuction.createdAt
+									? new Date(latestAuction.createdAt).toLocaleString("fr-FR", {
+											year: "numeric",
+											month: "long",
+											day: "numeric",
+											hour: "2-digit",
+											minute: "2-digit",
+									  })
+									: "Date non disponible"}
 							</div>
 						</div>
 					) : (

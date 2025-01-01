@@ -39,5 +39,5 @@ export interface AuctionPrice {
 	userId: number;
 	createAt: string;
 	updateAt: string;
-	createdAt: string;
+	createdAt: string | number;  
 }
