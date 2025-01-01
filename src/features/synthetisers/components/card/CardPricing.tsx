@@ -54,43 +54,30 @@ const CardPricing = ({
 	}, [localAuctionPrices]);
 
 	const fetchLatestAuction = useCallback(async () => {
-		try {
-			setIsLoadingAuctions(true);
-            console.log('Fetching auction for synthId:', synthId);
-			const response = await api.get(
-				`${API_URL}/api/synthetisers/${synthId}/auctions/latest`
-			);
-            console.log('API response:', response);
-
-
+        try {
+            const response = await api.get(`${API_URL}/api/synthetisers/${synthId}/auctions/latest`);
             if (response.data) {
-
-            console.log('No auction data received');    
+                console.log('Raw data:', response.data);
                 const formattedData = {
                     ...response.data,
-                    createdAt: response.data.createdAt || Date.now()
+                    createdAt: response.data.created_at || response.data.createdAt || Date.now(),
+                    proposal_price: parseFloat(response.data.proposal_price)
                 };
-
-				setLocalAuctionPrices((prev) => {
-					const newAuctions = [...prev];
-					const existingIndex = newAuctions.findIndex(
-						(auction) => auction.id === formattedData.id
-					);
-					if (existingIndex >= 0) {
-						newAuctions[existingIndex] = formattedData;
-					} else {
-						newAuctions.unshift(formattedData);
-					}
-					return newAuctions;
-				});
-			}
-		} catch (error) {
-			console.error("Erreur détaillée:", error);
-			toast.error("Impossible de récupérer la dernière enchère");
-		} finally {
-			setIsLoadingAuctions(false);
-		}
-	}, [synthId]);
+                setLocalAuctionPrices(prev => {
+                    const newAuctions = [...prev];
+                    const existingIndex = newAuctions.findIndex(a => a.id === formattedData.id);
+                    if (existingIndex >= 0) newAuctions[existingIndex] = formattedData;
+                    else newAuctions.unshift(formattedData);
+                    return newAuctions;
+                });
+            }
+        } catch (error) {
+            console.error("Erreur:", error);
+            toast.error("Impossible de récupérer la dernière enchère");
+        } finally {
+            setIsLoadingAuctions(false);
+        }
+    }, [synthId]);
 
 	const handleCreateAuction = async () => {
 		if (!isAuthenticated()) {
