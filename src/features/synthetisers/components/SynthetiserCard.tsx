@@ -10,8 +10,7 @@ import { EditorDialog } from "@/features/synthetisers/components/dialogs/EditorD
 import { Synth, Post } from "@/features/synthetisers/types/synth";
 import { DuplicateSynthDialog } from "@/features/synthetisers/components/dialogs/DuplicateSynthDialog";
 import { API_URL } from "@/config/constants";
-import { api } from "@/services/axios";
-import axios from 'axios';
+
 
 interface SynthetiserCardProps {
 	synth: Synth;
@@ -24,7 +23,6 @@ interface SynthetiserCardProps {
 export const SynthetiserCard = ({
 	synth,
 	onUpdateSuccess,
-	
 	hasAdminRole,
 }: SynthetiserCardProps) => {
 	const [showPosts, setShowPosts] = useState(false);
@@ -133,47 +131,20 @@ export const SynthetiserCard = ({
 				return;
 			}
 	
-			// Ajout du type de contenu et du token dans les headers
-			const response = await api.get(`${API_URL}/auth/verify`, {
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`
-				}
-			});
+			// Décodage direct du token
+			const payload = JSON.parse(atob(token.split('.')[1]));
+			const isAdmin = payload.role === 'admin' || payload.roleId === 1 || payload.roleId === 2;
 	
-			// Vérification plus stricte de la réponse
-			if (!response.data?.user?.roleId) {
-				throw new Error("Données utilisateur invalides");
-			}
-	
-			const isAdmin = response.data.user.roleId === 2;
 			if (!isAdmin) {
 				toast.error("Accès non autorisé");
 				return;
 			}
 	
-			// Activation de la duplication
 			setIsDuplicating(true);
-			console.log("Modal de duplication activée");
 	
 		} catch (error: unknown) {
-			console.error("Erreur complète:", error);
-			
-			// Gestion spécifique des erreurs Axios
-			if (axios.isAxiosError(error)) {
-				if (error.response?.status === 401) {
-					localStorage.removeItem("token");
-					toast.error("Session expirée");
-					router.push("/login");
-				} else {
-					toast.error(error.response?.data?.message || "Erreur de connexion");
-				}
-				return;
-			}
-	
-			// Autres types d'erreurs
-			const message = error instanceof Error ? error.message : "Erreur inattendue";
-			toast.error(message);
+			console.error("Erreur:", error);
+			toast.error("Erreur lors de la duplication");
 		}
 	}, [router]);
 	
