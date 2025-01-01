@@ -63,9 +63,8 @@ export const EditorForm = ({
 				status: auction.status,
 				synthetiserId: auction.synthetiserId,
 				userId: auction.userId,
-				createAt: auction.createAt,
 				updatedAt: auction.updatedAt,
-				createdAt: auction.createAt,
+				createdAt: auction.createdAt,
 			})) || [],
 
 		post: synth?.posts || [],
