@@ -197,19 +197,17 @@ const CardPricing = ({
 							</div>
 							<div className="text-sm text-gray-600">
 								{(() => {
-									const dateValue =
-										typeof latestAuction.createdAt === "string"
-											? latestAuction.createdAt
-											: new Date(latestAuction.createdAt * 1000);
+									if (!latestAuction.createdAt) return "Date non disponible";
 
-									const date = new Date(dateValue);
-									console.log("Type de date:", typeof latestAuction.createdAt);
-									console.log("Valeur de date:", latestAuction.createdAt);
-									console.log("Date parsée:", date);
+									// Conversion en millisecondes si c'est un timestamp Unix
+									const timestamp =
+										typeof latestAuction.createdAt === "number"
+											? latestAuction.createdAt * 1000
+											: Date.parse(latestAuction.createdAt);
 
-									if (isNaN(date.getTime())) {
-										return "Date non disponible";
-									}
+									if (isNaN(timestamp)) return "Date non disponible";
+
+									const date = new Date(timestamp);
 
 									return date.toLocaleString("fr-FR", {
 										year: "numeric",
