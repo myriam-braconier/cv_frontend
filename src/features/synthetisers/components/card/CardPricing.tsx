@@ -8,228 +8,253 @@ import { AuctionPrice } from "@/features/synthetisers/types/synth";
 import { API_URL } from "@/config/constants";
 
 interface CardPricingProps {
-    price: number | Price | null;
-    auctionPrices: AuctionPrice[];
-    isAuthenticated: () => boolean;
-    isLoading?: boolean;
-    synthId: string;
-    onUpdateSuccess?: () => void;
-    isAdmin?: boolean;
+	price: number | Price | null;
+	auctionPrices: AuctionPrice[];
+	isAuthenticated: () => boolean;
+	isLoading?: boolean;
+	synthId: string;
+	onUpdateSuccess?: () => void;
+	isAdmin?: boolean;
 }
 
 interface Price {
-    value: number;
-    currency: string;
+	value: number;
+	currency: string;
 }
 
 const CardPricing = ({
-    price = 0,
-    auctionPrices = [],
-    isAuthenticated,
-    isLoading = false,
-    synthId,
-    onUpdateSuccess,
+	price = 0,
+	auctionPrices = [],
+	isAuthenticated,
+	isLoading = false,
+	synthId,
+	onUpdateSuccess,
 }: CardPricingProps) => {
-    const [localAuctionPrices, setLocalAuctionPrices] = useState<AuctionPrice[]>(auctionPrices);
-    const [isLoadingAuctions, setIsLoadingAuctions] = useState(false);
-    const [auctionError, setAuctionError] = useState<string | null>(null);
-    const [newBidAmount, setNewBidAmount] = useState<number | null>(null);
-    const router = useRouter();
+	const [localAuctionPrices, setLocalAuctionPrices] =
+		useState<AuctionPrice[]>(auctionPrices);
+	const [isLoadingAuctions, setIsLoadingAuctions] = useState(false);
+	const [auctionError, setAuctionError] = useState<string | null>(null);
+	const [newBidAmount, setNewBidAmount] = useState<number | null>(null);
+	const router = useRouter();
 
-    const displayPrice: number = price 
-        ? typeof price === "object" && 'value' in price 
-            ? price.value 
-            : typeof price === "number" 
-                ? price 
-                : 0
-        : 0;
+	const displayPrice: number = price
+		? typeof price === "object" && "value" in price
+			? price.value
+			: typeof price === "number"
+			? price
+			: 0
+		: 0;
 
-    const getLatestAuction = useCallback((): AuctionPrice | null => {
-        if (!localAuctionPrices || localAuctionPrices.length === 0) return null;
-        const sortedAuctions = [...localAuctionPrices].sort(
-            (a, b) => b.proposal_price - a.proposal_price
-        );
-        return sortedAuctions[0];
-    }, [localAuctionPrices]);
+	const getLatestAuction = useCallback((): AuctionPrice | null => {
+		if (!localAuctionPrices || localAuctionPrices.length === 0) return null;
+		const sortedAuctions = [...localAuctionPrices].sort(
+			(a, b) => b.proposal_price - a.proposal_price
+		);
+		return sortedAuctions[0];
+	}, [localAuctionPrices]);
 
-    const fetchLatestAuction = useCallback(async () => {
-        try {
-            setIsLoadingAuctions(true);
-            const response = await api.get(`${API_URL}/api/synthetisers/${synthId}/auctions/latest`);
-            if (response.data) {
-                console.group('Auction Data');
-                console.log('Response:', response.data);
-                console.log('CreatedAt:', response.data.createdAt);
-                console.log('Date Object:', new Date(response.data.createdAt));
-                console.groupEnd();
-    
-                // Assurez-vous que la date est un timestamp valide
-                const createdAt = response.data.createdAt 
-                    ? Number(response.data.createdAt) * 1000 // Convertir les secondes en millisecondes si nécessaire
-                    : new Date().getTime();
-    
-                const formattedData = {
-                    ...response.data,
-                    createdAt
-                };
-    
-                setLocalAuctionPrices(prev => {
-                    const newAuctions = [...prev];
-                    const existingIndex = newAuctions.findIndex(auction => auction.id === formattedData.id);
-                    if (existingIndex >= 0) {
-                        newAuctions[existingIndex] = formattedData;
-                    } else {
-                        newAuctions.unshift(formattedData);
-                    }
-                    return newAuctions;
-                });
-            }
-        } catch (error) {
-            console.error("Erreur détaillée:", error);
-            toast.error("Impossible de récupérer la dernière enchère");
-        } finally {
-            setIsLoadingAuctions(false);
-        }
-    }, [synthId]);
+	const fetchLatestAuction = useCallback(async () => {
+		try {
+			setIsLoadingAuctions(true);
+			const response = await api.get(
+				`${API_URL}/api/synthetisers/${synthId}/auctions/latest`
+			);
+			if (response.data) {
+				console.group("Auction Data");
+				console.log("Response:", response.data);
+				console.log("CreatedAt:", response.data.createdAt);
+				console.log("Date Object:", new Date(response.data.createdAt));
+				console.groupEnd();
 
-    const handleCreateAuction = async () => {
-        if (!isAuthenticated()) {
-            router.push("/login");
-            return;
-        }
+				// Assurez-vous que la date est un timestamp valide
+				const createdAt = response.data.createdAt
+					? Number(response.data.createdAt) * 1000 // Convertir les secondes en millisecondes si nécessaire
+					: new Date().getTime();
 
-        if (!newBidAmount) {
-            toast.error("Veuillez entrer un montant");
-            return;
-        }
+				const formattedData = {
+					...response.data,
+					createdAt,
+				};
 
-        const latestAuction = getLatestAuction();
-        const minimumBid = latestAuction ? latestAuction.proposal_price : displayPrice;
+				setLocalAuctionPrices((prev) => {
+					const newAuctions = [...prev];
+					const existingIndex = newAuctions.findIndex(
+						(auction) => auction.id === formattedData.id
+					);
+					if (existingIndex >= 0) {
+						newAuctions[existingIndex] = formattedData;
+					} else {
+						newAuctions.unshift(formattedData);
+					}
+					return newAuctions;
+				});
+			}
+		} catch (error) {
+			console.error("Erreur détaillée:", error);
+			toast.error("Impossible de récupérer la dernière enchère");
+		} finally {
+			setIsLoadingAuctions(false);
+		}
+	}, [synthId]);
 
-        if (newBidAmount <= minimumBid) {
-            toast.error(latestAuction 
-                ? "Le montant doit être supérieur à la dernière enchère"
-                : "Le montant doit être supérieur au prix initial"
-            );
-            return;
-        }
+	const handleCreateAuction = async () => {
+		if (!isAuthenticated()) {
+			router.push("/login");
+			return;
+		}
 
-        try {
-            setIsLoadingAuctions(true);
-            setAuctionError(null);
+		if (!newBidAmount) {
+			toast.error("Veuillez entrer un montant");
+			return;
+		}
 
-            const token = localStorage.getItem("token");
-            if (!token) {
-                router.push("/login");
-                return;
-            }
+		const latestAuction = getLatestAuction();
+		const minimumBid = latestAuction
+			? latestAuction.proposal_price
+			: displayPrice;
 
-            const userId = JSON.parse(atob(token.split(".")[1])).id;
-            const response = await api.post(`${API_URL}/api/synthetisers/${synthId}/auctions`, {
-                proposal_price: Number(newBidAmount),
-                status: "active",
-                userId
-            });
+		if (newBidAmount <= minimumBid) {
+			toast.error(
+				latestAuction
+					? "Le montant doit être supérieur à la dernière enchère"
+					: "Le montant doit être supérieur au prix initial"
+			);
+			return;
+		}
 
-            if (response.status === 201) {
-                await fetchLatestAuction();
-                setNewBidAmount(null);
-                toast.success("Enchère placée avec succès");
-                if (onUpdateSuccess) {
-                    await onUpdateSuccess();
-                }
-            }
-        } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : "Erreur lors de la création de l'enchère";
-            setAuctionError(errorMessage);
-            toast.error(errorMessage);
-        } finally {
-            setIsLoadingAuctions(false);
-        }
-    };
+		try {
+			setIsLoadingAuctions(true);
+			setAuctionError(null);
 
-    useEffect(() => {
-        if (synthId) {
-            fetchLatestAuction();
-        }
-    }, [fetchLatestAuction, synthId]);
+			const token = localStorage.getItem("token");
+			if (!token) {
+				router.push("/login");
+				return;
+			}
 
-    const latestAuction = getLatestAuction();
-    const minimumBid = latestAuction ? latestAuction.proposal_price + 1 : displayPrice + 1;
+			const userId = JSON.parse(atob(token.split(".")[1])).id;
+			const response = await api.post(
+				`${API_URL}/api/synthetisers/${synthId}/auctions`,
+				{
+					proposal_price: Number(newBidAmount),
+					status: "active",
+					userId,
+				}
+			);
 
-    useEffect(() => {
-        console.log('Latest Auction:', latestAuction);
-        if (latestAuction) {
-            console.log('CreatedAt raw:', latestAuction.createdAt);
-            console.log('CreatedAt as Date:', new Date(latestAuction.createdAt));
-        }
-    }, [latestAuction]);
+			if (response.status === 201) {
+				await fetchLatestAuction();
+				setNewBidAmount(null);
+				toast.success("Enchère placée avec succès");
+				if (onUpdateSuccess) {
+					await onUpdateSuccess();
+				}
+			}
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error
+					? error.message
+					: "Erreur lors de la création de l'enchère";
+			setAuctionError(errorMessage);
+			toast.error(errorMessage);
+		} finally {
+			setIsLoadingAuctions(false);
+		}
+	};
 
+	useEffect(() => {
+		if (synthId) {
+			fetchLatestAuction();
+		}
+	}, [fetchLatestAuction, synthId]);
 
+	const latestAuction = getLatestAuction();
+	const minimumBid = latestAuction
+		? latestAuction.proposal_price + 1
+		: displayPrice + 1;
 
-    // RENDU
-    return (
-        <div className="flex flex-col space-y-4">
-        {auctionError && <div className="text-red-500">{auctionError}</div>}
-        <div className="flex justify-between items-center">
-            <div className="text-lg font-semibold">
-                Prix initial: {displayPrice}€
-            </div>
-            <div>
-                {latestAuction ? (
-                    <div className="text-right">
-                        <div className="font-semibold">
-                            Dernière enchère: {latestAuction.proposal_price}€
-                        </div>
-                        <div className="text-sm text-gray-600">
-                            {(() => {
-                                try {
-                                    const date = new Date(latestAuction.createdAt);
-                                    if (isNaN(date.getTime())) {
-                                        console.log('Date invalide:', latestAuction.createdAt);
-                                        return 'Date non disponible';
-                                    }
-                                    return date.toLocaleString("fr-FR", {
-                                        year: "numeric",
-                                        month: "long",
-                                        day: "numeric",
-                                        hour: "2-digit",
-                                        minute: "2-digit"
-                                    });
-                                } catch (error) {
-                                    console.log('Erreur date:', error, 'CreatedAt:', latestAuction.createdAt);
-                                    return 'Date non disponible';
-                                }
-                            })()}
-                        </div>
-                    </div>
-                ) : (
-                    <div>Aucune enchère - Soyez le premier à enchérir!</div>
-                )}
-            </div>
-        </div>
+	useEffect(() => {
+		console.log("Latest Auction:", latestAuction);
+		if (latestAuction) {
+			console.log("CreatedAt raw:", latestAuction.createdAt);
+			console.log("CreatedAt as Date:", new Date(latestAuction.createdAt));
+		}
+	}, [latestAuction]);
 
-            {isAuthenticated() && (
-                <div className="space-y-2">
-                    <input
-                        type="number"
-                        value={newBidAmount || ""}
-                        onChange={(e) => setNewBidAmount(e.target.value ? Number(e.target.value) : null)}
-                        min={minimumBid}
-                        className="w-full p-2 border rounded"
-                        placeholder={`Montant minimum: ${minimumBid}€`}
-                    />
-                    <button
-                        onClick={handleCreateAuction}
-                        disabled={isLoading || isLoadingAuctions || !newBidAmount || (newBidAmount < minimumBid)}
-                        className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-                    >
-                        {isLoadingAuctions ? "Enchère en cours..." : "Placer l'enchère"}
-                    </button>
-                </div>
-            )}
-        </div>
-    );
+	// RENDU
+	return (
+		<div className="flex flex-col space-y-4">
+			{auctionError && <div className="text-red-500">{auctionError}</div>}
+			<div className="flex justify-between items-center">
+				<div className="text-lg font-semibold">
+					Prix initial: {displayPrice}€
+				</div>
+				<div>
+					{latestAuction ? (
+						<div className="text-right">
+							<div className="font-semibold">
+								Dernière enchère: {latestAuction.proposal_price}€
+							</div>
+							<div className="text-sm text-gray-600">
+								{(() => {
+									const dateValue =
+										typeof latestAuction.createdAt === "string"
+											? latestAuction.createdAt
+											: new Date(latestAuction.createdAt * 1000);
+
+									const date = new Date(dateValue);
+									console.log("Type de date:", typeof latestAuction.createdAt);
+									console.log("Valeur de date:", latestAuction.createdAt);
+									console.log("Date parsée:", date);
+
+									if (isNaN(date.getTime())) {
+										return "Date non disponible";
+									}
+
+									return date.toLocaleString("fr-FR", {
+										year: "numeric",
+										month: "long",
+										day: "numeric",
+										hour: "2-digit",
+										minute: "2-digit",
+									});
+								})()}
+							</div>
+						</div>
+					) : (
+						<div>Aucune enchère - Soyez le premier à enchérir!</div>
+					)}
+				</div>
+			</div>
+
+			{isAuthenticated() && (
+				<div className="space-y-2">
+					<input
+						type="number"
+						value={newBidAmount || ""}
+						onChange={(e) =>
+							setNewBidAmount(e.target.value ? Number(e.target.value) : null)
+						}
+						min={minimumBid}
+						className="w-full p-2 border rounded"
+						placeholder={`Montant minimum: ${minimumBid}€`}
+					/>
+					<button
+						onClick={handleCreateAuction}
+						disabled={
+							isLoading ||
+							isLoadingAuctions ||
+							!newBidAmount ||
+							newBidAmount < minimumBid
+						}
+						className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+					>
+						{isLoadingAuctions ? "Enchère en cours..." : "Placer l'enchère"}
+					</button>
+				</div>
+			)}
+		</div>
+	);
 };
 
 export default CardPricing;
