@@ -57,20 +57,35 @@ const CardPricing = ({
             setIsLoadingAuctions(true);
             const response = await api.get(`${API_URL}/api/synthetisers/${synthId}/auctions/latest`);
             if (response.data) {
-				console.log('Format de la date reçue:', response.data.createdAt);
+                console.group('Auction Data');
+                console.log('Response:', response.data);
+                console.log('CreatedAt:', response.data.createdAt);
+                console.log('Date Object:', new Date(response.data.createdAt));
+                console.groupEnd();
+    
+                // Assurez-vous que la date est un timestamp valide
+                const createdAt = response.data.createdAt 
+                    ? Number(response.data.createdAt) * 1000 // Convertir les secondes en millisecondes si nécessaire
+                    : new Date().getTime();
+    
+                const formattedData = {
+                    ...response.data,
+                    createdAt
+                };
+    
                 setLocalAuctionPrices(prev => {
                     const newAuctions = [...prev];
-                    const existingIndex = newAuctions.findIndex(auction => auction.id === response.data.id);
+                    const existingIndex = newAuctions.findIndex(auction => auction.id === formattedData.id);
                     if (existingIndex >= 0) {
-                        newAuctions[existingIndex] = response.data;
+                        newAuctions[existingIndex] = formattedData;
                     } else {
-                        newAuctions.unshift(response.data);
+                        newAuctions.unshift(formattedData);
                     }
                     return newAuctions;
                 });
             }
         } catch (error) {
-            console.error("Erreur lors de la récupération de l'enchère:", error);
+            console.error("Erreur détaillée:", error);
             toast.error("Impossible de récupérer la dernière enchère");
         } finally {
             setIsLoadingAuctions(false);
