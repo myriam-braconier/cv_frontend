@@ -1,12 +1,21 @@
 "use client";
+
 import { useState } from "react";
 import { api } from "@/services/axios";
 import { API_URL } from '@/config/constants';
+import { toast } from "react-hot-toast";
+import { AxiosError } from "axios";
 
 interface AddPostProps {
   synthetiserId: number;
   onPostAdded: () => void;
 }
+
+interface ApiError {
+  message: string;
+  status: number;
+}
+
 
 export function AddPost({ synthetiserId, onPostAdded }: AddPostProps) {
   const [titre, setTitre] = useState('');
@@ -16,28 +25,51 @@ export function AddPost({ synthetiserId, onPostAdded }: AddPostProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!titre.trim() || !commentaire.trim()) {
+      setError('Le titre et le commentaire sont requis');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      const userResponse = await api.get(`${API_URL}/auth/verify`);
-      const userId = userResponse.data.id;
+      // Récupérer le token du localStorage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Vous devez être connecté pour ajouter un commentaire');
+        toast.error('Veuillez vous connecter');
+        return;
+      }
 
-      await api.post(`${API_URL}/api/posts`, {
-        titre,
-        commentaire,
+      // Définir le header d'authentification
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      // Décoder le token pour obtenir l'ID de l'utilisateur
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const userId = payload.id;
+
+      const response = await api.post(`${API_URL}/api/posts`, {
+        titre: titre.trim(),
+        commentaire: commentaire.trim(),
         synthetiserId,
         userId,
         type_contenu: 'texte',
         statut: 'publié'
       });
 
-      setTitre('');
-      setCommentaire('');
-      onPostAdded();
+      if (response.status === 201) {
+        toast.success('Commentaire ajouté avec succès');
+        setTitre('');
+        setCommentaire('');
+        onPostAdded();
+      }
     } catch (error) {
-      setError('Erreur lors de l\'ajout du post');
-      console.error('Erreur détaillée:', error);
+      const axiosError = error as AxiosError<ApiError>;
+      const errorMessage = axiosError.response?.data?.message || 'Erreur lors de l\'ajout du commentaire';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -55,6 +87,8 @@ export function AddPost({ synthetiserId, onPostAdded }: AddPostProps) {
           onChange={(e) => setTitre(e.target.value)}
           placeholder="Titre du commentaire"
           className="w-full p-2 border rounded"
+          required
+          minLength={3}
         />
       </div>
       <div>
@@ -64,11 +98,13 @@ export function AddPost({ synthetiserId, onPostAdded }: AddPostProps) {
           placeholder="Votre commentaire"
           className="w-full p-2 border rounded"
           rows={3}
+          required
+          minLength={10}
         />
       </div>
       <button
         type="submit"
-        disabled={isLoading}
+        disabled={isLoading || !titre.trim() || !commentaire.trim()}
         className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
       >
         {isLoading ? 'Envoi en cours...' : 'Ajouter un commentaire'}
