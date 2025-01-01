@@ -167,12 +167,13 @@ const CardPricing = ({
 	console.log("latestAuction complet:", latestAuction);
 	console.log("updatedAt valeur:", latestAuction?.updatedAt);
 	console.log("Type de updatedAt:", typeof latestAuction?.updatedAt);
-	console.log("Test de conversion:", latestAuction && latestAuction.updatedAt 
-		? new Date(latestAuction.updatedAt)
-		: latestAuction?.createdAt 
-			? new Date(latestAuction.createdAt)
-			: "Pas de date disponible"
-	);
+	console.log("Test de conversion:", (() => {
+		if (!latestAuction) return "Pas de date disponible";
+		if (latestAuction.updatedAt) {
+			return new Date(latestAuction.updatedAt);
+		}
+		return new Date(latestAuction.createdAt);
+	})());
 
 	// RENDU
 	return (

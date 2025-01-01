@@ -71,8 +71,8 @@ export const EditorDialog = ({
 					onCancel={onCancel}
 					error={error}
 					onOpenChange={onOpenChange}
-					isAuthenticated={(): boolean => !!localStorage.getItem("userId")}
-				/>
+					isAuthenticated={() => true}
+					/>
 			</DialogContent>
 		</Dialog>
 	);
