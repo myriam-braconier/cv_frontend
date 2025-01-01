@@ -180,21 +180,20 @@ const CardPricing = ({
 								Dernière enchère: {latestAuction.proposal_price}€
 							</div>
 							<div className="text-sm text-gray-600">
-								{latestAuction.createdAt
-									? new Date(latestAuction.createdAt).toLocaleString("fr-FR", {
-											year: "numeric",
-											month: "long",
-											day: "numeric",
-											hour: "2-digit",
-											minute: "2-digit",
-									  })
-									: "Date non disponible"}
+								{new Date(latestAuction.createdAt).toLocaleString("fr-FR", {
+									year: "numeric",
+									month: "long",
+									day: "numeric",
+									hour: "2-digit",
+									minute: "2-digit",
+								})}
 							</div>
 						</div>
 					) : (
 						<div>Aucune enchère - Soyez le premier à enchérir!</div>
 					)}
 				</div>
+				
 			</div>
 
 			{isAuthenticated() && (
