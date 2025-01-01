@@ -33,7 +33,7 @@ export default function HomePage() {
 						backgroundImage: 'url("/images/spatsz.jpg")',
 						backgroundSize: "cover",
 						backgroundPosition: "center",
-						opacity: "0.5", // Ajustez l'opacité si nécessaire
+						opacity: "1", // Ajustez l'opacité si nécessaire
 					}}
 				/>
 				  {/* Contenu existant avec z-index pour le placer au-dessus du fond */}
