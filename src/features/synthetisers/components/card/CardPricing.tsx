@@ -59,11 +59,14 @@ const CardPricing = ({
 			const response = await api.get(
 				`${API_URL}/api/synthetisers/${synthId}/auctions/latest`
 			);
-			if (response.data) {
-				const formattedData = {
-					...response.data,
-					createdAt: new Date(response.data.createdAt).getTime(),
-				};
+            if (response.data) {
+                console.log('Raw API response:', response.data); // Voir les données brutes
+    
+                const formattedData = {
+                    ...response.data,
+                    createdAt: new Date(response.data.createdAt).getTime()
+                };
+                console.log('Formatted data:', formattedData); // Voir les données après formatage
 
 				setLocalAuctionPrices((prev) => {
 					const newAuctions = [...prev];
