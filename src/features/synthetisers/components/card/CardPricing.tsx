@@ -56,17 +56,20 @@ const CardPricing = ({
 	const fetchLatestAuction = useCallback(async () => {
 		try {
 			setIsLoadingAuctions(true);
+            console.log('Fetching auction for synthId:', synthId);
 			const response = await api.get(
 				`${API_URL}/api/synthetisers/${synthId}/auctions/latest`
 			);
+            console.log('API response:', response);
+
+
             if (response.data) {
-                console.log('Raw API response:', response.data); // Voir les données brutes
-    
+
+            console.log('No auction data received');    
                 const formattedData = {
                     ...response.data,
                     createdAt: response.data.createdAt || Date.now()
                 };
-                console.log('Formatted data:', formattedData); // Voir les données après formatage
 
 				setLocalAuctionPrices((prev) => {
 					const newAuctions = [...prev];
