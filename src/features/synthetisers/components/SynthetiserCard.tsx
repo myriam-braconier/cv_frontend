@@ -25,7 +25,7 @@ export const SynthetiserCard = ({
 	synth,
 	onUpdateSuccess,
 	
-	hasAdminRole = false,
+	hasAdminRole,
 }: SynthetiserCardProps) => {
 	const [showPosts, setShowPosts] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
