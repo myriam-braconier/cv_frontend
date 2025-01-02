@@ -263,7 +263,7 @@ export const SynthetiserCard = ({
 					isLoading={isLoading}
 					synthId={id.toString()}
 					onUpdateSuccess={onUpdateSuccess}
-					isAdmin={true}
+					isAdmin={checkUserRole()}
 				/>
 
 				{/* Posts */}
@@ -275,7 +275,7 @@ export const SynthetiserCard = ({
 				/>
 
 				{/* Actions admin */}
-				{hasAdminRole && (
+				{checkUserRole() && (
 					<div className="mt-4">
 						<CardActions
 							onEdit={handleEdit}
@@ -316,4 +316,5 @@ export const SynthetiserCard = ({
 			</div>
 		</article>
 	);
+
 };
