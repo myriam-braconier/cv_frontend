@@ -220,18 +220,17 @@ export const SynthetiserCard = ({
 		}
 	}, [id]);
 
-	// pour vérification du role de l'utilisateur
-	// Plus bas dans le code, dans le hook useEffect
-	useEffect(() => {
-		const verifyAccess = async () => {
-			if (!checkUserRole()) {
-				toast.error("Accès non autorisé");
-				router.push('/login');
-			}
-		};
+	// pour vérification le role 
+	// useEffect(() => {
+	// 	const verifyAccess = async () => {
+	// 		if (!checkUserRole()) {
+	// 			toast.error("Accès non autorisé");
+	// 			router.push('/login');
+	// 		}
+	// 	};
 	
-		verifyAccess();
-	}, [checkUserRole, router]);
+	// 	verifyAccess();
+	// }, [checkUserRole, router]);
 
 	// RENDU
 	return (
