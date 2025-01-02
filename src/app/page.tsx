@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import Waveform from '@/components/Waveform'
 
 export default function HomePage() {
 	const [isAdmin, setIsAdmin] = useState(false);
@@ -62,7 +63,7 @@ export default function HomePage() {
 
 						{/* image gif */}
 						<div className="md:w-1/2">
-							<div className="relative w-full h-[400px] z-30">
+							{/* <div className="relative w-full h-[400px] z-30">
 								<Image
 									src="/images/sound.gif"
 									alt="Sound"
@@ -71,7 +72,8 @@ export default function HomePage() {
 									className="object-cover rounded-lg hue-rotate-90 saturate-150"
 									priority
 								/>
-							</div>
+							</div> */}
+							 <Waveform initialColor="#FF5733" />
 						</div>
 					</div>
 				</div>
