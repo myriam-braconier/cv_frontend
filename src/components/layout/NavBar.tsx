@@ -98,10 +98,10 @@ export default function Navbar() {
 									href="/synthetisers"
 									className="hover:bg-gray-700 px-3 py-2 rounded-md"
 								>
-									Synthétiseurs de tous types
+									Synthétiseurs
 								</Link>
 								<Link
-									href="/synthetisers"
+									href="/auctions"
 									className="hover:bg-gray-700 px-3 py-2 rounded-md"
 								>
 									Tableau d&apos;enchères
