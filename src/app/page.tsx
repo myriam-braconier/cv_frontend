@@ -26,13 +26,15 @@ export default function HomePage() {
 				className="relative bg-gradient-to-b from-blue-500 to-red-500 text-white  min-h-[600px] "
 				id="sectionAccueil"
 			>
-				<div className="absolute inset-0 w-full h-full z-0">
+				<div className="absolute inset-0">
 					<Image
 						src="/images/spatsz.jpg"
 						alt="Background"
 						fill
+						sizes="100w"
 						className="object-cover  opacity-50"
 						priority
+						quality={100}
 					/>
 				</div>
 
