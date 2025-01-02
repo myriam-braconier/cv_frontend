@@ -23,31 +23,13 @@ export const AuctionsList = ({
     
 
 
-useEffect(() => {
-    const fetchAuctions = async () => {
-        try {
-            setIsRefreshing(true);
-            const response = await axios.get(`${API_URL}/api/auctions`);
-         
-            setAuctions(response.data);
-        } catch (error) {
-            console.error('Erreur:', error);
-          
-        } finally {
-            setIsRefreshing(false);
-        }
-    };
-
-    fetchAuctions();
-}, []);
-
 // remplace handleauctionupdate car plus complet car gère l'état de chargement
 const handleRefresh = async () => {
     try {
         setIsRefreshing(true);
         const response = await axios.get(`${API_URL}/api/auctions`);
        
-        setAuctions(response.data);
+        setAuctions(response.data.data);
         if (onUpdateSuccess) {
             await onUpdateSuccess();
         }
