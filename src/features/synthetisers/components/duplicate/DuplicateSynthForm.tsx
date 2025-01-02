@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Synth } from "@/features/synthetisers/types/synth";
 import { toast } from "react-hot-toast";
+import { Button } from "@/components/ui/button";
 import { API_URL } from "@/config/constants";
 
 interface DuplicateSynthFormProps {
@@ -33,11 +34,11 @@ const DuplicateSynthForm = ({
         modele: originalSynth.modele || "",
         specifications: originalSynth.specifications || "",
         image_url: originalSynth.image_url || "",
-        price: initialPrice,
+        price: null as number | null,  // Initialiser à null au lieu de 0
     });
 
     const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = Number(e.target.value);
+        const value = e.target.value === "" ? null : Number(e.target.value);
         setFormData((prev) => ({
             ...prev,
             price: value,
@@ -61,8 +62,8 @@ const DuplicateSynthForm = ({
                 throw new Error("Non authentifié");
             }
 
-            // Vérifier si un prix a été défini
-            if (formData.price === 0) {
+             // Vérifier si un prix a été défini
+			 if (!formData.price || formData.price <= 0) {
                 throw new Error("Veuillez définir un prix valide");
             }
 
@@ -145,13 +146,15 @@ const DuplicateSynthForm = ({
                     </label>
                     <input
                         type="number"
-                        value={formData.price}
+                        value={formData.price === null ? "" : formData.price}
                         onChange={handlePriceChange}
                         required
                         min="0"
                         step="0.01"
                         className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
                         disabled={isLoading}
+						placeholder="Entrez un prix"
+
                     />
                 </div>
 
