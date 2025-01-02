@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { api } from "@/services/axios";
-import { AxiosError } from 'axios';
+import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Synth } from "@/features/synthetisers/types/synth";
@@ -12,7 +12,6 @@ import { API_URL } from "@/config/constants";
 interface DuplicateSynthFormProps {
 	originalSynth: Synth; // Le synthétiseur à dupliquer
 	onSuccess?: () => void;
-	synthid?: number; // Optionnel car pas utilisé partout
 }
 
 const DuplicateSynthForm = ({
@@ -30,6 +29,28 @@ const DuplicateSynthForm = ({
 			? originalSynth.price.value
 			: originalSynth.price
 		: 0;
+
+	const [formData, setFormData] = useState({
+		marque: originalSynth.marque,
+		modele: originalSynth.modele,
+		specifications: originalSynth.specifications || "",
+		image_url: originalSynth.image_url || "",
+		price: initialPrice,
+	});
+
+	const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = Number(e.target.value);
+		setFormData((prev) => ({
+			...prev,
+			price: value,
+		}));
+	};
+
+	const handleCancel = () => {
+		if (onSuccess) {
+			onSuccess(); // Ferme le dialog au lieu de rediriger
+		}
+	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -63,13 +84,14 @@ const DuplicateSynthForm = ({
 			}
 		} catch (error: unknown) {
 			if (error instanceof AxiosError) {
-				const errorMessage = error.response?.data?.message || 
-								   "Erreur lors de la duplication du synthétiseur";
+				const errorMessage =
+					error.response?.data?.message ||
+					"Erreur lors de la duplication du synthétiseur";
 				setError(errorMessage);
 				toast.error(errorMessage);
-				
+
 				if (error.response?.status === 403) {
-					router.push('/login');
+					router.push("/login");
 				}
 			} else if (error instanceof Error) {
 				setError(error.message);
@@ -78,40 +100,11 @@ const DuplicateSynthForm = ({
 				setError("Une erreur inattendue est survenue");
 				toast.error("Une erreur inattendue est survenue");
 			}
-		}finally {
+		} finally {
 			setIsLoading(false);
 		}
 	};
 
-	// Précharger les données du synthétiseur original
-	useEffect(() => {
-		if (originalSynth) {
-			const price = originalSynth.price
-				? typeof originalSynth.price === "object"
-					? originalSynth.price.value
-					: originalSynth.price
-				: 0;
-
-			setFormData((prev) => ({
-				...prev,
-				marque: originalSynth.marque || "",
-				modele: originalSynth.modele || "",
-				specifications: originalSynth.specifications || "",
-				image_url: originalSynth.image_url || "",
-				price: price,
-			}));
-		}
-	}, [originalSynth]);
-
-	const [formData, setFormData] = useState({
-		marque: originalSynth.marque,
-		modele: originalSynth.modele,
-		specifications: originalSynth.specifications || "",
-		image_url: originalSynth.image_url || "",
-		price: initialPrice,
-	});
-
-	// Si le prix est 0 ou nul, afficher uniquement le message
 	if (initialPrice === 0) {
 		return (
 			<div className="w-full max-w-4xl mx-auto p-6">
@@ -142,14 +135,6 @@ const DuplicateSynthForm = ({
 			</div>
 		);
 	}
-
-	const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = Number(e.target.value);
-		setFormData((prev) => ({
-			...prev,
-			price: value,
-		}));
-	};
 
 	// Vérifier si originalSynth après la déclaration des hooks
 	if (!originalSynth) {
@@ -227,7 +212,7 @@ const DuplicateSynthForm = ({
 				<div className="flex justify-end space-x-4 mt-6">
 					<button
 						type="button"
-						onClick={() => router.push('/synthetisers')}
+						onClick={handleCancel}
 						className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
 						disabled={isLoading}
 					>
