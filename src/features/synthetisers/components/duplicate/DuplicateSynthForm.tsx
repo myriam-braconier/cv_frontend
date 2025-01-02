@@ -62,11 +62,16 @@ const DuplicateSynthForm = ({
                 throw new Error("Non authentifié");
             }
 
+            // Vérifier si un prix a été défini
+            if (formData.price === 0) {
+                throw new Error("Veuillez définir un prix valide");
+            }
+
             const response = await api.post(
                 `${API_URL}/api/synthetisers/${originalSynth.id}/duplicate`,
                 {
                     price: {
-                        value: formData.price || 0,
+                        value: formData.price,
                         currency: "EUR",
                     },
                 }
@@ -81,10 +86,11 @@ const DuplicateSynthForm = ({
             }
         } catch (error: unknown) {
             if (error instanceof AxiosError) {
-                const errorMessage = error.response?.data?.message || "Erreur lors de la duplication du synthétiseur";
+                const errorMessage = error.response?.data?.message || 
+                                   "Erreur lors de la duplication du synthétiseur";
                 setError(errorMessage);
                 toast.error(errorMessage);
-
+                
                 if (error.response?.status === 403) {
                     router.push("/login");
                 }
@@ -141,7 +147,13 @@ const DuplicateSynthForm = ({
                     </p>
                     <p>
                         <span className="font-medium">Prix actuel :</span>{" "}
-                        {`${initialPrice} EUR`}
+						{initialPrice === 0 ? (
+                            <span className="text-blue-600 italic">
+                                Vous êtes le premier à remettre  en vente cet instrument
+                            </span>
+                        ) : (
+                            `${initialPrice} EUR`
+                        )}
                     </p>
                 </div>
             </div>
@@ -154,8 +166,8 @@ const DuplicateSynthForm = ({
                 )}
 
                 <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Nouveau prix (EUR)*
+				<label className="block text-sm font-medium text-gray-700 mb-1">
+                        {initialPrice === 0 ? "Définir le prix (EUR)*" : "Nouveau prix (EUR)*"}
                     </label>
                     <input
                         type="number"
