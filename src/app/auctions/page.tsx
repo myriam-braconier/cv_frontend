@@ -50,6 +50,7 @@ export default function AuctionsPage() {
             }
     
             const auctionResponse = await api.get(`${API_URL}/api/auctions`);
+            console.log('Response:', auctionResponse); // Pour voir la structure complète
             if (!auctionResponse.data.data) {
                 throw new Error("Format de données invalide");
             }

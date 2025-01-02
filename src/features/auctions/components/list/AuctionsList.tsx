@@ -28,13 +28,17 @@ const handleRefresh = async () => {
     try {
         setIsRefreshing(true);
         const response = await axios.get(`${API_URL}/api/auctions`);
-       
-        setAuctions(response.data.data);
+        
+        const auctionsData = Array.isArray(response.data) 
+            ? response.data 
+            : response.data.data;
+            
+        setAuctions(auctionsData);
         if (onUpdateSuccess) {
             await onUpdateSuccess();
         }
     } catch (error) {
-        console.error('Erreur lors du rafraîchissement:', error);
+        console.error('Erreur détaillée lors du rafraîchissement:', error);
     } finally {
         setIsRefreshing(false);
     }
