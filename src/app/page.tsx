@@ -23,16 +23,17 @@ export default function HomePage() {
 			{/* Hero Section */}
 
 			<section
-				className="relative bg-gradient-to-b from-blue-500 to-red-500 text-white  min-h-[600px] "
+				className="relative  text-white  min-h-[600px] w-full "
 				id="sectionAccueil"
 			>
-				<div className="absolute inset-0">
+				<div className="absolute inset-0 z-0">
 					<Image
 						src="/images/spatsz.jpg"
 						alt="Background"
 						fill
 						sizes="100w"
 						className="object-cover  opacity-50"
+						style={{ position: 'absolute' }}  // Ajout explicite
 						priority
 						quality={100}
 					/>
