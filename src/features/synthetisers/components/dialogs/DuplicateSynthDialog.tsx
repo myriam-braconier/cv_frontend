@@ -6,9 +6,7 @@ import {
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Synth } from "@/features/synthetisers/types/synth";
 import DuplicateSynthForm from "@features/synthetisers/components/duplicate/DuplicateSynthForm";
 
@@ -25,7 +23,7 @@ interface DuplicateSynthDialogProps {
 
 export const DuplicateSynthDialog = ({
 	originalSynth,
-	trigger,
+	
 	onSuccess,
 }: DuplicateSynthDialogProps) => {
 	const [open, setOpen] = React.useState(false);
@@ -39,13 +37,7 @@ export const DuplicateSynthDialog = ({
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger asChild>
-				{trigger || (
-					<Button variant="outline" size="sm">
-						Dupliquer
-					</Button>
-				)}
-			</DialogTrigger>
+			
 			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>Dupliquer le synthétiseur</DialogTitle>
