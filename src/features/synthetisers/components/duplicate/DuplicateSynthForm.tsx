@@ -23,7 +23,6 @@ const DuplicateSynthForm = ({
 	const [isLoading, setIsLoading] = useState(false);
 	const [imageError, setImageError] = useState(false);
 
-
 	const [formData, setFormData] = useState({
 		marque: originalSynth.marque || "",
 		modele: originalSynth.modele || "",
@@ -56,55 +55,75 @@ const DuplicateSynthForm = ({
 				throw new Error("Non authentifié");
 			}
 
-			// Convertir le prix en nombre et vérifier sa validité
 			const numericPrice = parseFloat(formData.price);
 			if (isNaN(numericPrice) || numericPrice <= 0) {
 				throw new Error("Veuillez définir un prix valide");
 			}
 
+			console.log("Prix à envoyer:", numericPrice);
+
+			const requestData = {
+				price: numericPrice,
+				currency: "EUR",
+				newId: true, // Indiquer qu'on veut un nouvel ID
+			};
+
+			// Log de la requête
+			console.log("Requête de duplication:", {
+				url: `${API_URL}/api/synthetisers/${originalSynth.id}/duplicate`,
+				data: requestData,
+			});
+
 			const response = await api.post(
 				`${API_URL}/api/synthetisers/${originalSynth.id}/duplicate`,
-				{
-					price: {
-						value: numericPrice,
-						currency: "EUR",
-					},
-				}
+				requestData
 			);
 
-			if (response.status === 201) {
-				toast.success("Synthétiseur dupliqué avec succès");
-				//    forcer le rafraichissement de la page et rediriger
+			// Log de la réponse
+			console.log("Réponse de duplication:", response.data);
 
-				// D'abord appeler onSuccess pour fermer le dialog
+			if (response.status === 201 && response.data) {
+				// Vérifier si nous avons un nouvel ID dans la réponse
+				const newSynthId = response.data.id;
+				console.log("Nouvel ID du synthétiseur:", newSynthId);
+
+				toast.success("Synthétiseur dupliqué avec succès");
+
 				if (onSuccess) {
 					onSuccess();
 				}
 
-				// Attendre un court instant avant de rafraîchir
+				// Rediriger vers la liste avec un petit délai pour permettre à l'API de finaliser
 				setTimeout(() => {
 					router.refresh();
 					window.location.href = "/synthetisers";
-				}, 100);
+				}, 500);
+			} else {
+				throw new Error(
+					"Erreur lors de la duplication : pas de nouvel ID reçu"
+				);
 			}
 		} catch (error: unknown) {
-            if (error instanceof AxiosError) {
-                const errorMessage = error.response?.data?.message || 
-                                   "Erreur lors de la duplication du synthétiseur";
-                setError(errorMessage);
-                toast.error(errorMessage);
-                
-                if (error.response?.status === 403) {
-                    router.push("/login");
-                }
-            } else if (error instanceof Error) {
-                setError(error.message);
-                toast.error(error.message);
-            } else {
-                setError("Une erreur inattendue est survenue");
-                toast.error("Une erreur inattendue est survenue");
-            }
-        }  finally {
+			if (error instanceof AxiosError) {
+				console.error("Erreur de duplication:", error.response?.data);
+				const errorMessage =
+					error.response?.data?.message ||
+					"Erreur lors de la duplication du synthétiseur";
+				setError(errorMessage);
+				toast.error(errorMessage);
+
+				if (error.response?.status === 403) {
+					router.push("/login");
+				}
+			} else if (error instanceof Error) {
+				console.error("Erreur:", error.message);
+				setError(error.message);
+				toast.error(error.message);
+			} else {
+				setError("Une erreur inattendue est survenue");
+				toast.error("Une erreur inattendue est survenue");
+			}
+		} finally {
 			setIsLoading(false);
 		}
 	};
@@ -124,15 +143,19 @@ const DuplicateSynthForm = ({
 						<span className="font-medium">Modèle :</span> {originalSynth.modele}
 					</p>
 					<p>
-                        <span className="font-medium">Prix de référence :</span>{" "}
-                        {originalSynth.price ? (
-                            `${typeof originalSynth.price === 'object' ? originalSynth.price.value : originalSynth.price} EUR`
-                        ) : (
-                            <span className="text-blue-600 italic">
-                                Pas de prix de référence
-                            </span>
-                        )}
-                    </p>
+						<span className="font-medium">Prix de référence :</span>{" "}
+						{originalSynth.price ? (
+							`${
+								typeof originalSynth.price === "object"
+									? originalSynth.price.value
+									: originalSynth.price
+							} EUR`
+						) : (
+							<span className="text-blue-600 italic">
+								Pas de prix de référence
+							</span>
+						)}
+					</p>
 				</div>
 			</div>
 
@@ -144,9 +167,9 @@ const DuplicateSynthForm = ({
 				)}
 
 				<div className="mt-4">
-				<label className="block text-sm font-medium text-gray-700 mb-1">
-                        Prix de votre annonce (EUR)*
-                    </label>
+					<label className="block text-sm font-medium text-gray-700 mb-1">
+						Prix de votre annonce (EUR)*
+					</label>
 					<input
 						type="number"
 						value={formData.price === null ? "" : formData.price}
