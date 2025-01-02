@@ -23,7 +23,10 @@ export function AddPost({ synthetiserId, onPostAdded }: AddPostProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+
+
+
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!titre.trim() || !commentaire.trim()) {
@@ -35,7 +38,6 @@ export function AddPost({ synthetiserId, onPostAdded }: AddPostProps) {
     setError(null);
 
     try {
-      // Récupérer le token du localStorage
       const token = localStorage.getItem('token');
       if (!token) {
         setError('Vous devez être connecté pour ajouter un commentaire');
@@ -46,15 +48,15 @@ export function AddPost({ synthetiserId, onPostAdded }: AddPostProps) {
       // Définir le header d'authentification
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-      // Décoder le token pour obtenir l'ID de l'utilisateur
+      // Décoder le token pour obtenir l'ID de l'utilisateur et le stocker dans une variable
       const payload = JSON.parse(atob(token.split('.')[1]));
-      const userId = payload.id;
+      const userId = payload.id; // On stocke l'id dans une variable
 
       const response = await api.post(`${API_URL}/api/posts`, {
         titre: titre.trim(),
         commentaire: commentaire.trim(),
         synthetiserId,
-        userId,
+        userId, // Maintenant userId est correctement défini
         type_contenu: 'texte',
         statut: 'publié'
       });
@@ -75,6 +77,11 @@ export function AddPost({ synthetiserId, onPostAdded }: AddPostProps) {
     }
   };
 
+
+
+
+
+// RENDU
   return (
     <form onSubmit={handleSubmit} className="mt-4 space-y-4">
       {error && (
