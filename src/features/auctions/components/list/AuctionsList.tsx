@@ -7,6 +7,8 @@ import { API_URL } from "@/config/constants";
 import axios from "axios";
 import Image from "next/image";
 
+type SynthFilter = 0 | number; // 0 représente "all"
+
 interface AuctionListProps {
 	auctions: Auction[];
 	onUpdateSuccess?: () => void;
@@ -19,8 +21,10 @@ export const AuctionsList = ({
 	const [auctions, setAuctions] = useState<Auction[]>(initialAuctions);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [priceFilter, setPriceFilter] = useState<string>("all");
-	const [synthFilter, setSynthFilter] = useState<number | "all">("all");
 	const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
+	const [synthFilter, setSynthFilter] = useState<SynthFilter>(0);
+	const [modelFilter, setModelFilter] = useState<"all" | string>("all");
 
 	// remplace handleauctionupdate car plus complet car gère l'état de chargement
 	const handleRefresh = async () => {
@@ -53,27 +57,31 @@ export const AuctionsList = ({
 	);
 
 	// Filtrer les enchères
+
+	//  constante filteredAuctions
 	const filteredAuctions = auctions
-    .filter((auction) => {
-        const matchesSynth = 
-            synthFilter === "all" || 
-            auction.synthetiser.marque === synthFilter;
-            
-        const matchesPrice =
-            priceFilter === "all" ||
-            (priceFilter === "under1000" && auction.proposal_price < 1000) ||
-            (priceFilter === "1000to5000" &&
-                auction.proposal_price >= 1000 &&
-                auction.proposal_price <= 5000) ||
-            (priceFilter === "over5000" && auction.proposal_price > 5000);
-            
-        return matchesSynth && matchesPrice;
-    })
-    .sort((a, b) => {
-        return sortOrder === "asc"
-            ? a.proposal_price - b.proposal_price
-            : b.proposal_price - a.proposal_price;
-    });
+		.filter((auction) => {
+			const matchesSynth =
+				synthFilter === 0 || auction.synthetiser.id === synthFilter;
+
+			const matchesModel =
+				modelFilter === "all" || auction.synthetiser.modele === modelFilter;
+
+			const matchesPrice =
+				priceFilter === "all" ||
+				(priceFilter === "under1000" && auction.proposal_price < 1000) ||
+				(priceFilter === "1000to5000" &&
+					auction.proposal_price >= 1000 &&
+					auction.proposal_price <= 5000) ||
+				(priceFilter === "over5000" && auction.proposal_price > 5000);
+
+			return matchesSynth && matchesModel && matchesPrice;
+		})
+		.sort((a, b) => {
+			return sortOrder === "asc"
+				? a.proposal_price - b.proposal_price
+				: b.proposal_price - a.proposal_price;
+		});
 
 	return (
 		<ErrorBoundary>
@@ -108,7 +116,35 @@ export const AuctionsList = ({
 						</select>
 					</div>
 
-					{/* Filtre par synthétiseur */}
+					{/* Filtre par modèle de synthétiseur */}
+					<div className="flex-1">
+						<label className="block text-sm font-medium mb-2">
+							Filtrer par modèle
+						</label>
+						<select
+							className="w-full p-2 border rounded"
+							value={modelFilter}
+							onChange={(e) => setModelFilter(e.target.value)}
+						>
+							<option value="all">Tous les modèles</option>
+							{Array.from(
+								new Set(
+									auctions
+										.filter(
+											(auction) =>
+												auction.synthetiser && auction.synthetiser.modele
+										)
+										.map((auction) => auction.synthetiser.modele)
+								)
+							).map((modele) => (
+								<option key={modele} value={modele}>
+									{modele}
+								</option>
+							))}
+						</select>
+					</div>
+
+					{/* Filtre par ID de synthétiseur */}
 					<div className="flex-1">
 						<label className="block text-sm font-medium mb-2">
 							Filtrer par synthétiseur
@@ -116,18 +152,21 @@ export const AuctionsList = ({
 						<select
 							className="w-full p-2 border rounded"
 							value={synthFilter}
-							onChange={(e) =>
-								setSynthFilter(
-									e.target.value === "all" ? "all" : Number(e.target.value)
-								)
-							}
+							onChange={(e) => setSynthFilter(Number(e.target.value))}
 						>
-							<option value="all">Tous les synthétiseurs</option>
-							{uniqueSynthIds.map((id) => (
-								<option key={id} value={id}>
-									Synthétiseur {id}
-								</option>
-							))}
+							<option value={0}>Tous les synthétiseurs</option>
+							{uniqueSynthIds.map((id) => {
+								const synth = auctions.find(
+									(a) => a.synthetiserId === id
+								)?.synthetiser;
+								return (
+									<option key={id} value={id}>
+										{synth
+											? `${synth.marque} ${synth.modele}`
+											: `Synthétiseur ${id}`}
+									</option>
+								);
+							})}
 						</select>
 					</div>
 
@@ -183,7 +222,6 @@ export const AuctionsList = ({
 											? `${auction.synthetiser.marque} ${auction.synthetiser.modele}`
 											: `Synthétiseur #${auction.synthetiserId}`}
 									</p>
-								
 								</div>
 								<span
 									className={`px-2 py-1 rounded text-sm ${
