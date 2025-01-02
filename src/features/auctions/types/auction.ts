@@ -6,4 +6,12 @@ export interface Auction {
 	userId: number;
 	updatedAt?: string;
 	createdAt?: number;  
+	synthetiser?: Synth
+}
+
+export interface Synth {
+	id: number;
+	marque: string;
+	modele: string;
+	image_url?: string;
 }

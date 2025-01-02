@@ -5,6 +5,7 @@ import { Auction } from "@/features/auctions/types/auction";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { API_URL } from "@/config/constants";
 import axios from "axios";
+import Image from "next/image";
 
 interface AuctionListProps {
 	auctions: Auction[];
@@ -16,40 +17,40 @@ export const AuctionsList = ({
 	onUpdateSuccess,
 }: AuctionListProps) => {
 	const [auctions, setAuctions] = useState<Auction[]>(initialAuctions);
-    const [isRefreshing, setIsRefreshing] = useState(false);
+	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [priceFilter, setPriceFilter] = useState<string>("all");
 	const [synthFilter, setSynthFilter] = useState<number | "all">("all");
 	const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-    
 
+	// remplace handleauctionupdate car plus complet car gère l'état de chargement
+	const handleRefresh = async () => {
+		try {
+			setIsRefreshing(true);
+			const response = await axios.get(`${API_URL}/api/auctions`);
 
-// remplace handleauctionupdate car plus complet car gère l'état de chargement
-const handleRefresh = async () => {
-    try {
-        setIsRefreshing(true);
-        const response = await axios.get(`${API_URL}/api/auctions`);
-        
-        const auctionsData = Array.isArray(response.data) 
-            ? response.data 
-            : response.data.data;
-            
-        setAuctions(auctionsData);
-        if (onUpdateSuccess) {
-            await onUpdateSuccess();
-        }
-    } catch (error) {
-        console.error('Erreur détaillée lors du rafraîchissement:', error);
-    } finally {
-        setIsRefreshing(false);
-    }
-};
+			const auctionsData = Array.isArray(response.data)
+				? response.data
+				: response.data.data;
+
+			setAuctions(auctionsData);
+			if (onUpdateSuccess) {
+				await onUpdateSuccess();
+			}
+		} catch (error) {
+			console.error("Erreur détaillée lors du rafraîchissement:", error);
+		} finally {
+			setIsRefreshing(false);
+		}
+	};
 
 	useEffect(() => {
 		setAuctions(initialAuctions);
 	}, [initialAuctions]);
 
 	// Obtenir la liste unique des synthétiseurs
-    const uniqueSynthIds = Array.from(new Set(auctions.map(auction => auction.synthetiserId)));
+	const uniqueSynthIds = Array.from(
+		new Set(auctions.map((auction) => auction.synthetiserId))
+	);
 
 	// Filtrer les enchères
 	const filteredAuctions = auctions
@@ -72,27 +73,19 @@ const handleRefresh = async () => {
 				: b.proposal_price - a.proposal_price;
 		});
 
-
-        
-
-     
 	return (
 		<ErrorBoundary>
 			<div className="p-4">
-
-
-
-{/* Ajout du bouton de rafraîchissement */}
-<div className="flex justify-end mb-4">
-                    <button
-                        onClick={handleRefresh}
-                        disabled={isRefreshing}
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
-                    >
-                        {isRefreshing ? 'Rafraîchissement...' : 'Rafraîchir les enchères'}
-                    </button>
-                </div>
-
+				{/* Ajout du bouton de rafraîchissement */}
+				<div className="flex justify-end mb-4">
+					<button
+						onClick={handleRefresh}
+						disabled={isRefreshing}
+						className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+					>
+						{isRefreshing ? "Rafraîchissement..." : "Rafraîchir les enchères"}
+					</button>
+				</div>
 
 				{/* Filtres */}
 				<div className="mb-6 space-y-4 md:space-y-0 md:flex md:space-x-4">
@@ -159,14 +152,35 @@ const handleRefresh = async () => {
 							key={auction.id}
 							className="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow"
 						>
+							{/* Image du synthétiseur */}
+							<div className="relative h-48 w-full mb-4">
+								{auction.synthetiser?.image_url ? (
+									<Image
+										src={auction.synthetiser.image_url}
+										alt={`${auction.synthetiser.marque} ${auction.synthetiser.modele}`}
+										fill
+										className="object-cover rounded-lg"
+									/>
+								) : (
+									<div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
+										<span className="text-gray-500">
+											Pas d&apos;image disponible
+										</span>
+									</div>
+								)}
+							</div>
+
 							<div className="flex justify-between items-start mb-4">
 								<div>
 									<h3 className="font-semibold text-lg">
 										Enchère #{auction.id}
 									</h3>
 									<p className="text-gray-600">
-										Synthétiseur #{auction.synthetiserId}
+										{auction.synthetiser
+											? `${auction.synthetiser.marque} ${auction.synthetiser.modele}`
+											: `Synthétiseur #${auction.synthetiserId}`}
 									</p>
+								
 								</div>
 								<span
 									className={`px-2 py-1 rounded text-sm ${
