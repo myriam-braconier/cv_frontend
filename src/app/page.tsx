@@ -58,7 +58,7 @@ export default function HomePage() {
 							</p>
 							<Link
 								href="/synthetisers"
-								className="bg-white text-blue-700 px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition-colors"
+								className="bg-white text-pink-600 px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition-colors"
 							>
 								Voir les Synthétiseurs
 							</Link>

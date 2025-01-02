@@ -79,7 +79,7 @@ export default function Navbar() {
 
 
 	return (
-		<nav className="bg-transparent text-white">
+		<nav className="bg-transparent text-pink-600">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex justify-between h-16 items-center">
 					{/* Logo et liens principaux */}
@@ -88,8 +88,8 @@ export default function Navbar() {
 							<Image
 								src="/images/sound.gif"
 								alt="Logo"
-								width={32}
-								height={32}
+								width={98}
+								height={98}
 								className="rounded-full"
 							/>
 						</Link>
@@ -133,7 +133,7 @@ export default function Navbar() {
 								<div className="space-x-4">
 									<Link
 										href="/login"
-										className="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-md"
+										className="bg-pink-600 hover:bg-pink-700 px-3 py-2 rounded-md"
 									>
 										Connexion
 									</Link>
