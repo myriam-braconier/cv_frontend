@@ -6,7 +6,12 @@ export interface Auction {
 	userId: number;
 	updatedAt?: string;
 	createdAt?: number;  
-	synthetiser?: Synth
+	synthetiser?: {  // Ajout de la relation avec le synthétiseur
+        id: number;
+        marque: string;
+        modele: string;
+        image_url?: string;
+    };
 }
 
 export interface Synth {
