@@ -39,13 +39,11 @@ export default function HomePage() {
 						sizes="100w"
 						className="object-cover  opacity-50"
 						priority
-						onError={(e) => console.error('Erreur de chargement image:', e)}
-						onLoad={() => console.log('Image chargée avec succès')}
 					/>
 				</div>
 
 				{/* Overlay gradient pour améliorer la lisibilité */}
-				<div className="absolute inset-0 bg-gradient-to-b from-blue-500/50 to-red-500/50" />
+				<div className="absolute inset-0 bg-gradient-to-b from-blue-500/50 to-pink-500/50" />
 
 				{/* Contenu existant avec z-index pour le placer au-dessus du fond */}
 				<div className="container mx-auto px-4 py-16 relative z-20">
