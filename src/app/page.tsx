@@ -73,7 +73,7 @@ export default function HomePage() {
 									alt="Sound"
 									unoptimized
 									fill
-									className="object-cover rounded-lg shadow-xl"
+									className="object-cover rounded-lg hue-rotate-90 saturate-150"
 									priority
 								/>
 							</div>
