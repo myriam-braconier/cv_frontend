@@ -153,12 +153,13 @@ export const AuctionsList = ({
 							className="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow"
 						>
 							{/* Image du synthétiseur */}
-							<div className="relative h-48 w-full mb-4">
+							<div className="relative h-[150px] w-[150px] mb-4">
 								{auction.synthetiser?.image_url ? (
 									<Image
 										src={auction.synthetiser.image_url}
 										alt={`${auction.synthetiser.marque} ${auction.synthetiser.modele}`}
-										fill
+										width={150}
+										height={150}
 										className="object-cover rounded-lg"
 									/>
 								) : (

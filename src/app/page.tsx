@@ -23,23 +23,20 @@ export default function HomePage() {
 			{/* Hero Section */}
 
 			<section
-				className="relative bg-gradient-to-b from-blue-500 to-red-500 text-white "
+				className="relative bg-gradient-to-b from-blue-500 to-red-500 text-white  min-h-[600px] "
 				id="sectionAccueil"
 			>
-				
-
 				<div className="absolute inset-0 w-full h-full z-0">
-        <Image
-            src="/images/spatsz.jpg"
-            alt="Background"
-            fill
-            className="object-cover mix-blend-overlay opacity-50"
-            priority
-        />
-    </div>
+					<Image
+						src="/images/spatsz.jpg"
+						alt="Background"
+						fill
+						className="object-cover  opacity-50"
+						priority
+					/>
+				</div>
 
-
-				  {/* Contenu existant avec z-index pour le placer au-dessus du fond */}
+				{/* Contenu existant avec z-index pour le placer au-dessus du fond */}
 				<div className="container mx-auto px-4 py-16 relative z-10">
 					<div className="flex flex-col md:flex-row items-center justify-between">
 						<div className="md:w-1/2 mb-8 md:mb-0">
