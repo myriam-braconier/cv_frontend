@@ -1,0 +1,16 @@
+# Allow all crawlers by default
+User-agent: *
+# Allow access to all pages
+Allow: /
+
+# Block access to API routes
+Disallow: /api/
+
+# Allow access to static resources
+Allow: /_next/static/
+Allow: /_next/image/
+
+# Block access to private routes if needed
+Disallow: /admin/
+Disallow: /dashboard/
+
