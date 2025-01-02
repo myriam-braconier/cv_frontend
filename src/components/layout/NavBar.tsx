@@ -133,7 +133,7 @@ export default function Navbar() {
 								<div className="space-x-4">
 									<Link
 										href="/login"
-										className="bg-pink-600 hover:bg-pink-700 px-3 py-2 rounded-md"
+										className="bg-pink-600 hover:bg-pink-700 px-3 py-2 rounded-md text-black"
 									>
 										Connexion
 									</Link>
