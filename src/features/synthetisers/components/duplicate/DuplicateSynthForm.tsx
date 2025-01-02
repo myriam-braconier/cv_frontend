@@ -106,32 +106,7 @@ const DuplicateSynthForm = ({
         }
     };
 
-    if (initialPrice === 0) {
-        return (
-            <div className="w-full max-w-4xl mx-auto p-6">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                    <h2 className="text-lg font-semibold mb-2">Synthétiseur :</h2>
-                    <p>
-                        <span className="font-medium">Marque :</span> {originalSynth.marque}
-                    </p>
-                    <p>
-                        <span className="font-medium">Modèle :</span> {originalSynth.modele}
-                    </p>
-                    <p className="text-blue-600 italic mt-4">
-                        Vous êtes le premier à mettre en vente cet instrument, vous pouvez
-                        l&apos;éditer pour fixer le prix
-                    </p>
-                    <Button
-                        onClick={handleCancel}
-                        className="mt-4"
-                    >
-                        Retour à la liste
-                    </Button>
-                </div>
-            </div>
-        );
-    }
-
+	// RENDU
     return (
         <div className="w-full max-w-4xl mx-auto p-6">
             <div className="mb-6">
