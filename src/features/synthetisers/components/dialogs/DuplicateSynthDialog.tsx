@@ -15,7 +15,6 @@ interface DuplicateSynthDialogProps {
 	trigger?: React.ReactNode;
 	isOpen: boolean;
 	onOpenChange: (open: boolean) => void;
-	synth: Synth;
 	onClose: () => void;
 	onSuccess?: () => void;
 	isAdmin: boolean;
@@ -23,20 +22,21 @@ interface DuplicateSynthDialogProps {
 
 export const DuplicateSynthDialog = ({
 	originalSynth,
-	
+	isOpen,
+	onOpenChange,
 	onSuccess,
+	onClose,
 }: DuplicateSynthDialogProps) => {
-	const [open, setOpen] = React.useState(false);
 
 	const handleSuccess = () => {
 		if (onSuccess) {
 			onSuccess();
 		}
-		setOpen(false);
+	onClose();
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
+		<Dialog open={isOpen} onOpenChange={onOpenChange}>
 			
 			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
