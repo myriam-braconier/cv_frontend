@@ -25,11 +25,6 @@ export default function HomePage() {
 			<section
 				className="relative  text-white  min-h-[600px] w-full overflow-y-clip"
 				id="sectionAccueil"
-				style={{
-					backgroundImage: 'url("/images/spatsz.jpg")',
-					backgroundSize: 'cover',
-					backgroundPosition: 'center'
-				}}
 			>
 				<div className="absolute inset-0 w-full h-full">
 					<Image

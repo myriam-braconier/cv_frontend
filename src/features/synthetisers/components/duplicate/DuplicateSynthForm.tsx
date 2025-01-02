@@ -227,7 +227,7 @@ const DuplicateSynthForm = ({
 				<div className="flex justify-end space-x-4 mt-6">
 					<button
 						type="button"
-						onClick={() => router.back()}
+						onClick={() => router.push('/synthetisers')}
 						className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
 						disabled={isLoading}
 					>
