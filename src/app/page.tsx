@@ -26,7 +26,7 @@ export default function HomePage() {
 				className="relative  text-white  min-h-[600px] w-full overflow-hidden"
 				id="sectionAccueil"
 			>
-				<div className="absolute inset-0">
+				<div className="absolute inset-0 w-full h-full">
 					<Image
 						src="/images/spatsz.jpg"
 						alt="Background"
