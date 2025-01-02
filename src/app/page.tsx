@@ -23,24 +23,26 @@ export default function HomePage() {
 			{/* Hero Section */}
 
 			<section
-				className="relative  text-white  min-h-[600px] w-full "
+				className="relative  text-white  min-h-[600px] w-full overflow-hidden"
 				id="sectionAccueil"
 			>
-				<div className="absolute inset-0 z-0">
+				<div className="absolute inset-0">
 					<Image
 						src="/images/spatsz.jpg"
 						alt="Background"
 						fill
 						sizes="100w"
 						className="object-cover  opacity-50"
-						style={{ position: 'absolute' }}  // Ajout explicite
 						priority
 						quality={100}
 					/>
 				</div>
 
+				{/* Overlay gradient pour améliorer la lisibilité */}
+				<div className="absolute inset-0 bg-gradient-to-b from-blue-500/50 to-red-500/50" />
+
 				{/* Contenu existant avec z-index pour le placer au-dessus du fond */}
-				<div className="container mx-auto px-4 py-16 relative z-10">
+				<div className="container mx-auto px-4 py-16 relative z-20">
 					<div className="flex flex-col md:flex-row items-center justify-between">
 						<div className="md:w-1/2 mb-8 md:mb-0">
 							<h1 className="text-4xl md:text-6xl font-bold mb-4 text-red-500">
@@ -57,14 +59,17 @@ export default function HomePage() {
 								Voir les Synthétiseurs
 							</Link>
 						</div>
+
+
+						{/* image gif */}
 						<div className="md:w-1/2">
-							<div className="relative w-full h-[400px]">
+							<div className="relative w-full h-[400px] z-30">
 								<Image
 									src="/images/sound.gif"
 									alt="Sound"
 									unoptimized
 									fill
-									className="object-cover rounded-lg"
+									className="object-cover rounded-lg shadow-xl"
 									priority
 								/>
 							</div>
