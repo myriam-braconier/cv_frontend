@@ -129,7 +129,7 @@ const CardPricing = ({
         setNewBidAmount(null);
         toast.success("Enchère placée avec succès");
         if (onUpdateSuccess) {
-          await onUpdateSuccess();
+          onUpdateSuccess();
         }
       }
     } catch (error: unknown) {

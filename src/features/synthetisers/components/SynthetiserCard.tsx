@@ -48,7 +48,30 @@ export const SynthetiserCard = ({
 
 	const fullTitle = `${marque} ${modele}`;
 
+	// Vérification du role de l'utilisateur
+	const checkUserRole = useCallback(() => {
+		try {
+			const token = localStorage.getItem('token');
+			if (!token) {
+				return false;
+			}
+	
+			// Décodage du token
+			const payload = JSON.parse(atob(token.split('.')[1]));
+			
+			// Vérification du rôle (admin ou rôles spécifiques)
+			return payload.role === 'admin' || payload.roleId === 1 || payload.roleId === 2;
+		} catch (error) {
+			console.error("Erreur lors de la vérification du rôle:", error);
+			return false;
+		}
+	}, []);
+	
+	
+
 	const handleTogglePost = useCallback(() => setShowPosts((prev) => !prev), []);
+
+
 	const handleImageError = useCallback(
 		() => console.error("Erreur de chargement d'image"),
 		[]
@@ -197,6 +220,19 @@ export const SynthetiserCard = ({
 			fetchPosts();
 		}
 	}, [id]);
+
+	// pour vérification du role de l'utilisateur
+	// Plus bas dans le code, dans le hook useEffect
+	useEffect(() => {
+		const verifyAccess = async () => {
+			if (!checkUserRole()) {
+				toast.error("Accès non autorisé");
+				router.push('/login');
+			}
+		};
+	
+		verifyAccess();
+	}, [checkUserRole, router]);
 
 	// RENDU
 	return (
