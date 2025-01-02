@@ -59,7 +59,7 @@ export const SynthetiserCard = ({
 			const payload = JSON.parse(atob(token.split('.')[1]));
 			
 			// Vérification du rôle (admin ou rôles spécifiques)
-			return payload.role === 'admin' || payload.roleId === 1 || payload.roleId === 2;
+			return payload.roleId === 2;
 		} catch (error) {
 			console.error("Erreur lors de la vérification du rôle:", error);
 			return false;
