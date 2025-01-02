@@ -31,7 +31,7 @@ export default function HomePage() {
 					backgroundPosition: 'center'
 				}}
 			>
-				{/* <div className="absolute inset-0 w-full h-full">
+				<div className="absolute inset-0 w-full h-full">
 					<Image
 						src="/images/spatsz.jpg"
 						alt="Background"
@@ -42,7 +42,7 @@ export default function HomePage() {
 						onError={(e) => console.error('Erreur de chargement image:', e)}
 						onLoad={() => console.log('Image chargée avec succès')}
 					/>
-				</div> */}
+				</div>
 
 				{/* Overlay gradient pour améliorer la lisibilité */}
 				<div className="absolute inset-0 bg-gradient-to-b from-blue-500/50 to-red-500/50" />
