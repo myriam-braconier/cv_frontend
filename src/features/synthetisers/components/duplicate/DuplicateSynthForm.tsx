@@ -23,12 +23,6 @@ const DuplicateSynthForm = ({
 	const [isLoading, setIsLoading] = useState(false);
 	const [imageError, setImageError] = useState(false);
 
-	const initialPrice = originalSynth?.price
-		? typeof originalSynth.price === "object"
-			? originalSynth.price.value
-			: originalSynth.price
-		: 0;
-	// Initialiser directement le prix à null pour forcer l'utilisateur à entrer un nouveau prix
 
 	const [formData, setFormData] = useState({
 		marque: originalSynth.marque || "",
