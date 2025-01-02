@@ -23,7 +23,7 @@ export default function HomePage() {
 			{/* Hero Section */}
 
 			<section
-				className="relative  text-white  min-h-[600px] w-full overflow-hidden"
+				className="relative  text-white  min-h-[600px] w-full overflow-y-clip"
 				id="sectionAccueil"
 				style={{
 					backgroundImage: 'url("/images/spatsz.jpg")',
