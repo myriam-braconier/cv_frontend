@@ -5,6 +5,7 @@ import { api } from "@/services/axios";
 import { API_URL } from '@/config/constants';
 import { toast } from "react-hot-toast";
 import { AxiosError } from "axios";
+import { useRouter } from 'next/navigation'; // Ajout de l'import
 
 interface AddPostProps {
   synthetiserId: number;
@@ -22,6 +23,7 @@ export function AddPost({ synthetiserId, onPostAdded }: AddPostProps) {
   const [commentaire, setCommentaire] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter(); // Initialisation du router
 
 
 
@@ -66,6 +68,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         setTitre('');
         setCommentaire('');
         onPostAdded();
+        router.push('/synthetisers');
       }
     } catch (error) {
       const axiosError = error as AxiosError<ApiError>;
