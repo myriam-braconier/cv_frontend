@@ -281,6 +281,7 @@ export const SynthetiserCard = ({
 							onDuplicate={handleDuplicate}
 							isLoading={isLoading}
 							isAdmin={true}
+							originalSynth={synth}
 						/>
 
 						{isEditing && (
@@ -302,7 +303,7 @@ export const SynthetiserCard = ({
 							<DuplicateSynthDialog
 							isOpen={isDuplicating}
 							onOpenChange={setIsDuplicating}
-							synth={synth}
+						
 							onClose={() => setIsDuplicating(false)}
 							onSuccess={onUpdateSuccess}
 							originalSynth={synth}
