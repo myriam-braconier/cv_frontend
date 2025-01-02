@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { api } from "@/services/axios";
-import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Synth } from "@/features/synthetisers/types/synth";
 import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { API_URL } from "@/config/constants";
+import { AxiosError } from "axios";
 
 interface DuplicateSynthFormProps {
 	originalSynth: Synth;
@@ -48,60 +48,42 @@ const DuplicateSynthForm = ({
 		e.preventDefault();
 		setError(null);
 		setIsLoading(true);
-
+	
 		try {
 			const token = localStorage.getItem("token");
 			if (!token) {
 				throw new Error("Non authentifié");
 			}
-
+	
 			const numericPrice = parseFloat(formData.price);
 			if (isNaN(numericPrice) || numericPrice <= 0) {
 				throw new Error("Veuillez définir un prix valide");
 			}
-
-			console.log("Prix à envoyer:", numericPrice);
-
+	
 			const requestData = {
 				price: numericPrice,
-				currency: "EUR",
-				newId: true, // Indiquer qu'on veut un nouvel ID
+				currency: "EUR"
 			};
-
-			// Log de la requête
-			console.log("Requête de duplication:", {
-				url: `${API_URL}/api/synthetisers/${originalSynth.id}/duplicate`,
-				data: requestData,
-			});
-
+	
 			const response = await api.post(
 				`${API_URL}/api/synthetisers/${originalSynth.id}/duplicate`,
 				requestData
 			);
-
-			// Log de la réponse
-			console.log("Réponse de duplication:", response.data);
-
+	
 			if (response.status === 201 && response.data) {
-				// Vérifier si nous avons un nouvel ID dans la réponse
-				const newSynthId = response.data.id;
-				console.log("Nouvel ID du synthétiseur:", newSynthId);
-
 				toast.success("Synthétiseur dupliqué avec succès");
-
+	
+				// Appeler onSuccess avant la redirection si nécessaire
 				if (onSuccess) {
 					onSuccess();
 				}
-
-				// Rediriger vers la liste avec un petit délai pour permettre à l'API de finaliser
-				setTimeout(() => {
-					router.refresh();
-					window.location.href = "/synthetisers";
-				}, 500);
-			} else {
-				throw new Error(
-					"Erreur lors de la duplication : pas de nouvel ID reçu"
-				);
+	
+				// Rediriger vers la page du nouveau synthétiseur
+				if (response.data.id) {
+					router.push(`/synthetisers/${response.data.id}`);
+				} else {
+					router.push("/synthetisers");
+				}
 			}
 		} catch (error: unknown) {
 			if (error instanceof AxiosError) {
@@ -111,7 +93,7 @@ const DuplicateSynthForm = ({
 					"Erreur lors de la duplication du synthétiseur";
 				setError(errorMessage);
 				toast.error(errorMessage);
-
+	
 				if (error.response?.status === 403) {
 					router.push("/login");
 				}
@@ -123,7 +105,7 @@ const DuplicateSynthForm = ({
 				setError("Une erreur inattendue est survenue");
 				toast.error("Une erreur inattendue est survenue");
 			}
-		} finally {
+		}  finally {
 			setIsLoading(false);
 		}
 	};
