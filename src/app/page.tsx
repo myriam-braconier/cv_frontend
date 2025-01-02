@@ -34,7 +34,8 @@ export default function HomePage() {
 						sizes="100w"
 						className="object-cover  opacity-50"
 						priority
-						quality={100}
+						onError={(e) => console.error('Erreur de chargement image:', e)}
+						onLoad={() => console.log('Image chargée avec succès')}
 					/>
 				</div>
 
