@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Synth } from "@/features/synthetisers/types/synth";
 import { toast } from "react-hot-toast";
-import { Button } from "@/components/ui/button";
 import { API_URL } from "@/config/constants";
 
 interface DuplicateSynthFormProps {
