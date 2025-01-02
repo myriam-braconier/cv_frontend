@@ -34,7 +34,6 @@ export const ListSynthetisers = ({
                             <SynthetiserCard
                                 key={synth.id}
                                 synth={synth}
-                                hasAdminRole={true}
                                 onUpdateSuccess={onUpdateSuccess}
                                 isAuthenticated={() => true}
                             />
