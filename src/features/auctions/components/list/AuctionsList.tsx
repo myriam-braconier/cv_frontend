@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Auction } from "@/features/auctions/types/auction";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { API_URL } from "@/config/constants";
+import axios from "axios";
 
 interface AuctionListProps {
 	auctions: Auction[];
@@ -18,6 +20,43 @@ export const AuctionsList = ({
 	const [priceFilter, setPriceFilter] = useState<string>("all");
 	const [synthFilter, setSynthFilter] = useState<number | "all">("all");
 	const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+    
+
+
+useEffect(() => {
+    const fetchAuctions = async () => {
+        try {
+            setIsRefreshing(true);
+            const response = await axios.get(`${API_URL}/api/auctions`);
+         
+            setAuctions(response.data);
+        } catch (error) {
+            console.error('Erreur:', error);
+          
+        } finally {
+            setIsRefreshing(false);
+        }
+    };
+
+    fetchAuctions();
+}, []);
+
+// remplace handleauctionupdate car plus complet car gère l'état de chargement
+const handleRefresh = async () => {
+    try {
+        setIsRefreshing(true);
+        const response = await axios.get(`${API_URL}/api/auctions`);
+       
+        setAuctions(response.data);
+        if (onUpdateSuccess) {
+            await onUpdateSuccess();
+        }
+    } catch (error) {
+        console.error('Erreur lors du rafraîchissement:', error);
+    } finally {
+        setIsRefreshing(false);
+    }
+};
 
 	useEffect(() => {
 		setAuctions(initialAuctions);
@@ -49,19 +88,7 @@ export const AuctionsList = ({
 
 
         
-// remplace handleauctionupdate car plus complet car gère l'état de chargement
-        const handleRefresh = async () => {
-            try {
-                setIsRefreshing(true);
-                if (onUpdateSuccess) {
-                    await onUpdateSuccess();
-                }
-            } catch (error) {
-                console.error('Erreur lors du rafraîchissement:', error);
-            } finally {
-                setIsRefreshing(false);
-            }
-        };
+
      
 	return (
 		<ErrorBoundary>
