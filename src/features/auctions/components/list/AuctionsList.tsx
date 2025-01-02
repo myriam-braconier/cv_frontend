@@ -54,24 +54,26 @@ export const AuctionsList = ({
 
 	// Filtrer les enchères
 	const filteredAuctions = auctions
-		.filter((auction) => {
-			const matchesSynth =
-				synthFilter === "all" || auction.synthetiserId === synthFilter;
-			const matchesPrice =
-				priceFilter === "all" ||
-				(priceFilter === "under1000" && auction.proposal_price < 1000) ||
-				(priceFilter === "1000to5000" &&
-					auction.proposal_price >= 1000 &&
-					auction.proposal_price <= 5000) ||
-				(priceFilter === "over5000" && auction.proposal_price > 5000);
-
-			return matchesSynth && matchesPrice;
-		})
-		.sort((a, b) => {
-			return sortOrder === "asc"
-				? a.proposal_price - b.proposal_price
-				: b.proposal_price - a.proposal_price;
-		});
+    .filter((auction) => {
+        const matchesSynth = 
+            synthFilter === "all" || 
+            auction.synthetiser.marque === synthFilter;
+            
+        const matchesPrice =
+            priceFilter === "all" ||
+            (priceFilter === "under1000" && auction.proposal_price < 1000) ||
+            (priceFilter === "1000to5000" &&
+                auction.proposal_price >= 1000 &&
+                auction.proposal_price <= 5000) ||
+            (priceFilter === "over5000" && auction.proposal_price > 5000);
+            
+        return matchesSynth && matchesPrice;
+    })
+    .sort((a, b) => {
+        return sortOrder === "asc"
+            ? a.proposal_price - b.proposal_price
+            : b.proposal_price - a.proposal_price;
+    });
 
 	return (
 		<ErrorBoundary>
@@ -153,7 +155,7 @@ export const AuctionsList = ({
 							className="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow"
 						>
 							{/* Image du synthétiseur */}
-							<div className="relative h-[150px] w-[150px] mb-4">
+							<div className="relative h-[150px] w-[150px] mb-1">
 								{auction.synthetiser?.image_url ? (
 									<Image
 										src={auction.synthetiser.image_url}

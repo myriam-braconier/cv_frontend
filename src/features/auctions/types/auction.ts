@@ -6,7 +6,7 @@ export interface Auction {
 	userId: number;
 	updatedAt?: string;
 	createdAt?: number;  
-	synthetiser?: {  // Ajout de la relation avec le synthétiseur
+	synthetiser: {  // Ajout de la relation avec le synthétiseur
         id: number;
         marque: string;
         modele: string;
