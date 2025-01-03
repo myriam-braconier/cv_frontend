@@ -39,7 +39,7 @@ export default function LoginForm() {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6" id="loginpage">
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
             <div className="rounded-md shadow-sm -space-y-px">
                 <div>
                     <input
@@ -71,7 +71,7 @@ export default function LoginForm() {
 
             <button
                 type="submit"
-                className="w-full py-2 px-4 border border-transparent rounded-md text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-50"
+                className="z-100 w-full py-2 px-4 border border-transparent rounded-md text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-50"
                 disabled={isLoading}
             >
                 {isLoading ? "Connexion..." : "Se connecter"}
