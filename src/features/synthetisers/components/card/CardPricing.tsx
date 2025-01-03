@@ -22,6 +22,11 @@ interface Price {
 	currency: string;
 }
 
+
+// Ajoutez une interface pour TimeElapsed
+type TimeElapsed = string;
+
+
 const CardPricing = ({
 	price = 0,
 	auctionPrices = [],
@@ -38,7 +43,7 @@ const CardPricing = ({
 	const router = useRouter();
 
 	// solution de timestamp en temps réel
-	const [timeElapsed, setTimeElapsed] = useState<string>("");
+  const [timeElapsed, setTimeElapsed] = useState<TimeElapsed>("");
 
 	const formatTimeElapsed = (date: Date): string => {
 		const now = new Date();
@@ -86,8 +91,8 @@ const CardPricing = ({
 				const now = new Date();
 				const formattedData = {
 					...response.data,
-					createdAt: now.getTime(), // timestamp en millisecondes
-					updatedAt: now.toISOString(), // format ISO string
+					createdAt: response.data.createdAt || now.toISOString(),
+					updatedAt: response.data.updatedAt || now.toISOString(),
 					proposal_price: parseFloat(response.data.proposal_price),
 				};
 
@@ -263,22 +268,30 @@ const CardPricing = ({
 							<div className="font-semibold">
 								Dernière enchère: {latestAuction.proposal_price}€
 							</div>
+
 							<div className="text-sm text-gray-600">
-								{timeElapsed ||
-									(() => {
-										if (typeof latestAuction.updatedAt === "string") {
-											return new Date(latestAuction.updatedAt).toLocaleString(
-												"fr-FR"
-											);
-										}
-										if (typeof latestAuction.createdAt === "number") {
-											return new Date(latestAuction.createdAt).toLocaleString(
-												"fr-FR"
-											);
-										}
-										return "Date non disponible";
-									})()}
-							</div>
+                {/* Si on a le temps écoulé, on l'affiche, sinon on affiche la date formatée */}
+                {timeElapsed || 
+                    latestAuction.updatedAt ? 
+                        new Date(latestAuction.updatedAt).toLocaleString("fr-FR", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                        }) 
+                    : latestAuction.createdAt ?
+                        new Date(latestAuction.createdAt).toLocaleString("fr-FR", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                        })
+                    : "Date non disponible"
+                }
+            </div>
+
 						</div>
 					) : (
 						<div>Aucune enchère - Soyez le premier à enchérir!</div>
