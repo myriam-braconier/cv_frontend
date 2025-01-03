@@ -72,34 +72,35 @@ const CardPricing = ({
 		return sortedAuctions[0];
 	}, [localAuctionPrices]);
 
-  const fetchLatestAuction = useCallback(async () => {
-    try {
-      const response = await api.get(
-        `${API_URL}/api/synthetisers/${synthId}/auctions/latest`
-      );
-      console.log("Réponse API brute:", response.data);
-  
-      if (response.data) {
-        const now = new Date();
-        const formattedData = {
-          ...response.data,
-          createdAt: now.getTime(), // timestamp en millisecondes
-          updatedAt: now.toISOString(), // format ISO string
-          proposal_price: parseFloat(response.data.proposal_price),
-        };
-        
-        console.log("Données formatées:", formattedData);
-        
-        setLocalAuctionPrices([formattedData]);
-      }
-    } catch (error) {
-      console.error("Erreur lors du fetch:", error);
-      toast.error("Impossible de récupérer la dernière enchère");
-    } finally {
-      setIsLoadingAuctions(false);
-    }
-  }, [synthId]);
+	const fetchLatestAuction = useCallback(async () => {
+		try {
+			console.log("Début fetchLatestAuction pour synthId:", synthId);
 
+			const response = await api.get(
+				`${API_URL}/api/synthetisers/${synthId}/auctions/latest`
+			);
+			console.log("Réponse API complète:", response);
+			console.log("Données reçues de l'API:", response.data);
+
+			if (response.data) {
+				const now = new Date();
+				const formattedData = {
+					...response.data,
+					createdAt: now.getTime(), // timestamp en millisecondes
+					updatedAt: now.toISOString(), // format ISO string
+					proposal_price: parseFloat(response.data.proposal_price),
+				};
+
+				console.log("Données formatées avant setState:", formattedData);
+				setLocalAuctionPrices([formattedData]);
+			}
+		} catch (error) {
+			console.error("Erreur détaillée du fetch:", error);
+			toast.error("Impossible de récupérer la dernière enchère");
+		} finally {
+			setIsLoadingAuctions(false);
+		}
+	}, [synthId]);
 
 	const handleCreateAuction = async () => {
 		if (!isAuthenticated()) {
@@ -178,78 +179,74 @@ const CardPricing = ({
 		: displayPrice + 1;
 
 	// Fonction utilitaire pour convertir une date de façon sûre
-  const getAuctionDate = (auction: AuctionPrice | null): Date | null => {
-    if (!auction) {
-      console.log("Pas d'enchère fournie à getAuctionDate");
-      return null;
-    }
-    
-    console.log("Tentative de création de date avec:", {
-      updatedAt: auction.updatedAt,
-      typeUpdatedAt: typeof auction.updatedAt,
-      createdAt: auction.createdAt,
-      typeCreatedAt: typeof auction.createdAt
-    });
-  
-    // Si updatedAt existe et est valide
-    if (auction.updatedAt) {
-      const updatedAtDate = new Date(auction.updatedAt);
-      console.log("Date créée depuis updatedAt:", updatedAtDate);
-      if (!isNaN(updatedAtDate.getTime())) {
-        return updatedAtDate;
-      }
-    }
-  
-    // Si createdAt existe et est un nombre valide
-    if (auction.createdAt) {
-      const createdAtDate = new Date(auction.createdAt);
-      console.log("Date créée depuis createdAt:", createdAtDate);
-      if (!isNaN(createdAtDate.getTime())) {
-        return createdAtDate;
-      }
-    }
-  
-    console.log("Aucune date valide n'a pu être créée");
-    return null;
-  };
+	const getAuctionDate = (auction: AuctionPrice | null): Date | null => {
+		if (!auction) {
+			console.log("Pas d'enchère fournie à getAuctionDate");
+			return null;
+		}
 
+		console.log("Tentative de création de date avec:", {
+			updatedAt: auction.updatedAt,
+			typeUpdatedAt: typeof auction.updatedAt,
+			createdAt: auction.createdAt,
+			typeCreatedAt: typeof auction.createdAt,
+		});
 
+		// Si updatedAt existe et est valide
+		if (auction.updatedAt) {
+			const updatedAtDate = new Date(auction.updatedAt);
+			console.log("Date créée depuis updatedAt:", updatedAtDate);
+			if (!isNaN(updatedAtDate.getTime())) {
+				return updatedAtDate;
+			}
+		}
 
+		// Si createdAt existe et est un nombre valide
+		if (auction.createdAt) {
+			const createdAtDate = new Date(auction.createdAt);
+			console.log("Date créée depuis createdAt:", createdAtDate);
+			if (!isNaN(createdAtDate.getTime())) {
+				return createdAtDate;
+			}
+		}
 
+		console.log("Aucune date valide n'a pu être créée");
+		return null;
+	};
 
 	// gestion de l'affichage temporel
-  useEffect(() => {
-    if (!latestAuction) {
-      console.log("Pas d'enchère disponible");
-      return;
-    }
-  
-    console.log("Données brutes de l'enchère:", latestAuction);
-  
-    const updateTimestamp = () => {
-      // On utilise getAuctionDate une seule fois ici
-      const auctionDate = getAuctionDate(latestAuction);
-      
-      console.log("Tentative de récupération de la date:", {
-        updatedAt: latestAuction.updatedAt,
-        createdAt: latestAuction.createdAt,
-        resultingDate: auctionDate
-      });
-  
-      if (auctionDate) {
-        const formattedTime = formatTimeElapsed(auctionDate);
-        console.log("Temps formaté:", formattedTime);
-        setTimeElapsed(formattedTime);
-      } else {
-        console.log("Impossible de créer une date valide");
-      }
-    };
-  
-    updateTimestamp();
-    const interval = setInterval(updateTimestamp, 1000);
-  
-    return () => clearInterval(interval);
-  }, [latestAuction]);
+	useEffect(() => {
+		if (!latestAuction) {
+			console.log("Pas d'enchère disponible");
+			return;
+		}
+
+		console.log("Données brutes de l'enchère:", latestAuction);
+
+		const updateTimestamp = () => {
+			// On utilise getAuctionDate une seule fois ici
+			const auctionDate = getAuctionDate(latestAuction);
+
+			console.log("Tentative de récupération de la date:", {
+				updatedAt: latestAuction.updatedAt,
+				createdAt: latestAuction.createdAt,
+				resultingDate: auctionDate,
+			});
+
+			if (auctionDate) {
+				const formattedTime = formatTimeElapsed(auctionDate);
+				console.log("Temps formaté:", formattedTime);
+				setTimeElapsed(formattedTime);
+			} else {
+				console.log("Impossible de créer une date valide");
+			}
+		};
+
+		updateTimestamp();
+		const interval = setInterval(updateTimestamp, 1000);
+
+		return () => clearInterval(interval);
+	}, [latestAuction]);
 
 	// RENDU
 	return (
