@@ -139,7 +139,7 @@ export default function Navbar() {
 									</Link>
 									<Link
 										href="/register"
-										className="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-md"
+										className="bg-black hover:bg-blue-700 px-3 py-2 rounded-md"
 									>
 										Inscription
 									</Link>
