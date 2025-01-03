@@ -86,7 +86,7 @@ export default function Navbar() {
 					<div className="flex items-center">
 						<Link href="/" className="flex-shrink-0">
 							<Image
-								src="/images/sound.gif"
+								src="/images/logosound.png"
 								alt="Logo"
 								width={98}
 								height={98}
