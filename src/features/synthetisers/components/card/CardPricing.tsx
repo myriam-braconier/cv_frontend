@@ -80,10 +80,11 @@ const CardPricing = ({
       console.log("Réponse API brute:", response.data);
   
       if (response.data) {
-        const lastAuctionDate = Date.now();
+        const now = new Date();
         const formattedData = {
           ...response.data,
-          createdAt: lastAuctionDate,
+          createdAt: now.getTime(), // timestamp en millisecondes
+          updatedAt: now.toISOString(), // format ISO string
           proposal_price: parseFloat(response.data.proposal_price),
         };
         

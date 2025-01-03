@@ -37,6 +37,6 @@ export interface AuctionPrice {
 	status: string;
 	synthetiserId: number;
 	userId: number;
-	updatedAt?: string;
-	createdAt?: number;  
+	updatedAt: string;
+	createdAt: number;  
 }
