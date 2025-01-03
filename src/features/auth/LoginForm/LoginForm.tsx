@@ -39,7 +39,7 @@ export default function LoginForm() {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6" id="loginpage">
             <div className="rounded-md shadow-sm -space-y-px">
                 <div>
                     <input
