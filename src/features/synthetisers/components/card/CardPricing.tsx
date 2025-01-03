@@ -72,31 +72,33 @@ const CardPricing = ({
 		return sortedAuctions[0];
 	}, [localAuctionPrices]);
 
-	const fetchLatestAuction = useCallback(async () => {
-		try {
-			const response = await api.get(
-				`${API_URL}/api/synthetisers/${synthId}/auctions/latest`
-			);
-			if (response.data) {
-				const lastAuctionDate = Date.now();
-				const formattedData = {
-					...response.data,
-					createdAt: lastAuctionDate,
-					proposal_price: parseFloat(response.data.proposal_price),
-				};
-				localStorage.setItem(
-					`auction_${formattedData.id}_date`,
-					lastAuctionDate.toString()
-				);
-				setLocalAuctionPrices([formattedData]);
-			}
-		} catch (error) {
-			console.error("Erreur:", error);
-			toast.error("Impossible de récupérer la dernière enchère");
-		} finally {
-			setIsLoadingAuctions(false);
-		}
-	}, [synthId]);
+  const fetchLatestAuction = useCallback(async () => {
+    try {
+      const response = await api.get(
+        `${API_URL}/api/synthetisers/${synthId}/auctions/latest`
+      );
+      console.log("Réponse API brute:", response.data);
+  
+      if (response.data) {
+        const lastAuctionDate = Date.now();
+        const formattedData = {
+          ...response.data,
+          createdAt: lastAuctionDate,
+          proposal_price: parseFloat(response.data.proposal_price),
+        };
+        
+        console.log("Données formatées:", formattedData);
+        
+        setLocalAuctionPrices([formattedData]);
+      }
+    } catch (error) {
+      console.error("Erreur lors du fetch:", error);
+      toast.error("Impossible de récupérer la dernière enchère");
+    } finally {
+      setIsLoadingAuctions(false);
+    }
+  }, [synthId]);
+
 
 	const handleCreateAuction = async () => {
 		if (!isAuthenticated()) {
@@ -175,44 +177,76 @@ const CardPricing = ({
 		: displayPrice + 1;
 
 	// Fonction utilitaire pour convertir une date de façon sûre
-	const getAuctionDate = (auction: AuctionPrice | null): Date | null => {
-		if (!auction) return null;
-
-		// Si updatedAt existe et est valide
-		if (auction.updatedAt) {
-			const updatedAtDate = new Date(auction.updatedAt);
-			if (!isNaN(updatedAtDate.getTime())) {
-				return updatedAtDate;
-			}
-		}
-
-		// Si createdAt existe et est un nombre valide
-		if (auction.createdAt && typeof auction.createdAt === "number") {
-			return new Date(auction.createdAt);
-		}
-
-		return null;
-	};
-// gestion de l'affichage temporel
-	useEffect(() => {
-    if (!latestAuction) return;
+  const getAuctionDate = (auction: AuctionPrice | null): Date | null => {
+    if (!auction) {
+      console.log("Pas d'enchère fournie à getAuctionDate");
+      return null;
+    }
+    
+    console.log("Tentative de création de date avec:", {
+      updatedAt: auction.updatedAt,
+      typeUpdatedAt: typeof auction.updatedAt,
+      createdAt: auction.createdAt,
+      typeCreatedAt: typeof auction.createdAt
+    });
   
-    // Fonction pour mettre à jour le timestamp
+    // Si updatedAt existe et est valide
+    if (auction.updatedAt) {
+      const updatedAtDate = new Date(auction.updatedAt);
+      console.log("Date créée depuis updatedAt:", updatedAtDate);
+      if (!isNaN(updatedAtDate.getTime())) {
+        return updatedAtDate;
+      }
+    }
+  
+    // Si createdAt existe et est un nombre valide
+    if (auction.createdAt) {
+      const createdAtDate = new Date(auction.createdAt);
+      console.log("Date créée depuis createdAt:", createdAtDate);
+      if (!isNaN(createdAtDate.getTime())) {
+        return createdAtDate;
+      }
+    }
+  
+    console.log("Aucune date valide n'a pu être créée");
+    return null;
+  };
+
+
+
+
+
+	// gestion de l'affichage temporel
+  useEffect(() => {
+    if (!latestAuction) {
+      console.log("Pas d'enchère disponible");
+      return;
+    }
+  
+    console.log("Données brutes de l'enchère:", latestAuction);
+  
     const updateTimestamp = () => {
+      // On utilise getAuctionDate une seule fois ici
       const auctionDate = getAuctionDate(latestAuction);
+      
+      console.log("Tentative de récupération de la date:", {
+        updatedAt: latestAuction.updatedAt,
+        createdAt: latestAuction.createdAt,
+        resultingDate: auctionDate
+      });
+  
       if (auctionDate) {
-        setTimeElapsed(formatTimeElapsed(auctionDate));
-        console.log("Latest Auction Date:", auctionDate); // Garde la fonctionnalité de debug
+        const formattedTime = formatTimeElapsed(auctionDate);
+        console.log("Temps formaté:", formattedTime);
+        setTimeElapsed(formattedTime);
+      } else {
+        console.log("Impossible de créer une date valide");
       }
     };
   
-    // Mise à jour initiale
     updateTimestamp();
-  
-    // Mise à jour toutes les secondes
     const interval = setInterval(updateTimestamp, 1000);
   
-    // Cleanup
     return () => clearInterval(interval);
   }, [latestAuction]);
 
@@ -225,32 +259,33 @@ const CardPricing = ({
 					Prix initial: {displayPrice}€
 				</div>
 
-        <div>
-    {latestAuction ? (
-        <div className="text-right">
-            <div className="font-semibold">
-                Dernière enchère: {latestAuction.proposal_price}€
-            </div>
-            <div className="text-sm text-gray-600">
-                {timeElapsed || (() => {
-                    if (typeof latestAuction.updatedAt === 'string') {
-                        return new Date(latestAuction.updatedAt).toLocaleString("fr-FR");
-                    }
-                    if (typeof latestAuction.createdAt === 'number') {
-                        return new Date(latestAuction.createdAt).toLocaleString("fr-FR");
-                    }
-                    return "Date non disponible";
-                })()}
-            </div>
-        </div>
-    ) : (
-        <div>Aucune enchère - Soyez le premier à enchérir!</div>
-    )}
-</div>
-
-
-
-
+				<div>
+					{latestAuction ? (
+						<div className="text-right">
+							<div className="font-semibold">
+								Dernière enchère: {latestAuction.proposal_price}€
+							</div>
+							<div className="text-sm text-gray-600">
+								{timeElapsed ||
+									(() => {
+										if (typeof latestAuction.updatedAt === "string") {
+											return new Date(latestAuction.updatedAt).toLocaleString(
+												"fr-FR"
+											);
+										}
+										if (typeof latestAuction.createdAt === "number") {
+											return new Date(latestAuction.createdAt).toLocaleString(
+												"fr-FR"
+											);
+										}
+										return "Date non disponible";
+									})()}
+							</div>
+						</div>
+					) : (
+						<div>Aucune enchère - Soyez le premier à enchérir!</div>
+					)}
+				</div>
 			</div>
 
 			{isAuthenticated() && (
