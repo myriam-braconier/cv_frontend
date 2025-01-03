@@ -18,6 +18,9 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Concrete Vibes",
   description: "Un site pour les passionnés de musique électronique",
+  icons: {
+    icon: '/favicon.ico',
+  }
 };
 
 export const viewport = {

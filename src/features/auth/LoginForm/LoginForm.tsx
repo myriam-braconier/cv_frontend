@@ -71,7 +71,7 @@ export default function LoginForm() {
 
             <button
                 type="submit"
-                className="z-100 w-full py-2 px-4 border border-transparent rounded-md text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-50"
+                className="w-full py-2 px-4 border border-transparent rounded-md text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-50"
                 disabled={isLoading}
             >
                 {isLoading ? "Connexion..." : "Se connecter"}
