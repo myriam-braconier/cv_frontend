@@ -116,7 +116,7 @@ export default function Navbar() {
 						<div className="flex items-center">
 							{user ? (
 								<div className="flex items-center space-x-4">
-									<span className="text-pink-600">
+									<span className="text-red-600">
 										Bienvenue,{" "}
 										{user.username ||
 											user.email?.split("@")[0] ||
@@ -133,7 +133,7 @@ export default function Navbar() {
 								<div className="space-x-4">
 									<Link
 										href="/login"
-										className="bg-pink-600 hover:bg-pink-700 px-3 py-2 rounded-md text-black"
+										className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-md text-black"
 									>
 										Connexion
 									</Link>
