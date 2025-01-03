@@ -27,7 +27,7 @@ export default function LoginPage() {
       {/* Contenu du formulaire avec z-index positif */}
       <div className="relative z-10 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8" >
-        <h2 className="z+10 mt-6 text-center text-3xl font-extrabold text-white z-100">
+        <h2 className="z+10 mt-6 text-center text-3xl font-extrabold text-pink-700 z-100 text-align-center">
           Connexion
         </h2>
         <Suspense fallback={<div>Loading...</div>}>

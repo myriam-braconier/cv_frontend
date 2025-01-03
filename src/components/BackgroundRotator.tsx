@@ -10,7 +10,8 @@ const BackgroundRotator = ({ images }: BackgroundRotatorProps) => {
   const currentImageIndex = useBackgroundRotator(images);
 
   return (
-    <div className="absolute inset-0 w-full h-full">
+    <div className="relative inset-0 w-full h-full">
+     				<div className="absolute inset-0 w-full h-full">
       <Image
         src={images[currentImageIndex]}
         alt="Background"
@@ -20,6 +21,7 @@ const BackgroundRotator = ({ images }: BackgroundRotatorProps) => {
         priority
         quality={75}
       />
+      </div>
     </div>
   );
 };
