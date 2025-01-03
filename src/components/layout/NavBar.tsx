@@ -5,78 +5,76 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 
 interface User {
-    username?: string;
-    email?: string;
-    role?: string[];
+	username?: string;
+	email?: string;
+	role?: string[];
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function Navbar() {
-    const [isOpen, setIsOpen] = useState<boolean>(false);
-    const [user, setUser] = useState<User | null>(null);
-    const router = useRouter();
-    const pathname = usePathname();
+	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const [user, setUser] = useState<User | null>(null);
+	const router = useRouter();
+	const pathname = usePathname();
 
-    // Définir handleLogout avec useCallback
-    const handleLogout = useCallback(async () => {
-        try {
-            const token = localStorage.getItem("token");
-            if (token) {
-                await fetch(`${API_URL}/auth/logout`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    credentials: 'include'
-                });
-            }
-        } catch (error) {
-            console.error("Erreur lors de la déconnexion:", error);
-        } finally {
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-            setUser(null);
-            router.push('/');
-        }
-    }, [router]);
+	// Définir handleLogout avec useCallback
+	const handleLogout = useCallback(async () => {
+		try {
+			const token = localStorage.getItem("token");
+			if (token) {
+				await fetch(`${API_URL}/auth/logout`, {
+					method: "POST",
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+					credentials: "include",
+				});
+			}
+		} catch (error) {
+			console.error("Erreur lors de la déconnexion:", error);
+		} finally {
+			localStorage.removeItem("token");
+			localStorage.removeItem("user");
+			setUser(null);
+			router.push("/");
+		}
+	}, [router]);
 
-    // Définir loadUserData avec useCallback
-    const loadUserData = useCallback(async () => {
-        try {
-            const token = localStorage.getItem("token");
-            if (token) {
-                const response = await fetch(`${API_URL}/auth/verify`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    credentials: 'include'
-                });
+	// Définir loadUserData avec useCallback
+	const loadUserData = useCallback(async () => {
+		try {
+			const token = localStorage.getItem("token");
+			if (token) {
+				const response = await fetch(`${API_URL}/auth/verify`, {
+					method: "GET",
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+					credentials: "include",
+				});
 
-                if (!response.ok) {
-                    handleLogout();
-                    return;
-                }
+				if (!response.ok) {
+					handleLogout();
+					return;
+				}
 
-                const storedUser = localStorage.getItem("user");
-                if (storedUser) {
-                    const userData = JSON.parse(storedUser);
-                    setUser(userData);
-                }
-            }
-        } catch (error) {
-            console.error("Erreur lors du chargement des données:", error);
-            handleLogout();
-        }
-    }, [handleLogout]);
+				const storedUser = localStorage.getItem("user");
+				if (storedUser) {
+					const userData = JSON.parse(storedUser);
+					setUser(userData);
+				}
+			}
+		} catch (error) {
+			console.error("Erreur lors du chargement des données:", error);
+			handleLogout();
+		}
+	}, [handleLogout]);
 
-    // useEffect pour charger les données utilisateur
-    useEffect(() => {
-        loadUserData();
-    }, [pathname, loadUserData]);
-
-
+	// useEffect pour charger les données utilisateur
+	useEffect(() => {
+		loadUserData();
+	}, [pathname, loadUserData]);
 
 	return (
 		<nav className="bg-transparent text-pink-600 h-[90]">
@@ -85,12 +83,15 @@ export default function Navbar() {
 					{/* Logo et liens principaux */}
 					<div className="flex items-center">
 						<Link href="/" className="flex-shrink-0">
+							{/* Image responsive */}
 							<Image
 								src="/images/logosound.jpg"
 								alt="Logo"
-								width={48}
-								height={48}
-								className="rounded-full"
+								width={0}
+								height={0}
+								sizes="(max-width: 768px) 40px, 48px"
+								className="w-[40px] h-[40px] md:w-[48px] md:h-[48px] rounded-full object-cover"
+								priority
 							/>
 						</Link>
 						<div className="hidden md:block ml-10">
@@ -227,5 +228,4 @@ export default function Navbar() {
 			)}
 		</nav>
 	);
-
 }
