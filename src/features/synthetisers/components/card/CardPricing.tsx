@@ -193,33 +193,28 @@ const CardPricing = ({
 
 		return null;
 	};
-
+// gestion de l'affichage temporel
 	useEffect(() => {
-		if (latestAuction) {
-			const auctionDate = getAuctionDate(latestAuction);
-			console.log("Latest Auction Date:", auctionDate);
-		}
-	}, [latestAuction]);
-
-	// useeffect pour mettre à jour en temps réel
-	useEffect(() => {
-		if (!latestAuction) return;
-
-		const updateTimestamp = () => {
-			const auctionDate = getAuctionDate(latestAuction);
-			if (auctionDate) {
-				setTimeElapsed(formatTimeElapsed(auctionDate));
-			}
-		};
-
-		// Mise à jour initiale
-		updateTimestamp();
-
-		// Mise à jour toutes les secondes
-		const interval = setInterval(updateTimestamp, 1000);
-
-		return () => clearInterval(interval);
-	}, [latestAuction]);
+    if (!latestAuction) return;
+  
+    // Fonction pour mettre à jour le timestamp
+    const updateTimestamp = () => {
+      const auctionDate = getAuctionDate(latestAuction);
+      if (auctionDate) {
+        setTimeElapsed(formatTimeElapsed(auctionDate));
+        console.log("Latest Auction Date:", auctionDate); // Garde la fonctionnalité de debug
+      }
+    };
+  
+    // Mise à jour initiale
+    updateTimestamp();
+  
+    // Mise à jour toutes les secondes
+    const interval = setInterval(updateTimestamp, 1000);
+  
+    // Cleanup
+    return () => clearInterval(interval);
+  }, [latestAuction]);
 
 	// RENDU
 	return (
