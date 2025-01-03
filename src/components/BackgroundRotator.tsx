@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import { useBackgroundRotator } from '../hooks/useBackgroundRotator';
 
-type BackgroundRotatorProps = { // on utilise type au lieu d'interface
+type BackgroundRotatorProps = {
   images: string[];
 };
 
@@ -15,13 +15,13 @@ const BackgroundRotator = ({ images }: BackgroundRotatorProps) => {
         src={images[currentImageIndex]}
         alt="Background"
         fill
-        sizes="100vw"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
         className="object-cover opacity-50 transition-opacity duration-500"
         priority
+        quality={75}
       />
     </div>
   );
 };
 
 export default BackgroundRotator;
-
