@@ -58,41 +58,40 @@ export default function HomePage() {
 							<p>
 								<br />
 							</p>
-							<p className="italic text-sm">
-								<span>
-								Consulter les dépôts GitHub
-								</span>
+							<div className="italic text-sm">
+								<span className="ml-10">Consulter les dépôts GitHub</span>
 								<br />
-								<span className="inline-block hover:scale-110 transition-transform">
-									👆
-								</span>
-								<span>
-				
-									<Link
-										href="https://github.com/volubyl01/cv_frontend.git"
-										className="text-red-500"
-									>
-										Concrete Vibes
-									</Link>
-									< br />
+								<div className="mt-2 ml-10">
 									<span className="inline-block hover:scale-110 transition-transform">
-									👆
-								</span>
-									<Link
-										href="https://github.com/volubyl01/cv_backend.git"
-										className="text-red-500"
-									>
-										Concrete Vibes Api
-									</Link>
-								</span>
-							</p>
+										👆
+									</span>
+									<span>
+										<Link
+											href="https://github.com/volubyl01/cv_frontend.git"
+											className="text-red-500"
+										>
+											Concrete Vibes
+										</Link>
+										<br />
+										<span className="inline-block hover:scale-110 transition-transform">
+											👆
+										</span>
+										<Link
+											href="https://github.com/volubyl01/cv_backend.git"
+											className="text-red-500"
+										>
+											Concrete Vibes Api
+										</Link>
+									</span>
+								</div>
+							</div>
 							<div className="py-11">
-							<Link
-								href="/synthetisers"
-								className=" bg-white text-pink-600 px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition-colors"
-							>
-								Voir les Synthétiseurs
-							</Link>
+								<Link
+									href="/synthetisers"
+									className=" bg-white text-pink-600 px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition-colors"
+								>
+									Voir les Synthétiseurs
+								</Link>
 							</div>
 						</div>
 
