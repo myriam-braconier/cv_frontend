@@ -117,8 +117,8 @@ export default function HomePage() {
 			</section>
 
 			{/* Features Section */}
-			<section className="py-16">
-				<div className="container mx-auto px-4">
+			<section className="py-16 bg-transparent/80 backdrop-blur-sm">
+				<div className="container mx-auto px-4 text-white ">
 					<h2 className="text-3xl font-bold text-center mb-12">
 						Nos Fonctionnalités
 					</h2>
@@ -144,7 +144,7 @@ export default function HomePage() {
 
 			{/* CTA Section - Conditionnel basé sur isAdmin */}
 			{!isAdmin && (
-				<section className="bg-gray-100 py-16">
+				<section className=" bg-gradient-to-b from-blue-500/50 to-pink-500/50">
 					<div className="container mx-auto px-4 text-center">
 						<h2 className="text-3xl font-bold mb-8">
 							Prêt à rejoindre la communauté ?
@@ -152,13 +152,13 @@ export default function HomePage() {
 						<div className="flex justify-center gap-4">
 							<Link
 								href="/register"
-								className="bg-blue-600 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-700 transition-colors"
+								className="bg-white text-red-600 px-8 py-3 rounded-full font-bold hover:bg-blue-700 transition-colors"
 							>
 								Inscription
 							</Link>
 							<Link
 								href="/login"
-								className="bg-white text-blue-600 px-8 py-3 rounded-full font-bold border border-blue-600 hover:bg-blue-50 transition-colors"
+								className="bg-red-600 text-white px-8 py-3 rounded-full font-bold border border-blue-600 hover:bg-blue-50 transition-colors"
 							>
 								Se connecter
 							</Link>

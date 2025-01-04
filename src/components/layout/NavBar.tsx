@@ -154,7 +154,7 @@ const Navbar = () => {
 			</Link>
 			<Link
 				href="/register"
-				className="bg-black hover:bg-gray-800 px-3 py-2 rounded-md transition-colors duration-200"
+				className="bg-white hover:bg-gray-800 px-3 py-2 rounded-md transition-colors duration-200"
 			>
 				Inscription
 			</Link>
@@ -250,7 +250,7 @@ const Navbar = () => {
 								</Link>
 								<Link
 									href="/register"
-									className="block bg-black hover:bg-gray-800 px-3 py-2 rounded-md text-center border border-gray-700"
+									className="block bg-white hover:bg-gray-800 px-3 py-2 rounded-md text-center border border-gray-700"
 								>
 									Inscription
 								</Link>
