@@ -2,6 +2,23 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
+
+  // -----------on définit les routes protégées-------------------
+  // Définir les routes qui nécessitent une authentification
+  const protectedPaths = [
+    '/admin',
+    '/profile',
+    // autres routes protégées...
+  ]
+// Vérifier si la route actuelle est une route protégée
+const isProtectedPath = protectedPaths.some(path => 
+  request.nextUrl.pathname.startsWith(path)
+)
+  // Si ce n'est pas une route protégée, laisser passer tout le monde
+  if (!isProtectedPath) {
+    return NextResponse.next()
+  }
+// -----------------------------------------------------------
   // Get token from cookie
   const token = request.cookies.get('token');
   
@@ -41,7 +58,7 @@ export function middleware(request: NextRequest) {
 // Ne protégez que les routes nécessaires
 export const config = {
   matcher: [
-    '/synthetisers/:path*',
+    // '/synthetisers/:path*',
       // Exclure les routes d'authentification et les ressources statiques
       '/((?!login|register|api|_next/static|_next/image|favicon.ico).*)',
   ]
