@@ -125,6 +125,7 @@ const Navbar = () => {
 		<div className="flex items-baseline space-x-4">
 			<NavLink href="/synthetisers">Synthétiseurs</NavLink>
 			<NavLink href="/auctions">Tableau d&apos;enchères</NavLink>
+			<NavLink href="/about">A propos</NavLink>
 		</div>
 	);
 

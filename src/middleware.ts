@@ -17,7 +17,7 @@ export function middleware(request: NextRequest) {
 	];
 
 	// Définir les routes publiques qui doivent toujours être accessibles
-	const publicPaths = ["/login", "/register", "/api/auth", "/"];
+	const publicPaths = ["/login", "/register", "/api/auth", "/about"];
 
 	// Vérifier si c'est une route publique
 	const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
