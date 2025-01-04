@@ -1,79 +1,103 @@
-import Image from "next/image";
-import Link from "next/link";
-// import { useState, useEffect } from "react";
-// import Waveform from "@/components/Waveform";
+// pages/about.tsx
+import { NextPage } from 'next'
+import Head from 'next/head'
+import Image from 'next/image'
 
-export default function AboutPage() {
-	return (
-		<main className="min-h-screen">
-			{/* Hero Section */}
-
-			{/* ABOUT */}
-
-			<section
-				className="relative  text-white  min-h-[600px] w-full overflow-y-clip"
-				id="sectionAccueil"
-			>
-				<div className="absolute inset-0 w-full h-full">
-					<Image
-						src="/images/synthetiseur-analogique-moog-subsequent-37.jpg"
-						alt="Background"
-						fill
-						sizes="100vw"
-						className="object-cover  opacity-50"
-						priority
-					/>
-				</div>
-
-				{/* Overlay gradient pour améliorer la lisibilité */}
-				<div className="absolute inset-0 bg-gradient-to-b from-blue-500/50 to-pink-500/50" />
-
-				{/* Contenu existant avec z-index pour le placer au-dessus du fond */}
-				<div className="container mx-auto px-4 py-16 relative z-20">
-					<div className="flex flex-col md:flex-row items-center justify-between">
-						<div className="md:w-1/2 mb-4 md:mb-0">
-							<h1 className="text-4xl md:text-6xl font-bold mb-4 text-red-500">
-								A propos de mon parcours
-							</h1>
-							<p className="text-xl mb-2">Mes projets</p>
-							<p className="text-sm italic">Mes points forts et softs skills</p>
-							<p className="text-sm italic">Mon repository général </p>
-							<p>
-								<br />
-							</p>
-							<div className="italic text-sm">
-								<div className="mt-2 ml-10">
-									<span className="inline-block hover:scale-110 transition-transform">
-										👆
-									</span>
-									<span>
-										<Link href="https" className="">
-											Mon profil GitHub
-										</Link>
-									</span>
-								</div>
-							</div>
-						</div>
-
-						{/* image gif */}
-						<div className="md:w-1/2">
-							<div className="relative w-full h-[400px] z-30">
-								<Image
-									src="/images/sound.gif"
-									alt="Sound"
-									unoptimized
-									fill
-									className="object-cover rounded-lg hue-rotate-90 saturate-150"
-									priority
-								/>
-							</div>
-							{/* <Waveform initialColor="#FF5733" /> */}
-						</div>
-					</div>
-				</div>
-			</section>
-
-			
-		</main>
-	);
+interface TeamMember {
+  id: number
+  name: string
+  role: string
+  image: string
 }
+
+const teamMembers: TeamMember[] = [
+  {
+    id: 1,
+    name: "John Doe",
+    role: "CEO",
+    image: "/team/john.jpg"
+  },
+  {
+    id: 2,
+    name: "Jane Smith",
+    role: "CTO",
+    image: "/team/jane.jpg"
+  },
+  {
+    id: 3,
+    name: "Mike Johnson",
+    role: "Lead Developer",
+    image: "/team/mike.jpg"
+  }
+]
+
+const About: NextPage = () => {
+  return (
+    <>
+      <Head>
+        <title>À propos - Mon Site</title>
+        <meta name="description" content="Découvrez notre histoire et notre équipe" />
+      </Head>
+
+      <main className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+        {/* Hero Section */}
+        <section className="max-w-4xl mx-auto text-center mb-16">
+          <h1 className="text-4xl font-bold mb-4">À propos de nous</h1>
+          <p className="text-lg text-gray-600">
+            Notre mission est de créer des solutions innovantes pour nos clients
+          </p>
+        </section>
+
+        {/* Histoire Section */}
+        <section className="max-w-4xl mx-auto mb-16">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <h2 className="text-2xl font-semibold mb-4">Notre Histoire</h2>
+            <p className="text-gray-600">
+              Fondée en 2020, notre entreprise s&apos;est développée avec la vision 
+              de transformer l&apos;industrie grâce à des solutions technologiques innovantes.
+            </p>
+          </div>
+        </section>
+
+        {/* Team Section */}
+        <section className="max-w-4xl mx-auto mb-16">
+          <h2 className="text-2xl font-semibold mb-8 text-center">Notre Équipe</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {teamMembers.map((member) => (
+              <div key={member.id} className="text-center">
+                <div className="relative w-40 h-40 mx-auto mb-4">
+                  <Image
+                    src={member.image}
+                    alt={member.name}
+                    fill
+                    className="rounded-full object-cover"
+                  />
+                </div>
+                <h3 className="font-semibold">{member.name}</h3>
+                <p className="text-gray-600">{member.role}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Stats Section */}
+        <section className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { number: "500+", label: "Clients" },
+              { number: "10+", label: "Années d'expérience" },
+              { number: "50+", label: "Projets" }
+            ].map((stat, index) => (
+              <div key={index} className="bg-white rounded-lg shadow-lg p-6 text-center">
+                <h3 className="text-3xl font-bold text-blue-600">{stat.number}</h3>
+                <p className="text-gray-600">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+    </>
+  )
+}
+
+export default About
