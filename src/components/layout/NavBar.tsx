@@ -57,33 +57,65 @@ const Navbar = () => {
 		}
 	}, [router]);
 
+
+// ---------------------LOADER pour authentification----------------------------
+	// const loadUserData = useCallback(async () => {
+	// 	try {
+	// 		const token = localStorage.getItem("token");
+	// 		if (token) {
+	// 			const response = await fetch(`${API_URL}/auth/verify`, {
+	// 				method: "GET",
+	// 				headers: {
+	// 					Authorization: `Bearer ${token}`,
+	// 				},
+	// 				credentials: "include",
+	// 			});
+
+	// 			if (!response.ok) {
+	// 				handleLogout();
+	// 				return;
+	// 			}
+
+	// 			const storedUser = localStorage.getItem("user");
+	// 			if (storedUser) {
+	// 				setUser(JSON.parse(storedUser));
+	// 			}
+	// 		}
+	// 	} catch (error) {
+	// 		console.error("Erreur lors du chargement des données:", error);
+	// 		handleLogout();
+	// 	}
+	// }, [handleLogout]);
+
+
+
+	// -----------------------------LOADER SANS AUTHENTIFICATION---------------------------------
 	const loadUserData = useCallback(async () => {
-		try {
-			const token = localStorage.getItem("token");
-			if (token) {
-				const response = await fetch(`${API_URL}/auth/verify`, {
-					method: "GET",
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-					credentials: "include",
-				});
-
-				if (!response.ok) {
-					handleLogout();
-					return;
-				}
-
-				const storedUser = localStorage.getItem("user");
-				if (storedUser) {
-					setUser(JSON.parse(storedUser));
-				}
-			}
-		} catch (error) {
-			console.error("Erreur lors du chargement des données:", error);
-			handleLogout();
-		}
-	}, [handleLogout]);
+        try {
+            const token = localStorage.getItem("token");
+            if (token) {
+                const response = await fetch(`${API_URL}/auth/verify`, {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                    credentials: "include",
+                });
+                
+                // Modifié pour ne pas forcer la déconnexion si non authentifié
+                if (response.ok) {
+                    const storedUser = localStorage.getItem("user");
+                    if (storedUser) {
+                        setUser(JSON.parse(storedUser));
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Erreur lors du chargement des données:", error);
+            // Ne pas forcer le logout en cas d'erreur
+            setUser(null);
+        }
+    }, []); // Retiré handleLogout de la dépendance
 
 	useEffect(() => {
 		loadUserData();
