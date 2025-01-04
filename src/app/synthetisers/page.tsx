@@ -92,19 +92,21 @@ export default function SynthetisersPage() {
         fetchSynths();
     }, [fetchSynths]);
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        console.log("Token présent:", !!token);
+
+// -----------------------SI authentification------------------------------------
+    // useEffect(() => {
+    //     const token = localStorage.getItem("token");
+    //     console.log("Token présent:", !!token);
         
-        if (token) {
-            try {
-                const decodedToken = JSON.parse(atob(token.split('.')[1]));
-                console.log("Token décodé:", decodedToken);
-            } catch (e) {
-                console.error("Erreur décodage token:", e);
-            }
-        }
-    }, []);
+    //     if (token) {
+    //         try {
+    //             const decodedToken = JSON.parse(atob(token.split('.')[1]));
+    //             console.log("Token décodé:", decodedToken);
+    //         } catch (e) {
+    //             console.error("Erreur décodage token:", e);
+    //         }
+    //     }
+    // }, []);
 
     if (isLoading) return <LoadingSpinner />;
     if (error) return <div className="text-red-500 text-center">{error}</div>;
