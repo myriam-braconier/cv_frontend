@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import Waveform from '@/components/Waveform'
+import Waveform from "@/components/Waveform";
 
 export default function HomePage() {
 	const [isAdmin, setIsAdmin] = useState(false);
@@ -44,22 +44,57 @@ export default function HomePage() {
 				{/* Contenu existant avec z-index pour le placer au-dessus du fond */}
 				<div className="container mx-auto px-4 py-16 relative z-20">
 					<div className="flex flex-col md:flex-row items-center justify-between">
-						<div className="md:w-1/2 mb-8 md:mb-0">
+						<div className="md:w-1/2 mb-4 md:mb-0">
 							<h1 className="text-4xl md:text-6xl font-bold mb-4 text-red-500">
 								Bienvenue sur Concrete Vibes
 							</h1>
-							<p className="text-xl mb-8">
+							<p className="text-xl mb-2">
 								Découvrez notre collection de synthétiseurs et partagez votre
 								passion
 							</p>
+							<p className="text-sm italic">
+								Hero Site de Myriam Braconier Leclerc{" "}
+							</p>
+							<p>
+								<br />
+							</p>
+							<p className="italic text-sm">
+								<span>
+								Consulter les dépôts GitHub
+								</span>
+								<br />
+								<span className="inline-block hover:scale-110 transition-transform">
+									👆
+								</span>
+								<span>
+				
+									<Link
+										href="https://github.com/volubyl01/cv_frontend.git"
+										className="text-red-500"
+									>
+										Concrete Vibes
+									</Link>
+									< br />
+									<span className="inline-block hover:scale-110 transition-transform">
+									👆
+								</span>
+									<Link
+										href="https://github.com/volubyl01/cv_backend.git"
+										className="text-red-500"
+									>
+										Concrete Vibes Api
+									</Link>
+								</span>
+							</p>
+							<div className="py-11">
 							<Link
 								href="/synthetisers"
-								className="bg-white text-pink-600 px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition-colors"
+								className=" bg-white text-pink-600 px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition-colors"
 							>
 								Voir les Synthétiseurs
 							</Link>
+							</div>
 						</div>
-
 
 						{/* image gif */}
 						<div className="md:w-1/2">
@@ -73,7 +108,7 @@ export default function HomePage() {
 									priority
 								/>
 							</div> */}
-							 <Waveform initialColor="#FF5733" />
+							<Waveform initialColor="#FF5733" />
 						</div>
 					</div>
 				</div>
