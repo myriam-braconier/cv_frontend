@@ -11,7 +11,8 @@ import BackgroundRotator from '@/components/BackgroundRotator';
 
 export default function LoginPage() {
   const images = [
-    '/images/login.jpg',
+    '/images/login.webp',
+    'images/login2.webp',
     // autres images...
   ];
   
