@@ -1,65 +1,69 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
+	// Définir le type du token
+	const tokenCookie = request.cookies.get("token");
+	const token = tokenCookie ? tokenCookie.value : null;
 
-  // -----------on définit les routes protégées-------------------
-  // Définir les routes qui nécessitent une authentification
-  const protectedPaths = [
-    '/admin',
-    '/profile',
-    // autres routes protégées...
-  ]
-// Vérifier si la route actuelle est une route protégée
-const isProtectedPath = protectedPaths.some(path => 
-  request.nextUrl.pathname.startsWith(path)
-)
-  // Si ce n'est pas une route protégée, laisser passer tout le monde
-  if (!isProtectedPath) {
-    return NextResponse.next()
-  }
-// -----------------------------------------------------------
-  // Get token from cookie
-  const token = request.cookies.get('token');
-  
-  // Current path
-  const { pathname } = request.nextUrl;
+	const { pathname } = request.nextUrl;
 
-  // Define auth pages
-  const isAuthPage = pathname === '/login' || pathname === '/register';
+	// -----------on définit les routes protégées-------------------
+	// Définir les routes qui nécessitent une authentification
+	const protectedPaths = [
+		"/admin",
+		"/profile",
+		// autres routes protégées...
+	];
 
-  // If trying to access auth pages while logged in
-  if (token && isAuthPage) {
-    return NextResponse.redirect(new URL('/', request.url));
-  }
+	// Définir les routes publiques qui doivent toujours être accessibles
+	const publicPaths = ["/login", "/register", "/api/auth", "/"];
 
-  // If trying to access protected pages while logged out
-  if (!token && !isAuthPage && pathname !== '/') {
-    // Save the original URL to redirect back after login
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('callbackUrl', pathname);
-    return NextResponse.redirect(loginUrl);
-  }
+	// Vérifier si c'est une route publique
+	const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
 
-  // For API routes and other paths, add token to request header if exists
-  if (token && pathname.startsWith('/api')) {
-    const requestHeaders = new Headers(request.headers);
-    requestHeaders.set('Authorization', `Bearer ${token.value}`);
-    return NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
-    });
-  }
+	// Vérifier si la route actuelle est une route protégée
+	const isProtectedPath = protectedPaths.some((path) =>
+		request.nextUrl.pathname.startsWith(path)
+	);
+	// Si c'est une route publique, autoriser l'accès
+	if (isPublicPath) {
+		return NextResponse.next();
+	}
 
-  return NextResponse.next();
+	// Si ce n'est pas une route protégée, laisser passer tout le monde
+	// Si c'est une route protégée et qu'il n'y a pas de token
+	if (isProtectedPath && !token) {
+		const loginUrl = new URL("/login", request.url);
+		loginUrl.searchParams.set("callbackUrl", pathname);
+		return NextResponse.redirect(loginUrl);
+	}
+
+	// Pour les routes API, ajouter le token dans le header
+	if (token && pathname.startsWith("/api")) {
+		const requestHeaders = new Headers(request.headers);
+		requestHeaders.set("Authorization", `Bearer ${token}`);
+		return NextResponse.next({
+			request: {
+				headers: requestHeaders,
+			},
+		});
+	}
+	// -----------------------------------------------------------
+
+	return NextResponse.next();
 }
 
 // Ne protégez que les routes nécessaires
 export const config = {
-  matcher: [
-    // '/synthetisers/:path*',
-      // Exclure les routes d'authentification et les ressources statiques
-      '/((?!login|register|api|_next/static|_next/image|favicon.ico).*)',
-  ]
+	matcher: [
+		/*
+		 * Match all request paths except for the ones starting with:
+		 * - api/auth (auth API routes)
+		 * - _next/static (static files)
+		 * - _next/image (image optimization files)
+		 * - favicon.ico (favicon file)
+		 */
+		"/((?!api/auth|_next/static|_next/image|favicon.ico).*)",
+	],
 };
