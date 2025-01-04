@@ -37,7 +37,7 @@ const Waveform = ({ initialColor = '#FF5733' }) => {
       </svg>
       
       {/* Contrôle de couleur */}
-      <div className="mt-4">
+      <div className="mt-4 text-right rounded-md">
         <label className="block text-sm font-medium mb-2">
           Choisir une couleur:
         </label>

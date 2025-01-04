@@ -44,7 +44,7 @@ export default function HomePage() {
 				{/* Contenu existant avec z-index pour le placer au-dessus du fond */}
 				<div className="container mx-auto px-4 py-16 relative z-20">
 					<div className="flex flex-col md:flex-row items-center justify-between">
-						<div className="md:w-1/2 mb-4 md:mb-0">
+						<div className="md:w-1/2 mb-4 md:mb-0 mr-5">
 							<h1 className="text-4xl md:text-6xl font-bold mb-4 text-red-500">
 								Bienvenue sur Concrete Vibes
 							</h1>
@@ -56,15 +56,15 @@ export default function HomePage() {
 								Hero Site de Myriam Braconier Leclerc{" "}
 							</p>
 							<p className="text-sm italic">
-								Accès Admin: email: admin@free.fr / password: 012345678{" "}
+								Accès email: admin@free.fr / password: 012345678{" "}
 							</p>
-							<p className="text-sm text-orange-950 italic">
+							<p className="text-sm italic">
 								Des fonctionnalités sont en cours de développement
 							</p>
-							<div className="italic text-sm text-orange-950">
+							<div className="italic text-sm text-red-500 ml-4 mt-2 text-right">
 								<span className="">Consulter les dépôts GitHub</span>
 								<br />
-								<div className="mt-2 ml-10">
+								<div className="mt-2  text-white">
 									<span className="inline-block hover:scale-110 transition-transform">
 										👆
 									</span>
@@ -88,7 +88,7 @@ export default function HomePage() {
 									</span>
 								</div>
 							</div>
-							<div className="py-11">
+							<div className="py-11 text-right">
 								<Link
 									href="/synthetisers"
 									className=" bg-white text-pink-600 px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition-colors"
@@ -107,10 +107,12 @@ export default function HomePage() {
 									unoptimized
 									fill
 									className="object-cover rounded-lg hue-rotate-90 saturate-150"
-									priority
+									 priority
 								/>
 							</div> */}
-							<Waveform initialColor="#FF5733" />
+							<div className="items-center mx-auto">
+							<Waveform initialColor="#FF5733"/>
+							</div>
 						</div>
 					</div>
 				</div>

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 
 type UserType = {
   username?: string;
@@ -86,9 +87,9 @@ export default function Navbar() {
   }, [pathname, loadUserData]);
 
   const renderNavLinks = () => (
-    <div className="flex items-baseline space-x-4">
+    <div className="flex items-baseline space-x-8 "  >
       <NavLink href="/synthetisers">Synthétiseurs</NavLink>
-      <NavLink href="/auctions">Tableau d&apos;enchères</NavLink>
+      <NavLink href="/auctions">Enchères</NavLink>
       <NavLink href="/about">A propos</NavLink>
     </div>
   );
@@ -96,7 +97,7 @@ export default function Navbar() {
   const renderUserMenu = () => (
     <div className="flex items-center space-x-4">
       <span className="text-red-600">
-        Bienvenue, {user?.username || user?.email?.split("@")[0] || "Utilisateur"}
+        {user?.username || user?.email?.split("@")[0] || "Utilisateur"}
       </span>
       <button
         onClick={handleLogout}
@@ -108,7 +109,7 @@ export default function Navbar() {
   );
 
   const renderAuthButtons = () => (
-    <div className="space-x-4">
+    <div className="space-x-4 text-center">
       <Link
         href="/login"
         className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-md text-black transition-colors duration-200"
@@ -117,7 +118,7 @@ export default function Navbar() {
       </Link>
       <Link
         href="/register"
-        className="bg-white hover:bg-gray-800 px-3 py-2 rounded-md transition-colors duration-200"
+        className="bg-white hover:bg-gray-800 px-3 py-2 rounded-md text-black hover:text-white transition-colors duration-200"
       >
         Inscription
       </Link>
@@ -128,34 +129,72 @@ export default function Navbar() {
     <nav className="bg-gray-800 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
+          {/* Logo et titre */}
           <div className="flex-shrink-0">
-            <Link href="/" className="text-xl font-bold">
-              Concrete Vibes
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/images/logosound.jpg"
+                alt="Logo CV"
+                width={48}
+                height={48}
+                className="rounded-full"
+                priority
+              />
+              <span className="text-xl font-bold ml-8">Concrete Vibes</span>
             </Link>
           </div>
-          
-          <div className="hidden md:flex md:items-center md:space-x-4">
-            {renderNavLinks()}
-            {user ? renderUserMenu() : renderAuthButtons()}
+
+          {/* Navigation desktop */}
+          <div className="hidden md:flex md:items-center md:justify-between md:flex-grow ml-6">
+            <div className="flex-1">
+              {renderNavLinks()}
+            </div>
+            <div className="ml-4">
+              {user ? renderUserMenu() : renderAuthButtons()}
+            </div>
           </div>
 
+          {/* Menu burger pour mobile */}
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-gray-700"
             >
-              <span className="sr-only">Open main menu</span>
-              {/* Icône menu */}
+              <span className="sr-only">Menu</span>
+              <svg
+                className="h-6 w-6"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                {isOpen ? (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                ) : (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                )}
+              </svg>
             </button>
           </div>
         </div>
       </div>
 
+      {/* Menu mobile */}
       {isOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {renderNavLinks()}
-            <div className="pt-4">
+            <div className="pt-4 pb-3 border-t border-gray-700">
               {user ? renderUserMenu() : renderAuthButtons()}
             </div>
           </div>
