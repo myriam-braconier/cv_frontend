@@ -115,7 +115,7 @@ export default function SynthetisersPage() {
         <main className="min-h-screen">
             <div className="w-full px-4 py-6">
                 <h1 className="text-3xl font-bold mb-8 text-center">
-                    Liste des Synthétiseurs
+                   Synthétiseurs
                 </h1>
                 
                 <ListSynthetisers
