@@ -71,7 +71,7 @@ export default function HomePage() {
 									<span>
 										<Link
 											href="https://github.com/volubyl01/cv_frontend.git"
-											className="text-black"
+											className=""
 										>
 											Concrete Vibes
 										</Link>
@@ -81,7 +81,7 @@ export default function HomePage() {
 										</span>
 										<Link
 											href="https://github.com/volubyl01/cv_backend.git"
-											className="text-black"
+											className=""
 										>
 											Concrete Vibes Api
 										</Link>
