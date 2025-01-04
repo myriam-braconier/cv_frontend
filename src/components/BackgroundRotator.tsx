@@ -16,7 +16,7 @@ const BackgroundRotator = ({ images }: BackgroundRotatorProps) => {
         src={images[currentImageIndex]}
         alt="Background"
         fill
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
+        sizes="(max-width: 414px) 414px, (max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
         className="object-cover opacity-50 transition-opacity duration-500"
         priority
         quality={75}
