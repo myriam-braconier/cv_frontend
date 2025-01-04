@@ -59,7 +59,7 @@ export default function HomePage() {
 								Accès Admin: email: admin@free.fr / password: 012345678{" "}
 							</p>
 							<p>
-								<br />
+								Quelques fonctionnalités en cours de développement
 							</p>
 							<div className="italic text-sm">
 								<span className="ml-10">Consulter les dépôts GitHub</span>
