@@ -1,7 +1,7 @@
 // services/axios.ts
 import axios from "axios";
 import Cookies from "js-cookie";
-import { toast } from "react-hot-toast";
+// import { toast } from "react-hot-toast";
 import { API_URL } from "@/config/constants";
 
 axios.defaults.withCredentials = true;

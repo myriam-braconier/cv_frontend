@@ -55,6 +55,9 @@ export default function HomePage() {
 							<p className="text-sm italic">
 								Hero Site de Myriam Braconier Leclerc{" "}
 							</p>
+							<p className="text-sm italic">
+								Accès: email: admin@free.fr / password: admin{" "}
+							</p>
 							<p>
 								<br />
 							</p>
