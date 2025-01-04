@@ -58,11 +58,11 @@ export default function HomePage() {
 							<p className="text-sm italic">
 								Accès Admin: email: admin@free.fr / password: 012345678{" "}
 							</p>
-							<p>
-								Quelques fonctionnalités en cours de développement
+							<p className="text-sm text-orange-950 italic">
+								Des fonctionnalités sont en cours de développement
 							</p>
-							<div className="italic text-sm">
-								<span className="ml-10">Consulter les dépôts GitHub</span>
+							<div className="italic text-sm text-orange-950">
+								<span className="">Consulter les dépôts GitHub</span>
 								<br />
 								<div className="mt-2 ml-10">
 									<span className="inline-block hover:scale-110 transition-transform">
