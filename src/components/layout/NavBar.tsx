@@ -129,7 +129,7 @@ const Navbar = () => {
 	);
 
 	return (
-		<nav className="bg-transparent/80 backdrop-blur-sm text-pink-600 h-[75x] sticky top-0 z-50">
+		<nav className="bg-transparent/80 backdrop-blur-sm text-pink-600 sticky top-0 z-50">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex justify-between h-16 items-center">
 					<div className="flex items-center">
@@ -137,8 +137,8 @@ const Navbar = () => {
 							<Image
 								src="/images/logosound.jpg"
 								alt="Logo"
-								width={0}
-								height={0}
+								width={48}
+								height={48}
 								sizes="(max-width: 768px) 40px, 48px"
 								className="w-[40px] h-[40px] md:w-[48px] md:h-[48px] rounded-full object-cover hover:opacity-80 transition-opacity duration-200"
 								priority
@@ -171,54 +171,61 @@ const Navbar = () => {
 				</div>
 			</div>
 
-			{/* Menu mobile avec animation */}
-			<div
-				className={`md:hidden transform transition-transform duration-200 ${
-					isOpen ? "translate-y-0" : "-translate-y-full"
-				} bg-black/90 backdrop-blur-sm absolute w-full`}
-			>
-				<div className="px-2 pt-2 pb-3 space-y-1">
-					<NavLink href="/synthetisers" className="block w-full">
-						Synthétiseurs
-					</NavLink>
-					{user ? (
-						<>
-							<div className="flex items-center px-3 py-2">
-								<span className="text-gray-300">
-									Bienvenue{" "}
-									<span className="font-medium text-white">
-										{user.username ||
-											user.email?.split("@")[0] ||
-											"Utilisateur"}
+			{/* Menu mobile */}
+			{isOpen && (
+				<div className="md:hidden fixed top-16 left-0 right-0 bg-black/90 backdrop-blur-sm z-50">
+					<div className="p-4 flex flex-col gap-4 text-center">
+						<NavLink
+							href="/synthetisers"
+							className="block py-2 hover:bg-gray-700/50 rounded-md px-3"
+						>
+							Synthétiseurs
+						</NavLink>
+						<NavLink
+							href="/auctions"
+							className="block py-2 hover:bg-gray-700/50 rounded-md px-3"
+						>
+							Tableau d&apos;enchères
+						</NavLink>
+						
+						{user ? (
+							<>
+								<div className="px-3 py-2">
+									<span className="text-gray-300">
+										Bienvenue{" "}
+										<span className="font-medium text-white">
+											{user.username ||
+												user.email?.split("@")[0] ||
+												"Utilisateur"}
+										</span>
 									</span>
-								</span>
+								</div>
+								<button
+									onClick={handleLogout}
+									className="text-left px-3 py-2 hover:bg-gray-700/50 rounded-md"
+								>
+									Déconnexion
+								</button>
+							</>
+						) : (
+							<div className="space-y-2">
+								<Link
+									href="/login"
+									className="block bg-red-600 hover:bg-red-700 px-3 py-2 rounded-md text-black text-center"
+								>
+									Connexion
+								</Link>
+								<Link
+									href="/register"
+									className="block bg-black hover:bg-gray-800 px-3 py-2 rounded-md text-center border border-gray-700"
+								>
+									Inscription
+								</Link>
 							</div>
-
-							<button
-								onClick={handleLogout}
-								className="w-full text-left hover:bg-gray-700/50 px-3 py-2 rounded-md transition-colors duration-200"
-							>
-								Déconnexion
-							</button>
-						</>
-					) : (
-						<div className="flex flex-col space-y-2 p-2">
-							<Link
-								href="/login"
-								className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-md text-black text-center transition-colors duration-200"
-							>
-								Connexion
-							</Link>
-							<Link
-								href="/register"
-								className="bg-black hover:bg-gray-800 px-3 py-2 rounded-md text-center border border-gray-700 transition-colors duration-200"
-							>
-								Inscription
-							</Link>
-						</div>
-					)}
+						)}
+					</div>
 				</div>
-			</div>
+			)}
 		</nav>
 	);
 };
