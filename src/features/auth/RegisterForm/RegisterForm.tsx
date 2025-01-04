@@ -55,7 +55,7 @@ export default function RegisterForm() {
         <form onSubmit={handleRegister} className="mt-8 space-y-6">
             <div className="rounded-md -space-y-px">
                 <div className="mb-4">
-                    <label htmlFor="username" className="block mb-2">Nom d&apos;utilisateur</label>
+                    <label htmlFor="username" className="block mb-2 text-red-600">Nom d&apos;utilisateur</label>
                     <input
                         type="text"
                         id="username"
@@ -67,7 +67,7 @@ export default function RegisterForm() {
                 </div>
 
                 <div className="mb-4">
-                    <label htmlFor="email" className="block mb-2">Email</label>
+                    <label htmlFor="email" className="block mb-2 text-red-600">Email</label>
                     <input
                         type="email"
                         id="email"
@@ -79,7 +79,7 @@ export default function RegisterForm() {
                 </div>
 
                 <div className="mb-4">
-                    <label htmlFor="password" className="block mb-2">Mot de passe</label>
+                    <label htmlFor="password" className="block mb-2 text-red-600">Mot de passe</label>
                     <input
                         type="password"
                         id="password"
@@ -92,7 +92,7 @@ export default function RegisterForm() {
                 </div>
 
                 <div className="mb-4">
-                    <label htmlFor="confirmPassword" className="block mb-2">Confirmer le mot de passe</label>
+                    <label htmlFor="confirmPassword" className="block mb-2 text-red-600">Confirmer le mot de passe</label>
                     <input
                         type="password"
                         id="confirmPassword"
@@ -106,7 +106,7 @@ export default function RegisterForm() {
 
                 {/* Ajout du sélecteur has_instrument */}
                 <div className="mb-4">
-                    <label className="block mb-2">Possédez-vous un instrument ?</label>
+                    <label className="block mb-2 text-red-600">Possédez-vous un instrument ?</label>
                     <div className="flex gap-4">
                         <label className="inline-flex items-center">
                             <input
