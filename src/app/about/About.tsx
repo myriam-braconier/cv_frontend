@@ -6,7 +6,7 @@ export default function About() {
 			<h1>À propos</h1><div></div>
 		
 		<div>
-			<h2>En cours d erédaction</h2>
+			<h2>En cours de rédaction</h2>
 		</div>
 		</main>
 	);
