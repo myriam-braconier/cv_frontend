@@ -6,6 +6,10 @@ import { useState, useCallback, useEffect } from "react";
 import { ListSynthetisers } from "@/features/synthetisers/components/list/ListSynthetisers";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import api from "@/lib/axios/index";
+import BackgroundRotator from "@/components/BackgroundRotator";
+
+
+
 
 export default function SynthetisersPage() {
     // const router = useRouter(); POur l'authentification
@@ -13,6 +17,11 @@ export default function SynthetisersPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const images = [
+		"/images/iStock-1477817772.webp",
+		"images/login2.webp",
+		// autres images...
+	];
 
 // ------------IMPOSER l'authentification--------------------------------------------
     // const verifyAuth = useCallback(async () => {
@@ -113,6 +122,10 @@ export default function SynthetisersPage() {
 
     return (
         <main className="min-h-screen">
+            	{/* Background en premier avec z-index négatif */}
+			<div className="absolute inset-0 z-0">
+				<BackgroundRotator images={images} />
+			</div>
             <div className="w-full px-4 py-6">
                 <h1 className="text-3xl font-bold mb-8 text-center">
                    Synthétiseurs
