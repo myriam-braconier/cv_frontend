@@ -13,12 +13,13 @@ export default function AboutPage() {
 			<div className="fixed inset-0 -z-10">
 				<BackgroundRotator images={images} />
 			</div>
-			<div>
-				<h1 className="text-3xl font-bold mb-8 text-center">
+			<div className="text-white max-w-[800px] mx-auto">
+			
+
+				<div className="space-y-6 text-lg text-white">
+        <h1 className="text-3xl font-bold mb-8 text-center">
 					À propos de Concrete Vibes
 				</h1>
-
-				<div className="space-y-6 text-lg">
 					<p>
 						Bienvenue sur Concrete Vibes, une plateforme dédiée aux passionnés
 						de synthétiseurs. Notre mission est de créer un espace où les
@@ -26,7 +27,7 @@ export default function AboutPage() {
 						un environnement sécurisé et convivial.
 					</p>
 
-					<section className="mt-8 text-white ">
+					<section className="mt-8">
 						<h2 className="text-2xl font-semibold mb-4">Notre Projet</h2>
 						<p>
 							Concrete Vibes est né d&apos;une passion pour la musique
@@ -45,7 +46,7 @@ export default function AboutPage() {
 								href="mailto:online@indexof.fr"
 								className="text-blue-600 hover:underline ml-1"
 							>
-								votre@email.com
+							online@indexof.fr
 							</a>
 						</p>
 					</section>
