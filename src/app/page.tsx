@@ -29,7 +29,7 @@ export default function HomePage() {
 			>
 				<div className="absolute inset-0 w-full h-full">
 					<Image
-						src="/images/synthetiseur-analogique-moog-subsequent-37.jpg"
+						src="/images/synthetiseur-analogique-moog-subsequent-37.webp"
 						alt="Background"
 						fill
 						sizes="100vw"
