@@ -61,12 +61,12 @@ export default function HomePage() {
 							<p className="text-sm italic">
 								Des fonctionnalités sont en cours de développement
 							</p>
-							<div className="italic text-sm text-red-500 ml-4 mt-2 text-right">
+							<div className="font-bold text-base text-red-500 ml-4 mt-2 text-right">
 								<span className="">Consulter les dépôts GitHub</span>
 								<br />
 								<div className="mt-2  text-white">
 									<span className="inline-block hover:scale-110 transition-transform">
-										👆
+									👉
 									</span>
 									<span>
 										<Link
@@ -77,7 +77,7 @@ export default function HomePage() {
 										</Link>
 										<br />
 										<span className="inline-block hover:scale-110 transition-transform">
-											👆
+										👉
 										</span>
 										<Link
 											href="https://github.com/volubyl01/cv_backend.git"
