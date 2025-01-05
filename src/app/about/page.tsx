@@ -26,7 +26,7 @@ export default function AboutPage() {
 						un environnement sécurisé et convivial.
 					</p>
 
-					<section className="mt-8">
+					<section className="mt-8 text-white ">
 						<h2 className="text-2xl font-semibold mb-4">Notre Projet</h2>
 						<p>
 							Concrete Vibes est né d&apos;une passion pour la musique
