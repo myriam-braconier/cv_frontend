@@ -122,11 +122,12 @@ export default function SynthetisersPage() {
 
     return (
         <main className="min-h-screen">
-            	{/* Background en premier avec z-index négatif */}
+           
+            <div className="w-full px-4 py-6">
+                 	{/* Background en premier avec z-index négatif */}
 			<div className="absolute inset-0 z-0">
 				<BackgroundRotator images={images} />
 			</div>
-            <div className="w-full px-4 py-6">
                 <h1 className="text-3xl font-bold mb-8 text-center">
                    Synthétiseurs
                 </h1>
