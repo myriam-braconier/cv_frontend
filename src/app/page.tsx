@@ -122,23 +122,27 @@ export default function HomePage() {
 			<section className="py-16 bg-transparent/80 backdrop-blur-sm">
 				<div className="container mx-auto px-4 text-white ">
 					<h2 className="text-3xl font-bold text-center mb-12">
-						Nos Fonctionnalités
+						Nos Ramifications
 					</h2>
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 						<FeatureCard
 							title="Collection Unique"
-							description="Découvrez une sélection soignée de synthétiseurs"
+							description="Le site SYNTHETISER.NET où vous pouvez découvrir une sélection soignée d'instruments électroniques"
 							icon="🎹"
+							url="https://synthetiser.net"
 						/>
 						<FeatureCard
-							title="Communauté Active"
+							title="Communauté Active (en cours)"
 							description="Partagez votre expérience avec d'autres passionnés"
 							icon="👥"
+							url=""
 						/>
 						<FeatureCard
-							title="Ressources"
+							title="Ressources (en cours)"
 							description="Accédez à des tutoriels et des guides"
 							icon="📚"
+							url=""
+							
 						/>
 					</div>
 				</div>
@@ -191,14 +195,16 @@ interface FeatureCardProps {
 	title: string;
 	description: string;
 	icon: string;
+	url: string;
 }
 
-function FeatureCard({ title, description, icon }: FeatureCardProps) {
+function FeatureCard({ title, description, icon, url }: FeatureCardProps) {
 	return (
 		<div className="bg-white p-6 rounded-lg shadow-lg text-center">
 			<div className="text-4xl mb-4">{icon}</div>
 			<h3 className="text-xl font-bold mb-2">{title}</h3>
 			<p className="text-gray-600">{description}</p>
+			<p className="text-gray-700">{url}</p>
 		</div>
 	);
 }

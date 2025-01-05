@@ -16,7 +16,7 @@ export default function AboutPage() {
 			<div className="text-white max-w-[800px] mx-auto">
 			
 
-				<div className="space-y-6 text-lg text-white">
+				<div className="space-y-6 text-lg text-white text-bold mt-10">
         <h1 className="text-3xl font-bold mb-8 text-center">
 					À propos de Concrete Vibes
 				</h1>
