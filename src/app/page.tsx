@@ -111,7 +111,7 @@ export default function HomePage() {
 								/>
 							</div> */}
 							<div className="items-center mx-auto">
-							<Waveform initialColor="#FF5733"/>
+								<Waveform initialColor="#FF5733" />
 							</div>
 						</div>
 					</div>
