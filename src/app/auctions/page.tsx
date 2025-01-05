@@ -116,7 +116,7 @@ export default function AuctionsPage() {
         <main className="min-h-screen">
             <div className="w-full px-4 py-6">
                 <h1 className="text-3xl font-bold mb-8 text-center">
-                    Liste des Synthétiseurs
+                    Liste des Enchères
                 </h1>
                 
                 <AuctionsList

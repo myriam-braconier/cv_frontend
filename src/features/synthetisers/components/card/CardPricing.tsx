@@ -294,7 +294,7 @@ const CardPricing = ({
 
 						</div>
 					) : (
-						<div>Aucune enchère - Soyez le premier à enchérir!</div>
+						<div>Aucune enchère - Soyez le premier à enchérir! Avec inscription</div>
 					)}
 				</div>
 			</div>
