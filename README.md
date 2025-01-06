@@ -1,6 +1,4 @@
-## En cours de rédaction
-
-Site réalisé en Next js avec Typescript et pour la connexion à l'API, Axios.
-
-API Rest : Express en ES6
-Données scrapées via Scrapy/Pyton du site https://synthetiseur.net
+## Concrete Vibes frontend
+- stack : Next JS 15.1.2, Typescript, Axios
+- Expose l'API Concrete Vibes API : https://github.com/volubyl01/cv_backend.git
+## Janvier 2025
