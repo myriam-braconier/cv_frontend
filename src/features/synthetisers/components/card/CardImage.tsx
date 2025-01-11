@@ -1,4 +1,3 @@
-import { useState, useCallback } from "react";
 import Image from "next/image";
 
 interface CardImageProps {
