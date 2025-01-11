@@ -93,9 +93,9 @@ export default function SynthetisersPage() {
     }, []);
 
 
-    const onUpdateSuccess = useCallback(() => {
-        fetchSynths();
-    }, [fetchSynths]);
+    // const onUpdateSuccess = useCallback(() => {
+    //     fetchSynths();
+    // }, [fetchSynths]);
 
     useEffect(() => {
         fetchSynths();
