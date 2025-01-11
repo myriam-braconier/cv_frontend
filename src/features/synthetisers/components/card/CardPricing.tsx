@@ -22,10 +22,8 @@ interface Price {
 	currency: string;
 }
 
-
 // Ajoutez une interface pour TimeElapsed
 type TimeElapsed = string;
-
 
 const CardPricing = ({
 	price = 0,
@@ -43,7 +41,7 @@ const CardPricing = ({
 	const router = useRouter();
 
 	// solution de timestamp en temps réel
-  const [timeElapsed, setTimeElapsed] = useState<TimeElapsed>("");
+	const [timeElapsed, setTimeElapsed] = useState<TimeElapsed>("");
 
 	const formatTimeElapsed = (date: Date): string => {
 		const now = new Date();
@@ -76,32 +74,27 @@ const CardPricing = ({
 		);
 		return sortedAuctions[0];
 	}, [localAuctionPrices]);
-
+	// On utilise fetch pour cette fonction, car accessible non authentifié
 	const fetchLatestAuction = useCallback(async () => {
 		try {
-			console.log("Début fetchLatestAuction pour synthId:", synthId);
-
-			const response = await api.get(
+			const response = await fetch(
 				`${API_URL}/api/synthetisers/${synthId}/auctions/latest`
 			);
-			console.log("Réponse API complète:", response);
-			console.log("Données reçues de l'API:", response.data);
+			const data = await response.json();
 
-			if (response.data) {
+			if (data) {
 				const now = new Date();
 				const formattedData = {
-					...response.data,
-					createdAt: response.data.createdAt || now.toISOString(),
-					updatedAt: response.data.updatedAt || now.toISOString(),
-					proposal_price: parseFloat(response.data.proposal_price),
+					...data,
+					createdAt: data.createdAt || now.toISOString(),
+					updatedAt: data.updatedAt || now.toISOString(),
+					proposal_price: parseFloat(data.proposal_price),
 				};
 
-				console.log("Données formatées avant setState:", formattedData);
 				setLocalAuctionPrices([formattedData]);
 			}
 		} catch (error) {
 			console.error("Erreur détaillée du fetch:", error);
-			toast.error("Impossible de récupérer la dernière enchère");
 		} finally {
 			setIsLoadingAuctions(false);
 		}
@@ -253,13 +246,21 @@ const CardPricing = ({
 		return () => clearInterval(interval);
 	}, [latestAuction]);
 
+	console.log("Prix reçu:", price);
+	console.log("Type du prix:", typeof price);
+	console.log("Prix affiché:", displayPrice);
+
 	// RENDU
 	return (
 		<div className="flex flex-col space-y-4">
 			{auctionError && <div className="text-red-500">{auctionError}</div>}
-			<div className="flex justify-between items-center">
-				<div className="text-lg font-semibold">
-					Prix initial: {displayPrice}€
+			<div className="flex justify-between">
+				<div className="text-left font-semibold">
+					{price === null || displayPrice === 0 ? (
+						<span className="text-white">Fixez votre prix !</span>
+					) : (
+						`Prix initial: ${displayPrice}€`
+					)}
 				</div>
 
 				<div>
@@ -270,31 +271,30 @@ const CardPricing = ({
 							</div>
 
 							<div className="text-sm text-gray-600">
-                {/* Si on a le temps écoulé, on l'affiche, sinon on affiche la date formatée */}
-                {timeElapsed || 
-                    latestAuction.updatedAt ? 
-                        new Date(latestAuction.updatedAt).toLocaleString("fr-FR", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit"
-                        }) 
-                    : latestAuction.createdAt ?
-                        new Date(latestAuction.createdAt).toLocaleString("fr-FR", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit"
-                        })
-                    : "Date non disponible"
-                }
-            </div>
-
+								{/* Si on a le temps écoulé, on l'affiche, sinon on affiche la date formatée */}
+								{timeElapsed || latestAuction.updatedAt
+									? new Date(latestAuction.updatedAt).toLocaleString("fr-FR", {
+											year: "numeric",
+											month: "long",
+											day: "numeric",
+											hour: "2-digit",
+											minute: "2-digit",
+									  })
+									: latestAuction.createdAt
+									? new Date(latestAuction.createdAt).toLocaleString("fr-FR", {
+											year: "numeric",
+											month: "long",
+											day: "numeric",
+											hour: "2-digit",
+											minute: "2-digit",
+									  })
+									: "Date non disponible"}
+							</div>
 						</div>
 					) : (
-						<div>Aucune enchère - Soyez le premier à enchérir! Avec inscription</div>
+						<div>
+							Aucune enchère - Soyez le premier à enchérir! Avec inscription
+						</div>
 					)}
 				</div>
 			</div>
