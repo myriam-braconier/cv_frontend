@@ -30,9 +30,10 @@ module.exports = {
 				pathname: "/images/**",
 			},
 		],
-
+		minimumCacheTTL: 60,
 		deviceSizes: [414, 640, 750, 828, 1080, 1200, 1920, 2048, 3840],
 		imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-		domains: ["https://concrete-frontend.vercel.app"], // pour utiliser des images externes
+		domains: ["https://synthetiseur.net/images/*"], 
 	},
 };
+

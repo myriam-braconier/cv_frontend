@@ -19,7 +19,7 @@ export default function SynthetisersPage() {
 
     const images = [
 		"/images/iStock-1477817772.webp",
-		"images/login2.webp",
+		"/images/login2.webp",
 		// autres images...
 	];
 
