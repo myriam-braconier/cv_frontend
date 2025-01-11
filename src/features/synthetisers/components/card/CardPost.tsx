@@ -42,7 +42,7 @@ export const CardPost = memo(({
         </span>
         <button 
           onClick={onToggle}
-          className="px-3 py-1 text-sm hover:bg-gray-200 rounded-full transition-colors"
+          className="px-3 py-1 text-sm text-black  hover:bg-pink-200 rounded-full transition-colors"
         >
           {showPosts ? 'Masquer les posts ▼' : 'Voir les posts ▶'}
         </button>
