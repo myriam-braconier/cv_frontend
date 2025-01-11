@@ -1,5 +1,5 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 .env
+.env*
 .env.local          # Variables locales (ignorées par git)
 .env.development    # Variables de développement
 .env.production     # Variables de production
