@@ -8,123 +8,131 @@ import { API_URL } from "@/config/constants";
 import { toast } from "react-hot-toast";
 
 interface ListSynthetisersProps {
-    synths: Synth[];
+	synths: Synth[];
 }
 
-export const ListSynthetisers = ({ synths: initialSynths }: ListSynthetisersProps) => {
-    const [synths, setSynths] = useState<Synth[]>([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [isLoading, setIsLoading] = useState(false);
-    const pageSize = 12;
+export const ListSynthetisers = ({
+	synths: initialSynths,
+}: ListSynthetisersProps) => {
+	const [synths, setSynths] = useState<Synth[]>([]);
+	const [currentPage, setCurrentPage] = useState(1);
+	const [totalPages, setTotalPages] = useState(1);
+	const [isLoading, setIsLoading] = useState(false);
+	const pageSize = 12;
 
-    // Fonction de récupération des données
-    const fetchSynths = useCallback(async (page: number) => {
-        if (page < 1) return;
-        
-        setIsLoading(true);
-        try {
-            const response = await fetch(`${API_URL}/api/synthetisers?page=${page}&limit=${pageSize}`);
-            
-            if (!response.ok) throw new Error("Erreur lors du chargement des synthétiseurs");
-            
-            const data = await response.json();
-            if (data.synths) {
-                setSynths(data.synths);
-                setTotalPages(Math.ceil(data.total / pageSize));
-                setCurrentPage(page);
-            }
-        } catch (error) {
-            console.error("Erreur:", error);
-            toast.error("Erreur lors du chargement des synthétiseurs");
-            setSynths(initialSynths); // Fallback aux données initiales
-        } finally {
-            setIsLoading(false);
-        }
-    }, [initialSynths, pageSize]);
+	// Fonction de récupération des données
+	const fetchSynths = useCallback(
+		async (page: number) => {
+			if (page < 1) return;
 
-    // Initialisation
-    useEffect(() => {
-        setSynths(initialSynths);
-    }, [initialSynths]);
+			setIsLoading(true);
+			try {
+				const response = await fetch(
+					`${API_URL}/api/synthetisers?page=${page}&limit=${pageSize}`
+				);
 
-    // Gestion de la pagination
-    const handlePreviousPage = () => {
-        if (currentPage > 1) fetchSynths(currentPage - 1);
-    };
+				if (!response.ok)
+					throw new Error("Erreur lors du chargement des synthétiseurs");
 
-    const handleNextPage = () => {
-        if (currentPage < totalPages) fetchSynths(currentPage + 1);
-    };
+				const data = await response.json();
+				console.log("Data reçue:", data); // Pour déboguer
+				// Mise à jour pour correspondre à la nouvelle structure de réponse
+				if (data.synths || data.data) {
+					// Vérifie les deux possibilités
+					setSynths(data.synths || data.data); // Utilise synths ou data selon ce qui existe
+					setTotalPages(Math.ceil(data.pagination?.total / pageSize));
+					setCurrentPage(data.pagination?.currentPage || page);
+				}
+			} catch (error) {
+				console.error("Erreur:", error);
+				toast.error("Erreur lors du chargement des synthétiseurs");
+				setSynths(initialSynths); // Fallback aux données initiales
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[initialSynths, pageSize]
+	);
 
-    const handleUpdateSuccess = () => {
-        fetchSynths(currentPage);
-    };
+	// Initialisation
+	useEffect(() => {
+		fetchSynths(1); // Charger la première page au montage
+	}, [fetchSynths]);
 
-    return (
-        <ErrorBoundary>
-            <div className="flex flex-col space-y-8">
-                
-                <div className="text-blue-900 text-bold col-span-8 bg-gray-300 mx-auto bg-opacity-25 p-5 rounded-lg" >
-                    <span>
-                    Liste de synthetiseurs Kawai - Korg - Roland</span>
-                    <br /> 
-                    Données issues d&apos;un scraping éthique en Python du site 
-                    <a href="https://synthetiseur.net" className="text-orange-800 text-base">  Synthetiseur.net</a>< br />Les données financières sont totalement fictives
-                </div>
-                
+	// Gestion de la pagination
+	const handlePreviousPage = () => {
+		if (currentPage > 1) fetchSynths(currentPage - 1);
+	};
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-                    {isLoading ? (
-                        <div className="col-span-full text-center text-white">
-                            Chargement...
-                        </div>
-                    ) : (
-                        synths
-                            .sort((a, b) => {
-                                const marqueComparison = a.marque.localeCompare(b.marque);
-                                return marqueComparison !== 0 
-                                    ? marqueComparison 
-                                    : a.modele.localeCompare(b.modele);
-                            })
-                            .map((synth) => (
-                                <div key={synth.id}>
-                                    <SynthetiserCard
-                                        synth={synth}
-                                        onUpdateSuccess={handleUpdateSuccess}
-                                        isAuthenticated={() => true}
-                                    />
-                                </div>
-                            ))
-                    )}
-                </div>
+	const handleNextPage = () => {
+		if (currentPage < totalPages) fetchSynths(currentPage + 1);
+	};
 
-                <div className="flex justify-center items-center gap-4 p-4">
-                    <button
-                        onClick={handlePreviousPage}
-                        disabled={currentPage === 1 || isLoading}
-                        className="px-4 py-2 bg-pink-600 text-white rounded-lg disabled:opacity-50"
-                    >
-                        Précédent
-                    </button>
+	const handleUpdateSuccess = () => {
+		fetchSynths(currentPage);
+	};
 
-                    <span className="text-white">
-                        Page {currentPage} sur {totalPages}
-                    </span>
+	return (
+		<ErrorBoundary>
+			<div className="flex flex-col space-y-8">
+				<h1 className="text-white text-bold">
+					Liste de synthetiseurs Kawai - Korg - Roland
+					<br />
+					Données issues d&apos;un scraping éthique en Python du site
+					synthetiseur.net
+				</h1>
 
-                    <button
-                        onClick={handleNextPage}
-                        disabled={currentPage === totalPages || isLoading}
-                        className="px-4 py-2 bg-pink-600 text-white rounded-lg disabled:opacity-50"
-                    >
-                        Suivant
-                    </button>
-                </div>
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+					{isLoading ? (
+						<div className="col-span-full text-center text-white">
+							Chargement...
+						</div>
+					) : (
+						synths
+							.sort((a, b) => {
+								const marqueComparison = a.marque.localeCompare(b.marque);
+								return marqueComparison !== 0
+									? marqueComparison
+									: a.modele.localeCompare(b.modele);
+							})
+							.map((synth) => (
+								<div key={synth.id}>
+									<SynthetiserCard
+										synth={synth}
+										onUpdateSuccess={handleUpdateSuccess}
+										isAuthenticated={() => true}
+									/>
+								</div>
+							))
+					)}
+				</div>
 
-                <div className="text-center text-white">
-                    {synths.length} synthétiseurs affichés
-                </div>
-            </div>
-        </ErrorBoundary>
-    );
+				<div className="flex justify-center items-center gap-4 p-4">
+					<button
+						onClick={handlePreviousPage}
+						disabled={currentPage === 1 || isLoading}
+						className="px-4 py-2 bg-pink-600 text-white rounded-lg disabled:opacity-50"
+					>
+						Précédent
+					</button>
+
+					<span className="text-white">
+						Page {currentPage} sur {totalPages}
+					</span>
+
+					<button
+						onClick={handleNextPage}
+						disabled={currentPage === totalPages || isLoading}
+						className="px-4 py-2 bg-pink-600 text-white rounded-lg disabled:opacity-50"
+					>
+						Suivant
+					</button>
+				</div>
+
+				<div className="text-center text-white">
+					{synths.length} synthétiseurs affichés
+				</div>
+			</div>
+		</ErrorBoundary>
+	);
 };
