@@ -234,7 +234,7 @@ export const SynthetiserCard = ({
 
 	// RENDU
 	return (
-		<article className="bg-pink-600 rounded-lg shadow-lg h-full w-full backdrop-blur-xl">
+		<article className="bg-orange-600 rounded-lg shadow-lg h-full w-full backdrop-blur-xl">
 			<div className="flex flex-col h-full space-y-4 p-4">
 				{/* Image */}
 				<div className="relative h-48 w-full">

@@ -177,25 +177,25 @@ const CardPricing = ({
 		: displayPrice + 1;
 
 	// D'abord, modifions getAuctionDate pour qu'il ne retourne que Date | null
-const getAuctionDate = (auction: AuctionPrice | null): Date | null => {
-    if (!auction) {
-        console.log("Pas d'enchère fournie à getAuctionDate");
-        return null;
-    }
+	const getAuctionDate = (auction: AuctionPrice | null): Date | null => {
+		if (!auction) {
+			console.log("Pas d'enchère fournie à getAuctionDate");
+			return null;
+		}
 
-    console.log("Tentative de création de date avec:", {
-        updatedAt: auction.updatedAt,
-        typeUpdatedAt: typeof auction.updatedAt,
-        createdAt: auction.createdAt,
-        typeCreatedAt: typeof auction.createdAt,
-    });
-	
 		console.log("Tentative de création de date avec:", {
 			updatedAt: auction.updatedAt,
 			typeUpdatedAt: typeof auction.updatedAt,
 			createdAt: auction.createdAt,
 			typeCreatedAt: typeof auction.createdAt,
-		})
+		});
+
+		console.log("Tentative de création de date avec:", {
+			updatedAt: auction.updatedAt,
+			typeUpdatedAt: typeof auction.updatedAt,
+			createdAt: auction.createdAt,
+			typeCreatedAt: typeof auction.createdAt,
+		});
 
 		// Si updatedAt existe et est valide
 		if (auction.updatedAt) {
@@ -219,40 +219,40 @@ const getAuctionDate = (auction: AuctionPrice | null): Date | null => {
 	};
 
 	// gestion de l'affichage temporel
-// Puis dans l'useEffect, gérer le texte à afficher :
-useEffect(() => {
-    if (!latestAuction) {
-        console.log("Pas d'enchère disponible");
-        setTimeElapsed("rien pour le moment");
-        return;
-    }
+	// Puis dans l'useEffect, gérer le texte à afficher :
+	useEffect(() => {
+		if (!latestAuction) {
+			console.log("Pas d'enchère disponible");
+			setTimeElapsed("rien pour le moment");
+			return;
+		}
 
-    console.log("Données brutes de l'enchère:", latestAuction);
+		console.log("Données brutes de l'enchère:", latestAuction);
 
-    const updateTimestamp = () => {
-        const auctionDate = getAuctionDate(latestAuction);
+		const updateTimestamp = () => {
+			const auctionDate = getAuctionDate(latestAuction);
 
-        console.log("Tentative de récupération de la date:", {
-            updatedAt: latestAuction.updatedAt,
-            createdAt: latestAuction.createdAt,
-            resultingDate: auctionDate,
-        });
+			console.log("Tentative de récupération de la date:", {
+				updatedAt: latestAuction.updatedAt,
+				createdAt: latestAuction.createdAt,
+				resultingDate: auctionDate,
+			});
 
-		if (auctionDate && !isNaN(latestAuction.proposal_price)) {
-            const formattedTime = formatTimeElapsed(auctionDate);
-            console.log("Temps formaté:", formattedTime);
-            setTimeElapsed(formattedTime);
-        } else {
-            console.log("Impossible de créer une date valide ou montant invalide");
-            setTimeElapsed("Pas d'enchère pour le moment");
-        }
-    };
+			if (auctionDate && !isNaN(latestAuction.proposal_price)) {
+				const formattedTime = formatTimeElapsed(auctionDate);
+				console.log("Temps formaté:", formattedTime);
+				setTimeElapsed(formattedTime);
+			} else {
+				console.log("Impossible de créer une date valide ou montant invalide");
+				setTimeElapsed("Pas d'enchère pour le moment");
+			}
+		};
 
-    updateTimestamp();
-    const interval = setInterval(updateTimestamp, 1000);
+		updateTimestamp();
+		const interval = setInterval(updateTimestamp, 1000);
 
-    return () => clearInterval(interval);
-}, [latestAuction]);
+		return () => clearInterval(interval);
+	}, [latestAuction]);
 
 	console.log("Prix reçu:", price);
 	console.log("Type du prix:", typeof price);
@@ -265,7 +265,9 @@ useEffect(() => {
 			<div className="flex justify-between">
 				<div className="text-left font-semibold">
 					{price === null || displayPrice === 0 ? (
-						<span className="text-white">Fixez votre prix ! < br /> Sur inscription</span>
+						<span className="text-white">
+							Fixez votre prix ! <br /> Sur inscription
+						</span>
 					) : (
 						`Prix initial: ${displayPrice}€`
 					)}
@@ -275,7 +277,10 @@ useEffect(() => {
 					{latestAuction ? (
 						<div className="text-right">
 							<div className="font-semibold">
-								Dernière enchère: {latestAuction.proposal_price}€
+								Dernière enchère:{" "}
+								{isNaN(latestAuction.proposal_price)
+									? "0€"
+									: `${latestAuction.proposal_price}€`}
 							</div>
 
 							<div className="text-sm text-gray-600">

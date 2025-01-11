@@ -260,6 +260,8 @@ export const EditorForm = ({
 									price: e.target.value === "" ? null : Number(e.target.value),
 								}))
 							}
+							min="0" // Ajout d'une valeur minimale fixe
+							step="0.01" // Pour permettre les décimales
 							className="p-2 border rounded focus:ring-2 focus:ring-blue-500"
 							disabled={isLoading}
 						/>
