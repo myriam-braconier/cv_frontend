@@ -176,19 +176,26 @@ const CardPricing = ({
 		? latestAuction.proposal_price + 1
 		: displayPrice + 1;
 
-	// Fonction utilitaire pour convertir une date de façon sûre
-	const getAuctionDate = (auction: AuctionPrice | null): Date | null => {
-		if (!auction) {
-			console.log("Pas d'enchère fournie à getAuctionDate");
-			return null;
-		}
+	// D'abord, modifions getAuctionDate pour qu'il ne retourne que Date | null
+const getAuctionDate = (auction: AuctionPrice | null): Date | null => {
+    if (!auction) {
+        console.log("Pas d'enchère fournie à getAuctionDate");
+        return null;
+    }
 
+    console.log("Tentative de création de date avec:", {
+        updatedAt: auction.updatedAt,
+        typeUpdatedAt: typeof auction.updatedAt,
+        createdAt: auction.createdAt,
+        typeCreatedAt: typeof auction.createdAt,
+    });
+	
 		console.log("Tentative de création de date avec:", {
 			updatedAt: auction.updatedAt,
 			typeUpdatedAt: typeof auction.updatedAt,
 			createdAt: auction.createdAt,
 			typeCreatedAt: typeof auction.createdAt,
-		});
+		})
 
 		// Si updatedAt existe et est valide
 		if (auction.updatedAt) {
@@ -198,7 +205,6 @@ const CardPricing = ({
 				return updatedAtDate;
 			}
 		}
-
 		// Si createdAt existe et est un nombre valide
 		if (auction.createdAt) {
 			const createdAtDate = new Date(auction.createdAt);
@@ -213,38 +219,40 @@ const CardPricing = ({
 	};
 
 	// gestion de l'affichage temporel
-	useEffect(() => {
-		if (!latestAuction) {
-			console.log("Pas d'enchère disponible");
-			return;
-		}
+// Puis dans l'useEffect, gérer le texte à afficher :
+useEffect(() => {
+    if (!latestAuction) {
+        console.log("Pas d'enchère disponible");
+        setTimeElapsed("rien pour le moment");
+        return;
+    }
 
-		console.log("Données brutes de l'enchère:", latestAuction);
+    console.log("Données brutes de l'enchère:", latestAuction);
 
-		const updateTimestamp = () => {
-			// On utilise getAuctionDate une seule fois ici
-			const auctionDate = getAuctionDate(latestAuction);
+    const updateTimestamp = () => {
+        const auctionDate = getAuctionDate(latestAuction);
 
-			console.log("Tentative de récupération de la date:", {
-				updatedAt: latestAuction.updatedAt,
-				createdAt: latestAuction.createdAt,
-				resultingDate: auctionDate,
-			});
+        console.log("Tentative de récupération de la date:", {
+            updatedAt: latestAuction.updatedAt,
+            createdAt: latestAuction.createdAt,
+            resultingDate: auctionDate,
+        });
 
-			if (auctionDate) {
-				const formattedTime = formatTimeElapsed(auctionDate);
-				console.log("Temps formaté:", formattedTime);
-				setTimeElapsed(formattedTime);
-			} else {
-				console.log("Impossible de créer une date valide");
-			}
-		};
+		if (auctionDate && !isNaN(latestAuction.proposal_price)) {
+            const formattedTime = formatTimeElapsed(auctionDate);
+            console.log("Temps formaté:", formattedTime);
+            setTimeElapsed(formattedTime);
+        } else {
+            console.log("Impossible de créer une date valide ou montant invalide");
+            setTimeElapsed("Pas d'enchère pour le moment");
+        }
+    };
 
-		updateTimestamp();
-		const interval = setInterval(updateTimestamp, 1000);
+    updateTimestamp();
+    const interval = setInterval(updateTimestamp, 1000);
 
-		return () => clearInterval(interval);
-	}, [latestAuction]);
+    return () => clearInterval(interval);
+}, [latestAuction]);
 
 	console.log("Prix reçu:", price);
 	console.log("Type du prix:", typeof price);
@@ -257,7 +265,7 @@ const CardPricing = ({
 			<div className="flex justify-between">
 				<div className="text-left font-semibold">
 					{price === null || displayPrice === 0 ? (
-						<span className="text-white">Fixez votre prix !</span>
+						<span className="text-white">Fixez votre prix ! < br /> Sur inscription</span>
 					) : (
 						`Prix initial: ${displayPrice}€`
 					)}

@@ -129,7 +129,7 @@ export default function SynthetisersPage() {
             <div className="w-full px-4 py-6 relative z-10">
                  	{/* Background en premier avec z-index négatif */}
 			
-                <h1 className="text-3xl font-bold mb-8 text-center">
+                <h1 className="text-3xl font-bold mb-8 text-center text-white">
                    Synthétiseurs
                 </h1>
                 
