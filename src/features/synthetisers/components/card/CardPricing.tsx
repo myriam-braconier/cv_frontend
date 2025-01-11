@@ -76,14 +76,14 @@ const CardPricing = ({
 	}, [localAuctionPrices]);
 
 // Fonction pour obtenir le montant minimum
-const getMinimumBid = (): number => {
-    // Si une enchère existe et son montant est valide
-    if (latestAuction && typeof latestAuction.proposal_price === 'number' && !isNaN(latestAuction.proposal_price)) {
-        return latestAuction.proposal_price + 1;
-    }
-    // Sinon, on prend le prix initial + 1
-    return displayPrice + 1;
-};
+// const getMinimumBid = (): number => {
+//     // Si une enchère existe et son montant est valide
+//     if (latestAuction && typeof latestAuction.proposal_price === 'number' && !isNaN(latestAuction.proposal_price)) {
+//         return latestAuction.proposal_price + 1;
+//     }
+//     // Sinon, on prend le prix initial + 1
+//     return displayPrice + 1;
+// };
 
 // const minimumBid = getMinimumBid();
 
