@@ -36,17 +36,26 @@ export const ListSynthetisers = ({
 
 				const data = await response.json();
 				console.log("Data reçue:", data); // Pour déboguer
-				// Mise à jour pour correspondre à la nouvelle structure de réponse
-				if (data.synths || data.data) {
-					// Vérifie les deux possibilités
-					setSynths(data.synths || data.data); // Utilise synths ou data selon ce qui existe
-					setTotalPages(Math.ceil(data.pagination?.total / pageSize));
-					setCurrentPage(data.pagination?.currentPage || page);
+
+				// Mise à jour modifiée pour gérer correctement la pagination
+				if (data) {
+					// Accédez aux synthétiseurs
+					const synthsList = data.synths || data.data || [];
+					setSynths(synthsList);
+
+					// Calcul correct des pages
+					const total =
+						data.pagination?.total || data.total || synthsList.length;
+					const calculatedTotalPages = Math.max(1, Math.ceil(total / pageSize));
+					setTotalPages(calculatedTotalPages);
+
+					// Mise à jour de la page courante
+					setCurrentPage(page);
 				}
 			} catch (error) {
 				console.error("Erreur:", error);
 				toast.error("Erreur lors du chargement des synthétiseurs");
-				setSynths(initialSynths); // Fallback aux données initiales
+				setSynths(initialSynths);
 			} finally {
 				setIsLoading(false);
 			}
@@ -75,12 +84,16 @@ export const ListSynthetisers = ({
 	return (
 		<ErrorBoundary>
 			<div className="flex flex-col space-y-8">
-				<h1 className="text-white text-bold">
-					Liste de synthetiseurs Kawai - Korg - Roland
-					<br />
-					Données issues d&apos;un scraping éthique en Python du site
-					synthetiseur.net
-				</h1>
+				<div className="text-white text-bold col-span-8 mx-auto bg-slate-400 p-10 opacity-50 rounded-lg">
+					<span>
+						Liste de synthetiseurs Kawai - Korg - Roland
+						<br />
+						Données issues d&apos;un scraping éthique en Python du site
+						<a href="https://synthetiseur.net"> synthetiseur.net</a>
+						<br />
+						Les prix indiqués sont totalement fictifs
+					</span>
+				</div>
 
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
 					{isLoading ? (

@@ -75,17 +75,17 @@ const CardPricing = ({
 		return sortedAuctions[0];
 	}, [localAuctionPrices]);
 
-// Fonction pour obtenir le montant minimum
-// const getMinimumBid = (): number => {
-//     // Si une enchère existe et son montant est valide
-//     if (latestAuction && typeof latestAuction.proposal_price === 'number' && !isNaN(latestAuction.proposal_price)) {
-//         return latestAuction.proposal_price + 1;
-//     }
-//     // Sinon, on prend le prix initial + 1
-//     return displayPrice + 1;
-// };
+	// Fonction pour obtenir le montant minimum
+	// const getMinimumBid = (): number => {
+	//     // Si une enchère existe et son montant est valide
+	//     if (latestAuction && typeof latestAuction.proposal_price === 'number' && !isNaN(latestAuction.proposal_price)) {
+	//         return latestAuction.proposal_price + 1;
+	//     }
+	//     // Sinon, on prend le prix initial + 1
+	//     return displayPrice + 1;
+	// };
 
-// const minimumBid = getMinimumBid();
+	// const minimumBid = getMinimumBid();
 
 	// On utilise fetch pour cette fonction, car accessible non authentifié
 	const fetchLatestAuction = useCallback(async () => {
@@ -126,9 +126,9 @@ const CardPricing = ({
 
 		const latestAuction = getLatestAuction();
 		// on évite l'affichage du NaN
-		const minimumBid = latestAuction 
-		? Math.max(latestAuction.proposal_price + 1, displayPrice + 1)
-		: displayPrice + 1;
+		const minimumBid = latestAuction
+			? Math.max(latestAuction.proposal_price + 1, displayPrice + 1)
+			: displayPrice + 1;
 
 		if (newBidAmount <= minimumBid) {
 			toast.error(
@@ -179,14 +179,12 @@ const CardPricing = ({
 		}
 	};
 
-	
-
 	const latestAuction = getLatestAuction();
 
-
-	const minimumBid = latestAuction && !isNaN(latestAuction.proposal_price)
-    ? Math.max(latestAuction.proposal_price + 1, displayPrice + 1)
-    : displayPrice + 1;
+	const minimumBid =
+		latestAuction && !isNaN(latestAuction.proposal_price)
+			? Math.max(latestAuction.proposal_price + 1, displayPrice + 1)
+			: displayPrice + 1;
 
 	// D'abord, modifions getAuctionDate pour qu'il ne retourne que Date | null
 	const getAuctionDate = (auction: AuctionPrice | null): Date | null => {
@@ -230,14 +228,11 @@ const CardPricing = ({
 		return null;
 	};
 
-
-
 	useEffect(() => {
 		if (synthId) {
 			fetchLatestAuction();
 		}
 	}, [fetchLatestAuction, synthId]);
-
 
 	// gestion de l'affichage temporel
 	// Puis dans l'useEffect, gérer le texte à afficher :
@@ -253,20 +248,26 @@ const CardPricing = ({
 		const updateTimestamp = () => {
 			const auctionDate = getAuctionDate(latestAuction);
 
-			console.log("Tentative de récupération de la date:", {
-				updatedAt: latestAuction.updatedAt,
-				createdAt: latestAuction.createdAt,
-				resultingDate: auctionDate,
-			});
-
-			if (auctionDate && !isNaN(latestAuction.proposal_price)) {
-				const formattedTime = formatTimeElapsed(auctionDate);
-				console.log("Temps formaté:", formattedTime);
-				setTimeElapsed(formattedTime);
-			} else {
-				console.log("Impossible de créer une date valide ou montant invalide");
+			// Vérification des conditions dans un ordre logique
+			if (!latestAuction || !latestAuction.proposal_price) {
 				setTimeElapsed("Pas d'enchère pour le moment");
+				return;
 			}
+
+			if (isNaN(latestAuction.proposal_price)) {
+				setTimeElapsed("0€");
+				return;
+			}
+
+			if (!auctionDate) {
+				const now = new Date();
+				const formattedTime = formatTimeElapsed(now);
+				setTimeElapsed(formattedTime);
+				return;
+			}
+
+			const formattedTime = formatTimeElapsed(auctionDate);
+			setTimeElapsed(formattedTime);
 		};
 
 		updateTimestamp();
