@@ -64,11 +64,15 @@ export const ListSynthetisers = ({ synths: initialSynths }: ListSynthetisersProp
     return (
         <ErrorBoundary>
             <div className="flex flex-col space-y-8">
-                <h1 className="text-white text-bold">
-                    Liste de synthetiseurs Kawai - Korg - Roland
+                
+                <div className="text-blue-900 text-bold col-span-8 bg-gray-300 mx-auto bg-opacity-25 p-5 rounded-lg" >
+                    <span>
+                    Liste de synthetiseurs Kawai - Korg - Roland</span>
                     <br /> 
-                    Données issues d&apos;un scraping éthique en Python du site synthetiseur.net
-                </h1>
+                    Données issues d&apos;un scraping éthique en Python du site 
+                    <a href="https://synthetiseur.net" className="text-orange-800 text-base">  Synthetiseur.net</a>< br />Les données financières sont totalement fictives
+                </div>
+                
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                     {isLoading ? (
