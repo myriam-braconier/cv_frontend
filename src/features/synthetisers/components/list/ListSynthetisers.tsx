@@ -9,12 +9,10 @@ import { toast } from "react-hot-toast";
 
 interface ListSynthetisersProps {
 	synths: Synth[];
-	onUpdateSuccess?: () => void;
 }
 
 export const ListSynthetisers = ({
 	synths: initialSynths,
-	onUpdateSuccess,
 }: ListSynthetisersProps) => {
 	const [synths, setSynths] = useState<Synth[]>(initialSynths);
 	// Pagination
