@@ -135,7 +135,7 @@ export default function SynthetisersPage() {
                 
                 <ListSynthetisers
                     synths={synths}
-                    onUpdateSuccess={onUpdateSuccess}
+
                 />
             </div>
         </main>
