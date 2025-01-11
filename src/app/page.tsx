@@ -119,7 +119,7 @@ export default function HomePage() {
 			</section>
 
 			{/* Features Section */}
-			<section className="py-16 bg-transparent/80 backdrop-blur-sm">
+			<section className="py-16 bg-blue-900 backdrop-blur-sm">
 				<div className="container mx-auto px-4 text-white ">
 					<h2 className="text-3xl font-bold text-center mb-12">
 						Nos Ramifications

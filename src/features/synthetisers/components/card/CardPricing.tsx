@@ -74,6 +74,19 @@ const CardPricing = ({
 		);
 		return sortedAuctions[0];
 	}, [localAuctionPrices]);
+
+// Fonction pour obtenir le montant minimum
+const getMinimumBid = (): number => {
+    // Si une enchère existe et son montant est valide
+    if (latestAuction && typeof latestAuction.proposal_price === 'number' && !isNaN(latestAuction.proposal_price)) {
+        return latestAuction.proposal_price + 1;
+    }
+    // Sinon, on prend le prix initial + 1
+    return displayPrice + 1;
+};
+
+// const minimumBid = getMinimumBid();
+
 	// On utilise fetch pour cette fonction, car accessible non authentifié
 	const fetchLatestAuction = useCallback(async () => {
 		try {
@@ -112,9 +125,10 @@ const CardPricing = ({
 		}
 
 		const latestAuction = getLatestAuction();
-		const minimumBid = latestAuction
-			? latestAuction.proposal_price
-			: displayPrice;
+		// on évite l'affichage du NaN
+		const minimumBid = latestAuction 
+		? Math.max(latestAuction.proposal_price + 1, displayPrice + 1)
+		: displayPrice + 1;
 
 		if (newBidAmount <= minimumBid) {
 			toast.error(
@@ -165,16 +179,14 @@ const CardPricing = ({
 		}
 	};
 
-	useEffect(() => {
-		if (synthId) {
-			fetchLatestAuction();
-		}
-	}, [fetchLatestAuction, synthId]);
+	
 
 	const latestAuction = getLatestAuction();
-	const minimumBid = latestAuction
-		? latestAuction.proposal_price + 1
-		: displayPrice + 1;
+
+
+	const minimumBid = latestAuction && !isNaN(latestAuction.proposal_price)
+    ? Math.max(latestAuction.proposal_price + 1, displayPrice + 1)
+    : displayPrice + 1;
 
 	// D'abord, modifions getAuctionDate pour qu'il ne retourne que Date | null
 	const getAuctionDate = (auction: AuctionPrice | null): Date | null => {
@@ -217,6 +229,15 @@ const CardPricing = ({
 		console.log("Aucune date valide n'a pu être créée");
 		return null;
 	};
+
+
+
+	useEffect(() => {
+		if (synthId) {
+			fetchLatestAuction();
+		}
+	}, [fetchLatestAuction, synthId]);
+
 
 	// gestion de l'affichage temporel
 	// Puis dans l'useEffect, gérer le texte à afficher :
@@ -276,7 +297,7 @@ const CardPricing = ({
 				<div>
 					{latestAuction ? (
 						<div className="text-right">
-							<div className="font-semibold">
+							<div className="font-semibold text-white">
 								Dernière enchère:{" "}
 								{isNaN(latestAuction.proposal_price)
 									? "0€"
@@ -320,7 +341,7 @@ const CardPricing = ({
 						onChange={(e) =>
 							setNewBidAmount(e.target.value ? Number(e.target.value) : null)
 						}
-						min={minimumBid}
+						min={String(minimumBid)} // Conversion en string pour éviter les NaN
 						className="w-full p-2 border rounded"
 						placeholder={`Montant minimum: ${minimumBid}€`}
 					/>
@@ -330,7 +351,8 @@ const CardPricing = ({
 							isLoading ||
 							isLoadingAuctions ||
 							!newBidAmount ||
-							newBidAmount < minimumBid
+							newBidAmount < minimumBid || // Garde la vérification ici aussi
+							isNaN(newBidAmount) // Ajouter une vérification pour NaN
 						}
 						className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
 					>

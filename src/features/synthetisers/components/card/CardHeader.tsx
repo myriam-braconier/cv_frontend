@@ -9,10 +9,10 @@ interface CardHeaderProps {
 
 export const CardHeader = ({ title, note, nb_avis, specifications }: CardHeaderProps) => {
   return (
-    <div className="px-3">
+    <div className="px-3 text-white">
       {/* Header principal avec titre et note */}
       <header className="flex justify-between items-start mb-4">
-        <h2 className="text-xl font-bold text-gray-900 truncate" title={title}>
+        <h2 className="text-xl font-bold text-white truncate" title={title}>
           {title}
         </h2>
         <Rating note={note} nb_avis={nb_avis} />
