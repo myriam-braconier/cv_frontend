@@ -12,9 +12,7 @@ interface ListSynthetisersProps {
 	synths: Synth[];
 }
 
-export const ListSynthetisers = ({
-	
-}: ListSynthetisersProps) => {
+export const ListSynthetisers = ({}: ListSynthetisersProps) => {
 	const [synths, setSynths] = useState<Synth[]>([]);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
@@ -22,43 +20,56 @@ export const ListSynthetisers = ({
 	const pageSize = 12;
 
 	// Fonction de récupération des données
-    const fetchSynths = useCallback(async (page: number) => {
-        if (page < 1) return;
-        setIsLoading(true);
-        try {
-            const response = await api.get(`${API_URL}/api/synthetisers`, {
-                params: {
-                    page,
-                    limit: pageSize
-                }
-            });
-    
-            console.log("Structure complète de la réponse:", response);
-    
-            // Accéder aux données via response.data
-            const synthsList = response.data.synths;
-            
-            if (synthsList && Array.isArray(synthsList)) {
-                setSynths(synthsList);
-                
-                // Utiliser la pagination de la réponse
-                if (response.data.pagination) {
-                    setTotalPages(response.data.pagination.totalPages);
-                    setCurrentPage(response.data.pagination.currentPage);
-                }
-            } else {
-                throw new Error("Structure de données inattendue");
-            }
-    
-        } catch (error) {
-            console.error("Erreur:", error);
-            toast.error("Erreur lors du chargement des synthétiseurs");
-            setSynths([]);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [pageSize]);
+	const fetchSynths = useCallback(
+		async (page: number) => {
+			if (page < 1) return;
+			setIsLoading(true);
+			try {
+				const response = await api.get(`${API_URL}/api/synthetisers`, {
+					params: {
+						page,
+						limit: pageSize,
+					},
+				});
 
+				console.log("Structure complète de la réponse:", response);
+
+				// Accéder aux données via response.data
+				const synthsList = response.data.synths;
+
+				if (synthsList && Array.isArray(synthsList)) {
+					// Trier les synthétiseurs par marque uniquement
+					const sortedSynths = [...synthsList].sort((a, b) => {
+						// Extraire les marques et les convertir en minuscules
+						const marqueA = (a.marque || '').toLowerCase();
+						const marqueB = (b.marque || '').toLowerCase();
+						
+						// Debug du tri
+						console.log(`Comparaison: ${marqueA} vs ${marqueB}`);
+						
+						return marqueA.localeCompare(marqueB, 'fr', { sensitivity: 'base' });
+					});
+
+					setSynths(sortedSynths);
+
+					// Utiliser la pagination de la réponse
+					if (response.data.pagination) {
+						setTotalPages(response.data.pagination.totalPages);
+						setCurrentPage(response.data.pagination.currentPage);
+					}
+				} else {
+					throw new Error("Structure de données inattendue");
+				}
+			} catch (error) {
+				console.error("Erreur:", error);
+				toast.error("Erreur lors du chargement des synthétiseurs");
+				setSynths([]);
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[pageSize]
+	);
 
 	// Gestion de la pagination
 	const handlePreviousPage = () => {
@@ -73,7 +84,7 @@ export const ListSynthetisers = ({
 		fetchSynths(currentPage);
 	};
 
-    // Initialisation
+	// Initialisation
 	useEffect(() => {
 		fetchSynths(1); // Charger la première page au montage
 	}, [fetchSynths]);
