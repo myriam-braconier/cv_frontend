@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { Auction } from "@/features/auctions/types/auction";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { API_URL } from "@/config/constants";
-import axios from "axios";
 import Image from "next/image";
+import axios, { AxiosError } from "axios";
 
 type SynthFilter = 0 | number; // 0 représente "all"
 
@@ -30,74 +30,91 @@ export const AuctionsList = ({
 	const [modelFilter, setModelFilter] = useState<"all" | string>("all");
 
 	// Fonction de suppression d'une enchère
-    const handleDelete = async (auctionId: number) => {
-        if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette enchère ?")) {
-            return;
-        }
+	const handleDelete = async (auctionId: number) => {
+		if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette enchère ?")) {
+			return;
+		}
 
-        try {
-            setIsDeleting(auctionId);
-            setDeleteError(null);
+		try {
+			setIsDeleting(auctionId);
+			setDeleteError(null);
 
-            try {
-                await axios.delete(`${API_URL}/auctions/${auctionId}`);
-            } catch (error: any) {
-                // Si l'erreur est 204 ou 200, on considère que c'est un succès
-                if (error.response?.status === 204 || error.response?.status === 200) {
-                    // Continue avec le succès
-                } else {
-                    throw error; // Relance l'erreur si ce n'est pas 204 ou 200
-                }
-            }
+			try {
+				await axios.delete(`${API_URL}/auctions/${auctionId}`);
+			} catch (error) {
+				// Si l'erreur est 204 ou 200, on considère que c'est un succès
+				const axiosError = error as AxiosError;
+				if (
+					axiosError.response?.status === 204 ||
+					axiosError.response?.status === 200
+				) {
+					// Continue avec le succès
+				} else {
+					throw error; // Relance l'erreur si ce n'est pas 204 ou 200
+				}
+			}
 
-            // Si on arrive ici, c'est que la suppression est réussie
-            setAuctions(prevAuctions => 
-                prevAuctions.filter(auction => auction.id !== auctionId)
-            );
+			// Si on arrive ici, c'est que la suppression est réussie
+			setAuctions((prevAuctions) =>
+				prevAuctions.filter((auction) => auction.id !== auctionId)
+			);
 
-            if (onUpdateSuccess) {
-                await onUpdateSuccess();
-            }
-            
-        } catch (error: any) {
-            console.error("Erreur détaillée lors de la suppression:", error);
-            
-            let errorMessage = "Une erreur est survenue lors de la suppression de l'enchère";
-            
-            if (axios.isAxiosError(error)) {
-                // Ignorer l'erreur si le statut est 204 ou 200
-                if (error.response?.status === 204 || error.response?.status === 200) {
-                    return;
-                }
-                
-                switch (error.response?.status) {
-                    case 404:
-                        errorMessage = "Cette enchère n'existe pas ou a déjà été supprimée";
-                        // Si l'enchère n'existe plus, on peut la retirer de l'état local
-                        setAuctions(prevAuctions => 
-                            prevAuctions.filter(auction => auction.id !== auctionId)
-                        );
-                        break;
-                    case 403:
-                        errorMessage = "Vous n'avez pas les droits nécessaires pour supprimer cette enchère";
-                        break;
-                    case 401:
-                        errorMessage = "Veuillez vous reconnecter pour effectuer cette action";
-                        break;
-                    default:
-                        if (error.response?.data?.message) {
-                            errorMessage = error.response.data.message;
-                        } else if (!error.response) {
-                            errorMessage = "Impossible de contacter le serveur. Veuillez vérifier votre connexion.";
-                        }
-                }
-            }
-            
-            setDeleteError(errorMessage);
-        } finally {
-            setIsDeleting(null);
-        }
-    };
+			if (onUpdateSuccess) {
+				await onUpdateSuccess();
+			}
+		} catch (error) {
+			console.error("Erreur détaillée lors de la suppression:", error);
+
+			let errorMessage =
+				"Une erreur est survenue lors de la suppression de l'enchère";
+
+			if (axios.isAxiosError(error)) {
+				const axiosError = error as AxiosError;
+
+				// Ignorer l'erreur si le statut est 204 ou 200
+				if (
+					axiosError.response?.status === 204 ||
+					axiosError.response?.status === 200
+				) {
+					return;
+				}
+
+				switch (axiosError.response?.status) {
+					case 404:
+						errorMessage = "Cette enchère n'existe pas ou a déjà été supprimée";
+						// Si l'enchère n'existe plus, on peut la retirer de l'état local
+						setAuctions((prevAuctions) =>
+							prevAuctions.filter((auction) => auction.id !== auctionId)
+						);
+						break;
+					case 403:
+						errorMessage =
+							"Vous n'avez pas les droits nécessaires pour supprimer cette enchère";
+						break;
+					case 401:
+						errorMessage =
+							"Veuillez vous reconnecter pour effectuer cette action";
+						break;
+					default:
+						if (
+							axiosError.response?.data &&
+							typeof axiosError.response.data === "object" &&
+							"message" in axiosError.response.data
+						) {
+							errorMessage = (axiosError.response.data as { message: string })
+								.message;
+						} else if (!axiosError.response) {
+							errorMessage =
+								"Impossible de contacter le serveur. Veuillez vérifier votre connexion.";
+						}
+				}
+			}
+
+			setDeleteError(errorMessage);
+		} finally {
+			setIsDeleting(null);
+		}
+	};
 
 	const handleRefresh = async () => {
 		try {
