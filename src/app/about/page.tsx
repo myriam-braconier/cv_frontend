@@ -3,7 +3,7 @@ import BackgroundRotator from "@/components/BackgroundRotator";
 export default function AboutPage() {
 	const images = [
 		"/images/iStock-1477817772.webp",
-		"images/login2.webp",
+		"/images/login2.webp",
 		// autres images...
 	];
 
