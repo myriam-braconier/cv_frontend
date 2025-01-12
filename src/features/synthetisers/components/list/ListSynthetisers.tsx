@@ -26,7 +26,7 @@ export const ListSynthetisers = ({
         if (page < 1) return;
         setIsLoading(true);
         try {
-            const response = await api.get(`/api/synthetisers`, {
+            const response = await api.get(`${API_URL}/api/synthetisers`, {
                 params: {
                     page,
                     limit: pageSize
@@ -59,10 +59,6 @@ export const ListSynthetisers = ({
         }
     }, [pageSize]);
 
-	// Initialisation
-	useEffect(() => {
-		fetchSynths(1); // Charger la première page au montage
-	}, [fetchSynths]);
 
 	// Gestion de la pagination
 	const handlePreviousPage = () => {
@@ -76,6 +72,11 @@ export const ListSynthetisers = ({
 	const handleUpdateSuccess = () => {
 		fetchSynths(currentPage);
 	};
+
+    // Initialisation
+	useEffect(() => {
+		fetchSynths(1); // Charger la première page au montage
+	}, [fetchSynths]);
 
 	return (
 		<ErrorBoundary>
