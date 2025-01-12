@@ -21,43 +21,63 @@ export const ListSynthetisers = ({
 	const pageSize = 12;
 
 	// Fonction de récupération des données
-	const fetchSynths = useCallback(
-		async (page: number) => {
-			if (page < 1) return;
-
-			setIsLoading(true);
-			try {
-				const response = await fetch(
-					`${API_URL}/api/synthetisers?page=${page}&limit=${pageSize}`
-				);
-
-				if (!response.ok)
-					throw new Error("Erreur lors du chargement des synthétiseurs");
-
-				const responseData = await response.json();
-				console.log("Structure complète de la réponse:", responseData);
-				console.log("Clés disponibles:", Object.keys(responseData));
-
-				// Utiliser directement responseData.synths car c'est la clé correcte
-				const synthsList = responseData.synths;
-
-				if (synthsList && Array.isArray(synthsList)) {
-					setSynths(synthsList);
-					setTotalPages(responseData.pagination.totalPages);
-					setCurrentPage(responseData.pagination.currentPage);
-				} else {
-					throw new Error("Structure de données inattendue");
-				}
-			} catch (error) {
-				console.error("Erreur", error);
-				toast.error("Erreur lors du chargement des synthétiseurs");
-				setSynths(initialSynths);
-			} finally {
-				setIsLoading(false);
-			}
-		},
-		[pageSize]
-	);
+    const fetchSynths = useCallback(async (page: number) => {
+        if (page < 1) return;
+        setIsLoading(true);
+        try {
+            const response = await fetch(
+                `${API_URL}/api/synthetisers?page=${page}&limit=${pageSize}`
+            );
+    
+            if (!response.ok)
+                throw new Error("Erreur lors du chargement des synthétiseurs");
+    
+            const responseData = await response.json();
+            console.log("Structure complète de la réponse:", responseData);
+    
+            // Gérer les deux formats (production et développement)
+            let synthsList;
+            if (responseData.data?.success) {
+                // Format production
+                synthsList = responseData.data.data;
+            } else if (responseData.synths) {
+                // Format développement
+                synthsList = responseData.synths;
+            } else {
+                // Fallback au cas où
+                synthsList = responseData.data;
+            }
+    
+            if (synthsList && Array.isArray(synthsList)) {
+                // Paginer manuellement pour la production
+                const start = (page - 1) * pageSize;
+                const end = start + pageSize;
+                const paginatedSynths = synthsList.slice(start, end);
+    
+                setSynths(paginatedSynths);
+                
+                // Gérer la pagination selon l'environnement
+                if (responseData.pagination) {
+                    // Développement
+                    setTotalPages(responseData.pagination.totalPages);
+                    setCurrentPage(responseData.pagination.currentPage);
+                } else {
+                    // Production
+                    setTotalPages(Math.ceil(synthsList.length / pageSize));
+                    setCurrentPage(page);
+                }
+            } else {
+                throw new Error("Structure de données inattendue");
+            }
+    
+        } catch (error) {
+            console.error("Erreur:", error);
+            toast.error("Erreur lors du chargement des synthétiseurs");
+            setSynths([]);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [pageSize]);
 
 	// Initialisation
 	useEffect(() => {
