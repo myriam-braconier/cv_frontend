@@ -6,6 +6,7 @@ import { SynthetiserCard } from "../SynthetiserCard";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { API_URL } from "@/config/constants";
 import { toast } from "react-hot-toast";
+import api from "@/lib/axios/index";
 
 interface ListSynthetisersProps {
 	synths: Synth[];
@@ -25,46 +26,25 @@ export const ListSynthetisers = ({
         if (page < 1) return;
         setIsLoading(true);
         try {
-            const response = await fetch(
-                `${API_URL}/api/synthetisers?page=${page}&limit=${pageSize}`
-            );
+            const response = await api.get(`/api/synthetisers`, {
+                params: {
+                    page,
+                    limit: pageSize
+                }
+            });
     
-            if (!response.ok)
-                throw new Error("Erreur lors du chargement des synthétiseurs");
+            console.log("Structure complète de la réponse:", response);
     
-            const responseData = await response.json();
-            console.log("Structure complète de la réponse:", responseData);
-    
-            // Gérer les deux formats (production et développement)
-            let synthsList;
-            if (responseData.data?.success) {
-                // Format production
-                synthsList = responseData.data.data;
-            } else if (responseData.synths) {
-                // Format développement
-                synthsList = responseData.synths;
-            } else {
-                // Fallback au cas où
-                synthsList = responseData.data;
-            }
-    
+            // Accéder aux données via response.data
+            const synthsList = response.data.synths;
+            
             if (synthsList && Array.isArray(synthsList)) {
-                // Paginer manuellement pour la production
-                const start = (page - 1) * pageSize;
-                const end = start + pageSize;
-                const paginatedSynths = synthsList.slice(start, end);
-    
-                setSynths(paginatedSynths);
+                setSynths(synthsList);
                 
-                // Gérer la pagination selon l'environnement
-                if (responseData.pagination) {
-                    // Développement
-                    setTotalPages(responseData.pagination.totalPages);
-                    setCurrentPage(responseData.pagination.currentPage);
-                } else {
-                    // Production
-                    setTotalPages(Math.ceil(synthsList.length / pageSize));
-                    setCurrentPage(page);
+                // Utiliser la pagination de la réponse
+                if (response.data.pagination) {
+                    setTotalPages(response.data.pagination.totalPages);
+                    setCurrentPage(response.data.pagination.currentPage);
                 }
             } else {
                 throw new Error("Structure de données inattendue");
