@@ -36,27 +36,18 @@ export const ListSynthetisers = ({
 
 				const responseData = await response.json();
 				console.log("Structure complète de la réponse:", responseData);
+				console.log("Clés disponibles:", Object.keys(responseData));
 
+				// Utiliser directement responseData.synths car c'est la clé correcte
+				const synthsList = responseData.synths;
 
- // Accéder aux données via le bon chemin en production
- const synthsList = responseData.success ? responseData.data : responseData.data;
-
- if (!synthsList || !Array.isArray(synthsList)) {
-    throw new Error("Format de données invalide");
-}
-
-// Paginer les données
-const start = (page - 1) * pageSize;
-const end = start + pageSize;
-const paginatedSynths = synthsList.slice(start, end);
-
-				setSynths(responseData.synths);
-				setTotalPages(responseData.pagination.totalPages);
-				setCurrentPage(responseData.pagination.currentPage);
-
-                console.log("Synthétiseurs paginés:", paginatedSynths);
-                console.log("Total pages:", Math.ceil(synthsList.length / pageSize));
-
+				if (synthsList && Array.isArray(synthsList)) {
+					setSynths(synthsList);
+					setTotalPages(responseData.pagination.totalPages);
+					setCurrentPage(responseData.pagination.currentPage);
+				} else {
+					throw new Error("Structure de données inattendue");
+				}
 			} catch (error) {
 				console.error("Erreur", error);
 				toast.error("Erreur lors du chargement des synthétiseurs");
@@ -65,7 +56,7 @@ const paginatedSynths = synthsList.slice(start, end);
 				setIsLoading(false);
 			}
 		},
-		[initialSynths, pageSize]
+		[pageSize]
 	);
 
 	// Initialisation
