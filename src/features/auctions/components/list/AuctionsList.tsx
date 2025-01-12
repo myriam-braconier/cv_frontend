@@ -287,7 +287,7 @@ export const AuctionsList = ({
 										/>
 									) : (
 										<div className="w-full h-full bg-gray-200 rounded-full flex items-center justify-center">
-											<span className="text-gray-500 text-xs">Pas d'image</span>
+											<span className="text-gray-500 text-xs">Pas d&apos;image</span>
 										</div>
 									)}
 								</div>
