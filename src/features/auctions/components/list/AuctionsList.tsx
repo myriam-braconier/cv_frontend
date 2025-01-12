@@ -18,8 +18,12 @@ interface AuctionListProps {
 export const AuctionsList = ({
 	auctions: initialAuctions,
 	onUpdateSuccess,
-	isAdmin = true,
+	isAdmin = false,
 }: AuctionListProps) => {
+	// Use useEffect for logging if needed
+	useEffect(() => {
+		console.log("Is Admin:", isAdmin);
+	}, [isAdmin]);
 	const [auctions, setAuctions] = useState<Auction[]>(initialAuctions);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [isDeleting, setIsDeleting] = useState<number | null>(null);
@@ -183,7 +187,7 @@ export const AuctionsList = ({
 
 				<div className="mb-6 space-y-4 md:space-y-0 md:flex md:space-x-4">
 					<div className="flex-1">
-						<label className="block text-sm font-medium mb-2">
+						<label className="block text-sm font-medium mb-2 text-white">
 							Filtrer par prix
 						</label>
 						<select
@@ -199,7 +203,7 @@ export const AuctionsList = ({
 					</div>
 
 					<div className="flex-1">
-						<label className="block text-sm font-medium mb-2">
+						<label className="block text-sm font-medium mb-2 text-white">
 							Filtrer par modèle
 						</label>
 						<select
@@ -226,7 +230,7 @@ export const AuctionsList = ({
 					</div>
 
 					<div className="flex-1">
-						<label className="block text-sm font-medium mb-2">
+						<label className="block text-sm font-medium mb-2 text-white">
 							Filtrer par synthétiseur
 						</label>
 						<select
@@ -251,7 +255,7 @@ export const AuctionsList = ({
 					</div>
 
 					<div className="flex-1">
-						<label className="block text-sm font-medium mb-2">
+						<label className="block text-sm font-medium mb-2 text-white">
 							Trier par prix
 						</label>
 						<select
@@ -265,43 +269,39 @@ export const AuctionsList = ({
 					</div>
 				</div>
 
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 					{filteredAuctions.map((auction) => (
 						<div
 							key={auction.id}
-							className="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow"
+							className="bg-white rounded-full shadow p-6 hover:shadow-lg transition-shadow border-2 border-gray-200 w-64 h-64 flex flex-col items-center justify-center mx-auto"
 						>
-							<div className="relative h-[150px] w-[150px] mb-1">
-								{auction.synthetiser?.image_url ? (
-									<Image
-										src={auction.synthetiser.image_url}
-										alt={`${auction.synthetiser.marque} ${auction.synthetiser.modele}`}
-										width={150}
-										height={150}
-										className="object-cover rounded-lg"
-									/>
-								) : (
-									<div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
-										<span className="text-gray-500">
-											Pas d&apos;image disponible
-										</span>
-									</div>
-								)}
-							</div>
-
-							<div className="flex justify-between items-start mb-4">
-								<div>
-									<h3 className="font-semibold text-lg">
-										Enchère #{auction.id}
-									</h3>
-									<p className="text-gray-600">
-										{auction.synthetiser
-											? `${auction.synthetiser.marque} ${auction.synthetiser.modele}`
-											: `Synthétiseur #${auction.synthetiserId}`}
-									</p>
+							<div className="text-center space-y-2">
+								<div className="relative h-20 w-20 mb-2 mx-auto">
+									{auction.synthetiser?.image_url ? (
+										<Image
+											src={auction.synthetiser.image_url}
+											alt={`${auction.synthetiser.marque} ${auction.synthetiser.modele}`}
+											width={80}
+											height={80}
+											className="object-cover rounded-full"
+										/>
+									) : (
+										<div className="w-full h-full bg-gray-200 rounded-full flex items-center justify-center">
+											<span className="text-gray-500 text-xs">Pas d'image</span>
+										</div>
+									)}
 								</div>
+
+								<h3 className="font-semibold text-sm">Enchère #{auction.id}</h3>
+
+								<p className="text-gray-600 text-xs truncate max-w-[150px]">
+									{auction.synthetiser
+										? `${auction.synthetiser.marque} ${auction.synthetiser.modele}`
+										: `Synthétiseur #${auction.synthetiserId}`}
+								</p>
+
 								<span
-									className={`px-2 py-1 rounded text-sm ${
+									className={`px-2 py-0.5 rounded-full text-xs ${
 										auction.status === "active"
 											? "bg-green-100 text-green-800"
 											: "bg-gray-100 text-gray-800"
@@ -309,27 +309,25 @@ export const AuctionsList = ({
 								>
 									{auction.status}
 								</span>
-							</div>
 
-							<div className="space-y-2">
-								<p className="text-xl font-bold">{auction.proposal_price}€</p>
-								<p className="text-sm text-gray-500">
+								<p className="text-lg font-bold">{auction.proposal_price}€</p>
+
+								<p className="text-xs text-gray-500">
 									Mis à jour le :{" "}
 									{new Date(auction.updatedAt || "").toLocaleDateString()}
 								</p>
+
 								{isAdmin && (
 									<>
 										{deleteError && isDeleting === auction.id && (
-											<p className="text-sm text-red-500 mb-2">{deleteError}</p>
+											<p className="text-xs text-red-500">{deleteError}</p>
 										)}
 										<button
 											onClick={() => handleDelete(auction.id)}
 											disabled={isDeleting === auction.id}
-											className="mt-2 w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 disabled:opacity-50 transition-colors"
+											className="bg-red-500 text-white px-3 py-1 rounded-full text-xs hover:bg-red-600 disabled:opacity-50 transition-colors"
 										>
-											{isDeleting === auction.id
-												? "Suppression..."
-												: "Supprimer"}
+											{isDeleting === auction.id ? "..." : "Supprimer"}
 										</button>
 									</>
 								)}
