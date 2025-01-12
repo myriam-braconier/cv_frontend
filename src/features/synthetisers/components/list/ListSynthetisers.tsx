@@ -34,26 +34,14 @@ export const ListSynthetisers = ({
 				if (!response.ok)
 					throw new Error("Erreur lors du chargement des synthétiseurs");
 
-				const data = await response.json();
-				console.log("Data reçue:", data); // Pour déboguer
+				const responseData = await response.json();
+				console.log("Structure complète de la réponse:", responseData);
 
-				// Mise à jour modifiée pour gérer correctement la pagination
-				if (data) {
-					// Accédez aux synthétiseurs
-					const synthsList = data.synths || data.data || [];
-					setSynths(synthsList);
-
-					// Calcul correct des pages
-					const total =
-						data.pagination?.total || data.total || synthsList.length;
-					const calculatedTotalPages = Math.max(1, Math.ceil(total / pageSize));
-					setTotalPages(calculatedTotalPages);
-
-					// Mise à jour de la page courante
-					setCurrentPage(page);
-				}
+				setSynths(responseData.synths);
+				setTotalPages(responseData.pagination.totalPages);
+				setCurrentPage(responseData.pagination.currentPage);
 			} catch (error) {
-				console.error("Erreur:", error);
+				console.error("Erreur", error);
 				toast.error("Erreur lors du chargement des synthétiseurs");
 				setSynths(initialSynths);
 			} finally {

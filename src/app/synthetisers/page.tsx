@@ -13,9 +13,9 @@ import BackgroundRotator from "@/components/BackgroundRotator";
 
 export default function SynthetisersPage() {
     // const router = useRouter(); POur l'authentification
-    const [synths, setSynths] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    // const [synths, setSynths] = useState([]);
+    // const [isLoading, setIsLoading] = useState(true);
+    // const [error, setError] = useState<string | null>(null);
 
     const images = [
 		"/images/iStock-1477817772.webp",
@@ -74,32 +74,32 @@ export default function SynthetisersPage() {
     //     }
     // }, [verifyAuth]);
 
-    const fetchSynths = useCallback(async () => {
-        try {
-            setIsLoading(true);
-            setError(null);
+    // const fetchSynths = useCallback(async () => {
+    //     try {
+    //         setIsLoading(true);
+    //         setError(null);
 
-            const synthResponse = await api.get(`${API_URL}/api/synthetisers`);
-            if (!synthResponse.data.data) {
-                throw new Error("Format de données invalide");
-            }
-            setSynths(synthResponse.data.data);
-        } catch (error) {
-            console.error(error);
-            setError("Une erreur est survenue lors du chargement des données");
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
+    //         const synthResponse = await api.get(`${API_URL}/api/synthetisers`);
+    //         if (!synthResponse.data.data) {
+    //             throw new Error("Format de données invalide");
+    //         }
+    //         setSynths(synthResponse.data.data);
+    //     } catch (error) {
+    //         console.error(error);
+    //         setError("Une erreur est survenue lors du chargement des données");
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // }, []);
 
 
     // const onUpdateSuccess = useCallback(() => {
     //     fetchSynths();
     // }, [fetchSynths]);
 
-    useEffect(() => {
-        fetchSynths();
-    }, [fetchSynths]);
+    // useEffect(() => {
+    //     fetchSynths();
+    // }, [fetchSynths]);
 
 
 // -----------------------SI authentification------------------------------------
@@ -117,8 +117,8 @@ export default function SynthetisersPage() {
     //     }
     // }, []);
 
-    if (isLoading) return <LoadingSpinner />;
-    if (error) return <div className="text-red-500 text-center">{error}</div>;
+    // if (isLoading) return <LoadingSpinner />;
+    // if (error) return <div className="text-red-500 text-center">{error}</div>;
 
     return (
         <main className="min-h-screen relative"> 
@@ -133,10 +133,7 @@ export default function SynthetisersPage() {
                    Synthétiseurs
                 </h1>
                 
-                <ListSynthetisers
-                    synths={synths}
-
-                />
+                <ListSynthetisers synths={[]} />
             </div>
         </main>
     );
