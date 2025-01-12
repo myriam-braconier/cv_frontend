@@ -13,7 +13,7 @@ interface ListSynthetisersProps {
 }
 
 export const ListSynthetisers = ({
-	synths: initialSynths,
+	
 }: ListSynthetisersProps) => {
 	const [synths, setSynths] = useState<Synth[]>([]);
 	const [currentPage, setCurrentPage] = useState(1);

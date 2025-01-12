@@ -1,21 +1,16 @@
 "use client";
 
-import { API_URL } from "@/config/constants";
-import { useState, useCallback, useEffect } from "react";
+
 // import { useRouter } from "next/navigation"; pour l'authentification
 import { ListSynthetisers } from "@/features/synthetisers/components/list/ListSynthetisers";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
-import api from "@/lib/axios/index";
+
 import BackgroundRotator from "@/components/BackgroundRotator";
 
 
 
 
 export default function SynthetisersPage() {
-    // const router = useRouter(); POur l'authentification
-    // const [synths, setSynths] = useState([]);
-    // const [isLoading, setIsLoading] = useState(true);
-    // const [error, setError] = useState<string | null>(null);
+   
 
     const images = [
 		"/images/iStock-1477817772.webp",
@@ -93,14 +88,7 @@ export default function SynthetisersPage() {
     // }, []);
 
 
-    // const onUpdateSuccess = useCallback(() => {
-    //     fetchSynths();
-    // }, [fetchSynths]);
-
-    // useEffect(() => {
-    //     fetchSynths();
-    // }, [fetchSynths]);
-
+ 
 
 // -----------------------SI authentification------------------------------------
     // useEffect(() => {
