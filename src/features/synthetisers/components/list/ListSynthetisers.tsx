@@ -20,56 +20,54 @@ export const ListSynthetisers = ({}: ListSynthetisersProps) => {
 	const pageSize = 12;
 
 	// Fonction de récupération des données
-	const fetchSynths = useCallback(
-		async (page: number) => {
-			if (page < 1) return;
-			setIsLoading(true);
-			try {
-				const response = await api.get(`${API_URL}/api/synthetisers`, {
-					params: {
-						page,
-						limit: pageSize,
-					},
-				});
-
-				console.log("Structure complète de la réponse:", response);
-
-				// Accéder aux données via response.data
-				const synthsList = response.data.synths;
-
-				if (synthsList && Array.isArray(synthsList)) {
-					// Trier les synthétiseurs par marque uniquement
-					const sortedSynths = [...synthsList].sort((a, b) => {
-						// Extraire les marques et les convertir en minuscules
-						const marqueA = (a.marque || '').toLowerCase();
-						const marqueB = (b.marque || '').toLowerCase();
-						
-						// Debug du tri
-						console.log(`Comparaison: ${marqueA} vs ${marqueB}`);
-						
-						return marqueA.localeCompare(marqueB, 'fr', { sensitivity: 'base' });
-					});
-
-					setSynths(sortedSynths);
-
-					// Utiliser la pagination de la réponse
-					if (response.data.pagination) {
-						setTotalPages(response.data.pagination.totalPages);
-						setCurrentPage(response.data.pagination.currentPage);
+	const fetchSynths = useCallback(async (page: number) => {
+		if (page < 1) return;
+		setIsLoading(true);
+		try {
+			const response = await api.get(`${API_URL}/api/synthetisers`, {
+				params: {
+					page,
+					limit: pageSize,
+				},
+			});
+	
+			const synthsList = response.data.synths;
+	
+			if (synthsList && Array.isArray(synthsList)) {
+				// Improved sorting logic
+				const sortedSynths = [...synthsList].sort((a, b) => {
+					// First, compare by brand (marque)
+					const marqueA = (a.marque || '').toLowerCase().trim();
+					const marqueB = (b.marque || '').toLowerCase().trim();
+					const marqueCompare = marqueA.localeCompare(marqueB, 'fr');
+	
+					// If brands are the same, then compare by model (modele)
+					if (marqueCompare === 0) {
+						const modeleA = (a.modele || '').toLowerCase().trim();
+						const modeleB = (b.modele || '').toLowerCase().trim();
+						return modeleA.localeCompare(modeleB, 'fr');
 					}
-				} else {
-					throw new Error("Structure de données inattendue");
+	
+					return marqueCompare;
+				});
+	
+				setSynths(sortedSynths);
+	
+				if (response.data.pagination) {
+					setTotalPages(response.data.pagination.totalPages);
+					setCurrentPage(response.data.pagination.currentPage);
 				}
-			} catch (error) {
-				console.error("Erreur:", error);
-				toast.error("Erreur lors du chargement des synthétiseurs");
-				setSynths([]);
-			} finally {
-				setIsLoading(false);
+			} else {
+				throw new Error("Structure de données inattendue");
 			}
-		},
-		[pageSize]
-	);
+		} catch (error) {
+			console.error("Erreur:", error);
+			toast.error("Erreur lors du chargement des synthétiseurs");
+			setSynths([]);
+		} finally {
+			setIsLoading(false);
+		}
+	}, [pageSize]);
 
 	// Gestion de la pagination
 	const handlePreviousPage = () => {
@@ -110,12 +108,7 @@ export const ListSynthetisers = ({}: ListSynthetisersProps) => {
 						</div>
 					) : (
 						synths
-							.sort((a, b) => {
-								const marqueComparison = a.marque.localeCompare(b.marque);
-								return marqueComparison !== 0
-									? marqueComparison
-									: a.modele.localeCompare(b.modele);
-							})
+							
 							.map((synth) => (
 								<div key={synth.id}>
 									<SynthetiserCard
