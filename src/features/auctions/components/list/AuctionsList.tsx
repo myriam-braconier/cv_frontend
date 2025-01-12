@@ -12,21 +12,93 @@ type SynthFilter = 0 | number; // 0 représente "all"
 interface AuctionListProps {
 	auctions: Auction[];
 	onUpdateSuccess?: () => void;
+	isAdmin?: boolean;
 }
 
 export const AuctionsList = ({
 	auctions: initialAuctions,
 	onUpdateSuccess,
+	isAdmin = true,
 }: AuctionListProps) => {
 	const [auctions, setAuctions] = useState<Auction[]>(initialAuctions);
 	const [isRefreshing, setIsRefreshing] = useState(false);
+	const [isDeleting, setIsDeleting] = useState<number | null>(null);
+	const [deleteError, setDeleteError] = useState<string | null>(null);
 	const [priceFilter, setPriceFilter] = useState<string>("all");
 	const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-
 	const [synthFilter, setSynthFilter] = useState<SynthFilter>(0);
 	const [modelFilter, setModelFilter] = useState<"all" | string>("all");
 
-	// remplace handleauctionupdate car plus complet car gère l'état de chargement
+	// Fonction de suppression d'une enchère
+    const handleDelete = async (auctionId: number) => {
+        if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette enchère ?")) {
+            return;
+        }
+
+        try {
+            setIsDeleting(auctionId);
+            setDeleteError(null);
+
+            try {
+                await axios.delete(`${API_URL}/auctions/${auctionId}`);
+            } catch (error: any) {
+                // Si l'erreur est 204 ou 200, on considère que c'est un succès
+                if (error.response?.status === 204 || error.response?.status === 200) {
+                    // Continue avec le succès
+                } else {
+                    throw error; // Relance l'erreur si ce n'est pas 204 ou 200
+                }
+            }
+
+            // Si on arrive ici, c'est que la suppression est réussie
+            setAuctions(prevAuctions => 
+                prevAuctions.filter(auction => auction.id !== auctionId)
+            );
+
+            if (onUpdateSuccess) {
+                await onUpdateSuccess();
+            }
+            
+        } catch (error: any) {
+            console.error("Erreur détaillée lors de la suppression:", error);
+            
+            let errorMessage = "Une erreur est survenue lors de la suppression de l'enchère";
+            
+            if (axios.isAxiosError(error)) {
+                // Ignorer l'erreur si le statut est 204 ou 200
+                if (error.response?.status === 204 || error.response?.status === 200) {
+                    return;
+                }
+                
+                switch (error.response?.status) {
+                    case 404:
+                        errorMessage = "Cette enchère n'existe pas ou a déjà été supprimée";
+                        // Si l'enchère n'existe plus, on peut la retirer de l'état local
+                        setAuctions(prevAuctions => 
+                            prevAuctions.filter(auction => auction.id !== auctionId)
+                        );
+                        break;
+                    case 403:
+                        errorMessage = "Vous n'avez pas les droits nécessaires pour supprimer cette enchère";
+                        break;
+                    case 401:
+                        errorMessage = "Veuillez vous reconnecter pour effectuer cette action";
+                        break;
+                    default:
+                        if (error.response?.data?.message) {
+                            errorMessage = error.response.data.message;
+                        } else if (!error.response) {
+                            errorMessage = "Impossible de contacter le serveur. Veuillez vérifier votre connexion.";
+                        }
+                }
+            }
+            
+            setDeleteError(errorMessage);
+        } finally {
+            setIsDeleting(null);
+        }
+    };
+
 	const handleRefresh = async () => {
 		try {
 			setIsRefreshing(true);
@@ -51,14 +123,10 @@ export const AuctionsList = ({
 		setAuctions(initialAuctions);
 	}, [initialAuctions]);
 
-	// Obtenir la liste unique des synthétiseurs
 	const uniqueSynthIds = Array.from(
 		new Set(auctions.map((auction) => auction.synthetiserId))
 	);
 
-	// Filtrer les enchères
-
-	//  constante filteredAuctions
 	const filteredAuctions = auctions
 		.filter((auction) => {
 			const matchesSynth =
@@ -86,7 +154,6 @@ export const AuctionsList = ({
 	return (
 		<ErrorBoundary>
 			<div className="p-4">
-				{/* Ajout du bouton de rafraîchissement */}
 				<div className="flex justify-end mb-4">
 					<button
 						onClick={handleRefresh}
@@ -97,9 +164,7 @@ export const AuctionsList = ({
 					</button>
 				</div>
 
-				{/* Filtres */}
 				<div className="mb-6 space-y-4 md:space-y-0 md:flex md:space-x-4">
-					{/* Filtre par prix */}
 					<div className="flex-1">
 						<label className="block text-sm font-medium mb-2">
 							Filtrer par prix
@@ -116,7 +181,6 @@ export const AuctionsList = ({
 						</select>
 					</div>
 
-					{/* Filtre par modèle de synthétiseur */}
 					<div className="flex-1">
 						<label className="block text-sm font-medium mb-2">
 							Filtrer par modèle
@@ -144,7 +208,6 @@ export const AuctionsList = ({
 						</select>
 					</div>
 
-					{/* Filtre par ID de synthétiseur */}
 					<div className="flex-1">
 						<label className="block text-sm font-medium mb-2">
 							Filtrer par synthétiseur
@@ -170,7 +233,6 @@ export const AuctionsList = ({
 						</select>
 					</div>
 
-					{/* Tri par prix */}
 					<div className="flex-1">
 						<label className="block text-sm font-medium mb-2">
 							Trier par prix
@@ -186,14 +248,12 @@ export const AuctionsList = ({
 					</div>
 				</div>
 
-				{/* Liste des enchères */}
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{filteredAuctions.map((auction) => (
 						<div
 							key={auction.id}
 							className="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow"
 						>
-							{/* Image du synthétiseur */}
 							<div className="relative h-[150px] w-[150px] mb-1">
 								{auction.synthetiser?.image_url ? (
 									<Image
@@ -240,12 +300,27 @@ export const AuctionsList = ({
 									Mis à jour le :{" "}
 									{new Date(auction.updatedAt || "").toLocaleDateString()}
 								</p>
+								{isAdmin && (
+									<>
+										{deleteError && isDeleting === auction.id && (
+											<p className="text-sm text-red-500 mb-2">{deleteError}</p>
+										)}
+										<button
+											onClick={() => handleDelete(auction.id)}
+											disabled={isDeleting === auction.id}
+											className="mt-2 w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 disabled:opacity-50 transition-colors"
+										>
+											{isDeleting === auction.id
+												? "Suppression..."
+												: "Supprimer"}
+										</button>
+									</>
+								)}
 							</div>
 						</div>
 					))}
 				</div>
 
-				{/* Message si aucune enchère */}
 				{filteredAuctions.length === 0 && (
 					<p className="text-center text-gray-500 mt-8">
 						Aucune enchère ne correspond aux critères sélectionnés
