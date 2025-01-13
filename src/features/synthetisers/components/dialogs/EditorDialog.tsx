@@ -48,14 +48,14 @@ export const EditorDialog = ({
 						{/* <X className="h-4 w-4" /> */}
 					</button>
 				</div>
-				<DialogHeader className="pt-6">
+				<DialogHeader className="pt-4">
 					<DialogTitle className="text-2xl font-bold text-white">
 						{synth
 							? `Modifier ${synth.marque} ${synth.modele}`
 							: "Modifier le synthétiseur"}
 					</DialogTitle>
 
-					<DialogDescription>
+					<DialogDescription className="text-white">
 						{" "}
 						{synth
 							? `Modifiez les informations de votre synthétiseur ${synth.marque} ${synth.modele}`
