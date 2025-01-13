@@ -25,10 +25,15 @@ export interface Post {
 	url_contenu?: string;
 	format?: string;
 	statut?: "brouillon" | "publié" | "archivé"; // Statuts possibles
-	userId: number; // ID de l'utilisateur
+	userId?: number;
+	 // Ajout de la relation avec l'utilisateur
+	 author?: {
+        id: number;
+        username: string;
+    };
 	synthetiserId: number; // ID du synthétiseur associé
-	createdAt?: Date; // Date de création
-	updatedAt?: Date; // Date de mise à jour
+	createdAt?: number; // Date de création
+	updatedAt?: string; // Date de mise à jour
 }
 
 export interface AuctionPrice {

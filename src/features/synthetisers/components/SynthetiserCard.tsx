@@ -203,18 +203,26 @@ export const SynthetiserCard = ({
 	useEffect(() => {
 		const fetchPosts = async () => {
 			try {
+				const token = localStorage.getItem('token');
 				const response = await fetch(
-					`${API_URL}/api/posts?synthetiserId=${id}`
+					`${API_URL}/api/posts?synthetiserId=${id}`, // s'assurer que l'ID est bien passé
+					{
+						headers: {
+							'Authorization': `Bearer ${token}`,
+							'Content-Type': 'application/json'
+						}
+					}
 				);
 				if (!response.ok)
 					throw new Error("Erreur lors du chargement des posts");
 				const data = await response.json();
+				console.log('Posts reçus pour synthetiseur', id, ':', data);
 				setLocalPosts(data);
 			} catch (error) {
 				console.error("Erreur lors du chargement des posts:", error);
 			}
 		};
-
+	
 		if (id) {
 			fetchPosts();
 		}
@@ -231,6 +239,15 @@ export const SynthetiserCard = ({
 	
 	// 	verifyAccess();
 	// }, [checkUserRole, router]);
+
+	console.log('Vérification finale des IDs:', {
+		synthétiseurId: synth.id,
+		postsAvecSynthIds: localPosts.map(p => ({
+		  postId: p.id,
+		  synthId: p.synthetiserId,
+		  titre: p.titre
+		}))
+	  });
 
 	// RENDU
 	return (
@@ -271,6 +288,7 @@ export const SynthetiserCard = ({
 					onToggle={handleTogglePost}
 					synthetiserId={synth.id}
 				/>
+				
 
 				{/* Actions admin */}
 				{checkUserRole() && (
