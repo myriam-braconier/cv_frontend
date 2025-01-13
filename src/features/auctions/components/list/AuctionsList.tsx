@@ -16,7 +16,7 @@ interface AuctionListProps {
 }
 
 interface ErrorResponse {
-    message: string;
+	message: string;
 }
 
 export const AuctionsList = ({
@@ -42,53 +42,56 @@ export const AuctionsList = ({
 		if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette enchère ?")) {
 			return;
 		}
-	
+
 		try {
 			setIsDeleting(auctionId);
 			setDeleteError(null);
-			
-		 // 204 est une réponse valide après suppression
-		 await axios.delete(`${API_URL}/api/auctions/${auctionId}`, {
-			validateStatus: (status) => {
-				return status === 204 || (status >= 200 && status < 300);
-			}
-		});
-			
+
+			// 204 est une réponse valide après suppression
+			await axios.delete(`${API_URL}/api/auctions/${auctionId}`, {
+				validateStatus: (status) => {
+					return status === 204 || (status >= 200 && status < 300);
+				},
+			});
+
 			// Si on arrive ici, c'est un succès (200 ou 204)
-			setAuctions(prevAuctions => 
-				prevAuctions.filter(auction => auction.id !== auctionId)
+			setAuctions((prevAuctions) =>
+				prevAuctions.filter((auction) => auction.id !== auctionId)
 			);
-	
+
 			if (onUpdateSuccess) {
 				await onUpdateSuccess();
 			}
-	
 		} catch (error) {
 			console.error("Erreur lors de la suppression:", error);
-			let errorMessage = "Une erreur est survenue lors de la suppression de l'enchère";
-	
+			let errorMessage =
+				"Une erreur est survenue lors de la suppression de l'enchère";
+
 			if (axios.isAxiosError(error)) {
-				const axiosError = error as AxiosError<ErrorResponse>;				
-				
+				const axiosError = error as AxiosError<ErrorResponse>;
+
 				switch (axiosError.response?.status) {
 					case 404:
 						errorMessage = "Cette enchère n'existe pas ou a déjà été supprimée";
 						// On met quand même à jour l'état local
-						setAuctions(prevAuctions => 
-							prevAuctions.filter(auction => auction.id !== auctionId)
+						setAuctions((prevAuctions) =>
+							prevAuctions.filter((auction) => auction.id !== auctionId)
 						);
 						break;
 					case 403:
-						errorMessage = "Vous n'avez pas les droits nécessaires pour supprimer cette enchère";
+						errorMessage =
+							"Vous n'avez pas les droits nécessaires pour supprimer cette enchère";
 						break;
 					case 401:
-						errorMessage = "Veuillez vous reconnecter pour effectuer cette action";
+						errorMessage =
+							"Veuillez vous reconnecter pour effectuer cette action";
 						break;
 					default:
 						if (axiosError.response?.data?.message) {
 							errorMessage = axiosError.response.data.message;
 						} else if (!axiosError.response) {
-							errorMessage = "Impossible de contacter le serveur. Veuillez vérifier votre connexion.";
+							errorMessage =
+								"Impossible de contacter le serveur. Veuillez vérifier votre connexion.";
 						}
 				}
 			}
@@ -256,16 +259,25 @@ export const AuctionsList = ({
 							<div className="text-center space-y-2 text-orange-600">
 								<div className="relative h-20 w-20 mb-2 mx-auto">
 									{auction.synthetiser?.image_url ? (
-										<Image
-											src={auction.synthetiser.image_url}
-											alt={`${auction.synthetiser.marque} ${auction.synthetiser.modele}`}
-											width={80}
-											height={80}
-											className="object-cover rounded-full drop-shadow-xl"
-										/>
+										<div className="relative group">
+											{/* Effet de glow */}
+											<div className="absolute inset-0 bg-blue-500 opacity-0 group-hover:opacity-20 transition-all duration-300 blur-xl rounded-full"></div>
+											<div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-all duration-300 blur-lg rounded-full"></div>
+
+											{/* Image */}
+											<Image
+												src={auction.synthetiser.image_url}
+												alt={`${auction.synthetiser.marque} ${auction.synthetiser.modele}`}
+												width={80}
+												height={80}
+												className="relative z-10 object-cover rounded-full drop-shadow-xl transition-transform duration-300 group-hover:scale-105"
+											/>
+										</div>
 									) : (
 										<div className="w-full h-full bg-gray-200 rounded-full flex items-center justify-center">
-											<span className="text-gray-500 text-xs">Pas d&apos;image</span>
+											<span className="text-gray-500 text-xs">
+												Pas d&apos;image
+											</span>
 										</div>
 									)}
 								</div>
