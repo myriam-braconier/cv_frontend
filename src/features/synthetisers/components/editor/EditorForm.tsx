@@ -169,11 +169,11 @@ export const EditorForm = ({
 			<form
 				onSubmit={handleSubmit}
 				id="main-form"
-				className="space-y-4 flex justify-between"
+				className=" flex justify-around"
 			>
-				<div className="space-y-4">
+				<div className="space-y-9">
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-1">
+						<label className="block text-sm font-medium text-white">
 							Marque
 						</label>
 						<input
@@ -188,7 +188,7 @@ export const EditorForm = ({
 					</div>
 
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-1">
+						<label className="block text-sm font-medium text-white mb-1">
 							Modèle
 						</label>
 						<input
@@ -203,7 +203,19 @@ export const EditorForm = ({
 					</div>
 
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-1">
+						<div>
+							<label className="block text-sm font-medium text-white mb-1">
+								Spécifications
+							</label>
+							<textarea
+								name="specifications"
+								value={formData.specifications}
+								onChange={handleChange}
+								className="w-96 p-2 border rounded focus:ring-2 focus:ring-blue-500 h-48"
+								disabled={isLoading}
+							/>
+						</div>
+						<label className="block text-sm font-medium text-white  mt-3">
 							URL de l&apos;image
 						</label>
 						<input
@@ -214,40 +226,30 @@ export const EditorForm = ({
 							className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
 							disabled={isLoading}
 						/>
-						<div className="mt-2 relative h-64 w-64 mx-auto">
-							{formData.image_url && !imageError ? (
+					</div>
+				</div>
+
+				<div className="space-y-10">
+					<div className="relative h-64 w-64 mx-auto">
+						{formData.image_url && !imageError ? (
+							<div className="relative w-full h-full rounded-full overflow-hidden">
 								<Image
 									src={formData.image_url}
 									alt="Aperçu"
 									fill
-									className="object-contain rounded-lg"
+									className="object-cover"
 									onError={handleImageError}
 								/>
-							) : (
-								<div className="w-full h-full flex items-center justify-center bg-gray-100 rounded">
-									<span className="text-gray-500">Image non disponible</span>
-								</div>
-							)}
-						</div>
-					</div>
-				</div>
-
-				<div className="space-y-4">
-					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-1">
-							Spécifications
-						</label>
-						<textarea
-							name="specifications"
-							value={formData.specifications}
-							onChange={handleChange}
-							className="w-96 p-2 border rounded focus:ring-2 focus:ring-blue-500 h-48"
-							disabled={isLoading}
-						/>
+							</div>
+						) : (
+							<div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-full">
+								<span className="text-gray-500">Image non disponible</span>
+							</div>
+						)}
 					</div>
 
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-1">
+						<label className="block text-sm font-medium text-white mb-1">
 							Prix
 						</label>
 						<input
@@ -270,7 +272,7 @@ export const EditorForm = ({
 					{synth?.auctionPrices && synth.auctionPrices.length > 0 && (
 						<div className="border-t pt-4 mt-4">
 							<div className="space-y-2">
-								<label className="block text-sm font-medium text-gray-700">
+								<label className="block text-sm font-medium text-white">
 									Dernière enchère
 								</label>
 								<div className="text-lg font-semibold text-red-600">
@@ -280,7 +282,7 @@ export const EditorForm = ({
 						</div>
 					)}
 
-					<div className="flex justify-end space-x-2 pt-4">
+					<div className="flex justify-start space-x-2 pt-2">
 						<button
 							type="button"
 							onClick={handleCancel}
