@@ -15,6 +15,10 @@ interface AuctionListProps {
 	isAdmin?: boolean;
 }
 
+interface ErrorResponse {
+    message: string;
+}
+
 export const AuctionsList = ({
 	auctions: initialAuctions,
 	onUpdateSuccess,
@@ -38,82 +42,56 @@ export const AuctionsList = ({
 		if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette enchère ?")) {
 			return;
 		}
-
+	
 		try {
 			setIsDeleting(auctionId);
 			setDeleteError(null);
-
-			try {
-				await axios.delete(`${API_URL}/auctions/${auctionId}`);
-			} catch (error) {
-				// Si l'erreur est 204 ou 200, on considère que c'est un succès
-				const axiosError = error as AxiosError;
-				if (
-					axiosError.response?.status === 204 ||
-					axiosError.response?.status === 200
-				) {
-					// Continue avec le succès
-				} else {
-					throw error; // Relance l'erreur si ce n'est pas 204 ou 200
-				}
+			
+		 // 204 est une réponse valide après suppression
+		 await axios.delete(`${API_URL}/api/auctions/${auctionId}`, {
+			validateStatus: (status) => {
+				return status === 204 || (status >= 200 && status < 300);
 			}
-
-			// Si on arrive ici, c'est que la suppression est réussie
-			setAuctions((prevAuctions) =>
-				prevAuctions.filter((auction) => auction.id !== auctionId)
+		});
+			
+			// Si on arrive ici, c'est un succès (200 ou 204)
+			setAuctions(prevAuctions => 
+				prevAuctions.filter(auction => auction.id !== auctionId)
 			);
-
+	
 			if (onUpdateSuccess) {
 				await onUpdateSuccess();
 			}
+	
 		} catch (error) {
-			console.error("Erreur détaillée lors de la suppression:", error);
-
-			let errorMessage =
-				"Une erreur est survenue lors de la suppression de l'enchère";
-
+			console.error("Erreur lors de la suppression:", error);
+			let errorMessage = "Une erreur est survenue lors de la suppression de l'enchère";
+	
 			if (axios.isAxiosError(error)) {
-				const axiosError = error as AxiosError;
-
-				// Ignorer l'erreur si le statut est 204 ou 200
-				if (
-					axiosError.response?.status === 204 ||
-					axiosError.response?.status === 200
-				) {
-					return;
-				}
-
+				const axiosError = error as AxiosError<ErrorResponse>;				
+				
 				switch (axiosError.response?.status) {
 					case 404:
 						errorMessage = "Cette enchère n'existe pas ou a déjà été supprimée";
-						// Si l'enchère n'existe plus, on peut la retirer de l'état local
-						setAuctions((prevAuctions) =>
-							prevAuctions.filter((auction) => auction.id !== auctionId)
+						// On met quand même à jour l'état local
+						setAuctions(prevAuctions => 
+							prevAuctions.filter(auction => auction.id !== auctionId)
 						);
 						break;
 					case 403:
-						errorMessage =
-							"Vous n'avez pas les droits nécessaires pour supprimer cette enchère";
+						errorMessage = "Vous n'avez pas les droits nécessaires pour supprimer cette enchère";
 						break;
 					case 401:
-						errorMessage =
-							"Veuillez vous reconnecter pour effectuer cette action";
+						errorMessage = "Veuillez vous reconnecter pour effectuer cette action";
 						break;
 					default:
-						if (
-							axiosError.response?.data &&
-							typeof axiosError.response.data === "object" &&
-							"message" in axiosError.response.data
-						) {
-							errorMessage = (axiosError.response.data as { message: string })
-								.message;
+						if (axiosError.response?.data?.message) {
+							errorMessage = axiosError.response.data.message;
 						} else if (!axiosError.response) {
-							errorMessage =
-								"Impossible de contacter le serveur. Veuillez vérifier votre connexion.";
+							errorMessage = "Impossible de contacter le serveur. Veuillez vérifier votre connexion.";
 						}
 				}
 			}
-
 			setDeleteError(errorMessage);
 		} finally {
 			setIsDeleting(null);
@@ -273,9 +251,9 @@ export const AuctionsList = ({
 					{filteredAuctions.map((auction) => (
 						<div
 							key={auction.id}
-							className="bg-white rounded-full shadow p-6 hover:shadow-lg transition-shadow border-2 border-gray-200 w-64 h-64 flex flex-col items-center justify-center mx-auto"
+							className="bg-white bg-opacity/50 rounded-full shadow p-6 hover:shadow-2xl transition-shadow border-2 border-gray-200 w-64 h-64 flex flex-col items-center justify-center mx-auto"
 						>
-							<div className="text-center space-y-2">
+							<div className="text-center space-y-2 text-orange-600">
 								<div className="relative h-20 w-20 mb-2 mx-auto">
 									{auction.synthetiser?.image_url ? (
 										<Image
@@ -283,7 +261,7 @@ export const AuctionsList = ({
 											alt={`${auction.synthetiser.marque} ${auction.synthetiser.modele}`}
 											width={80}
 											height={80}
-											className="object-cover rounded-full"
+											className="object-cover rounded-full drop-shadow-xl"
 										/>
 									) : (
 										<div className="w-full h-full bg-gray-200 rounded-full flex items-center justify-center">
@@ -294,7 +272,7 @@ export const AuctionsList = ({
 
 								<h3 className="font-semibold text-sm">Enchère #{auction.id}</h3>
 
-								<p className="text-gray-600 text-xs truncate max-w-[150px]">
+								<p className="text-gray-800 text-xs truncate max-w-[150px]">
 									{auction.synthetiser
 										? `${auction.synthetiser.marque} ${auction.synthetiser.modele}`
 										: `Synthétiseur #${auction.synthetiserId}`}
@@ -312,7 +290,7 @@ export const AuctionsList = ({
 
 								<p className="text-lg font-bold">{auction.proposal_price}€</p>
 
-								<p className="text-xs text-gray-500">
+								<p className="text-xs text-gray-800">
 									Mis à jour le :{" "}
 									{new Date(auction.updatedAt || "").toLocaleDateString()}
 								</p>

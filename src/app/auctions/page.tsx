@@ -14,24 +14,35 @@ export default function AuctionsPage() {
 		"/images/iStock-1477817772.webp",
 		"/images/login2.webp",
 	];
-    const { userData } = useAuth();
 
-       // Décodez le token pour vérifier le rôle
-       const isAdmin = (() => {
-        try {
-            // Séparez le payload du token JWT
-            const tokenParts = userData?.token.split('.');
-            if (tokenParts && tokenParts.length === 3) {
-                const payload = JSON.parse(atob(tokenParts[1]));
-                // Vérifiez le roleId ou tout autre indicateur dans le payload
-                console.log('Token Payload:', payload);
-                return payload.roleId === 2; // le roleId 2 est l'admin
-            }
-        } catch (error) {
-            console.error('Erreur de décodage du token', error);
+
+
+
+    const { userData } = useAuth();
+// Ajout de logs pour déboguer
+console.log("userData:", userData);
+
+const isAdmin = (() => {
+    try {
+        // Séparez le payload du token JWT
+        const tokenParts = userData?.token.split('.');
+        console.log("Token parts:", tokenParts);
+
+        if (tokenParts && tokenParts.length === 3) {
+            const payload = JSON.parse(atob(tokenParts[1]));
+            console.log('Token Payload:', payload);
+            console.log('RoleId from payload:', payload.roleId);
+            console.log('isAdmin value:', payload.roleId === 2);
+            return payload.roleId === 2;
         }
-        return false;
-    })();
+    } catch (error) {
+        console.error('Erreur détaillée de décodage du token:', error);
+    }
+    return false;
+})();
+
+// Log final de isAdmin
+console.log("Valeur finale de isAdmin:", isAdmin);
 
     
     // Vérifiez si 'admin' est dans le tableau des rôles
@@ -39,6 +50,10 @@ export default function AuctionsPage() {
 	const [auctions, setAuctions] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+
+
+
+
 
 	const fetchAuctions = useCallback(async () => {
 		try {
