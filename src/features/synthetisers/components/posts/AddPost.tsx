@@ -28,17 +28,15 @@ export function AddPost({ synthetiserId, onPostAdded }: AddPostProps) {
 
 
 
-const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+   
     if (!titre.trim() || !commentaire.trim()) {
       setError('Le titre et le commentaire sont requis');
       return;
     }
-
     setIsLoading(true);
     setError(null);
-
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -47,18 +45,17 @@ const handleSubmit = async (e: React.FormEvent) => {
         return;
       }
 
-      // Définir le header d'authentification
+      // Configuration Axios
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-      // Décoder le token pour obtenir l'ID de l'utilisateur et le stocker dans une variable
       const payload = JSON.parse(atob(token.split('.')[1]));
-      const userId = payload.id; // On stocke l'id dans une variable
+      const userId = payload.id;
 
+      // Premier appel pour créer le post
       const response = await api.post(`${API_URL}/api/posts`, {
         titre: titre.trim(),
         commentaire: commentaire.trim(),
         synthetiserId,
-        userId, // Maintenant userId est correctement défini
+        userId,
         type_contenu: 'texte',
         statut: 'publié'
       });
@@ -67,8 +64,20 @@ const handleSubmit = async (e: React.FormEvent) => {
         toast.success('Commentaire ajouté avec succès');
         setTitre('');
         setCommentaire('');
-        onPostAdded();
-        router.push('/synthetisers');
+
+        // Deuxième appel pour récupérer le post avec les informations de l'auteur
+        const postWithAuthor = await api.get(`${API_URL}/api/posts/${response.data.id}`, {
+          params: {
+            include: ['author']
+          }
+        });
+
+        // Appeler onPostAdded seulement après avoir récupéré les données complètes
+        if (postWithAuthor.status === 200) {
+          onPostAdded();
+          // Utiliser router.refresh() pour mettre à jour les données
+          router.refresh();
+        }
       }
     } catch (error) {
       const axiosError = error as AxiosError<ApiError>;
