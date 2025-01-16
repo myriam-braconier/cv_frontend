@@ -51,34 +51,69 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    // Log pour vérifier l'environnement
+    console.log('API Token présent:', !!process.env.HUGGINGFACE_API_TOKEN);
+    
     const { prompt }: RequestBody = await request.json();
+    console.log('Prompt reçu:', prompt);
 
+    // Vérifier que le token est présent
+    if (!process.env.HUGGINGFACE_API_TOKEN) {
+      throw new Error('Hugging Face API token is missing');
+    }
+
+    // Faire la requête avec la structure exacte attendue par l'API
     const response = await huggingFaceApi.post(
-      '/models/runwayml/stable-diffusion-v1-5',
+      '/models/CompVis/stable-diffusion-v1-4', // Changement de modèle
       {
-        inputs: prompt || "abstract digital art background, colorful"
+        inputs: prompt || "abstract digital art background, colorful",
+        parameters: {
+          num_inference_steps: 30,
+          guidance_scale: 7.5,
+          negative_prompt: "blurry, bad"
+        }
       },
       {
-        responseType: 'arraybuffer'
+        responseType: 'arraybuffer',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'image/png' // Spécifier explicitement qu'on attend une image
+        }
       }
     );
 
-    const base64String = Buffer.from(response.data).toString('base64');
+    console.log('Réponse reçue, status:', response.status);
 
-    return NextResponse.json({
-      imageUrl: `data:image/jpeg;base64,${base64String}`
-    });
+    const base64String = Buffer.from(response.data).toString('base64');
+    return NextResponse.json({ imageUrl: `data:image/jpeg;base64,${base64String}` });
+
   } catch (error) {
     const axiosError = error as AxiosError;
-    console.error('Generation error:', {
+    console.error('Erreur détaillée:', {
       message: axiosError.message,
       status: axiosError.response?.status,
-      data: axiosError.response?.data,
+      statusText: axiosError.response?.statusText,
+      config: {
+        url: axiosError.config?.url,
+        method: axiosError.config?.method,
+        headers: axiosError.config?.headers,
+      }
     });
 
-    return NextResponse.json({
-      error: 'Failed to generate image',
-      details: axiosError.message
-    }, { status: 500 });
+    // Si l'erreur vient de l'API, essayons de lire le message d'erreur
+    let errorMessage = 'Failed to generate image';
+    if (axiosError.response?.data) {
+      try {
+        const errorData = axiosError.response.data;
+        errorMessage = typeof errorData === 'string' ? errorData : JSON.stringify(errorData);
+      } catch (e) {
+        console.error('Erreur lors du parsing de l\'erreur:', e);
+      }
+    }
+
+    return NextResponse.json(
+      { error: errorMessage },
+      { status: axiosError.response?.status || 500 }
+    );
   }
 }
