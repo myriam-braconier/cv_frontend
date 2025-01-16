@@ -48,7 +48,7 @@ export default function LoginForm() {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Email"
                         required
-                        className="appearance-none rounded-t-md relative block w-full px-3 py-2 border"
+                        className="appearance-none rounded-t-md relative block w-full px-3 py-2 border text-black"
                         disabled={isLoading}
                     />
                 </div>
@@ -59,7 +59,7 @@ export default function LoginForm() {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Mot de passe"
                         required
-                        className="appearance-none rounded-b-md relative block w-full px-3 py-2 border"
+                        className="appearance-none rounded-b-md relative block w-full px-3 py-2 border text-black"
                         disabled={isLoading}
                     />
                 </div>
@@ -71,7 +71,7 @@ export default function LoginForm() {
 
             <button
                 type="submit"
-                className="w-full py-2 px-4 border border-transparent rounded-md text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-50"
+                className="w-full py-2 px-4 border border-transparent rounded-md text-white bg-blue-900/50 hover:bg-blue-800 disabled:opacity-50"
                 disabled={isLoading}
             >
                 {isLoading ? "Connexion..." : "Se connecter"}

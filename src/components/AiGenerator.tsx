@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { setBackgroundInCache } from "@/lib/cache";
-import { X } from 'lucide-react'; // Pour l'icône de fermeture
+import { X } from 'lucide-react'; 
 
 export default function AiGenerator({
 	children,
