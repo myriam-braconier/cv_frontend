@@ -2,18 +2,23 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 // import { toast } from "react-hot-toast";
-import { API_URL } from "@/config/constants";
+
 
 axios.defaults.withCredentials = true;
 
-// création de l'instance
+// API principale
 export const api = axios.create({
-	baseURL: API_URL,
-	withCredentials: true,
+	baseURL: process.env.NEXT_PUBLIC_API_URL,
+  });
+
+
+  // API Hugging Face
+export const huggingFaceApi = axios.create({
+	baseURL: 'https://api-inference.huggingface.co',
 	headers: {
-		"Content-Type": "application/json",
+	  Authorization: `Bearer ${process.env.HUGGINGFACE_API_TOKEN}`,
 	},
-});
+  });
 
 // Intercepteur pour ajouter le token à chaque requête
 api.interceptors.request.use(
@@ -94,3 +99,4 @@ api.interceptors.response.use(
 		return Promise.reject(error);
 	}
 );
+export default api;

@@ -17,23 +17,32 @@ module.exports = {
 	},
 
 	images: {
-		remotePatterns: [
-			{
-				protocol: "http",
-				hostname: "localhost",
-				port: "4000",
-				pathname: "/images/**",
-			},
-			{
-				protocol: "https",
-				hostname: "synthetiseur.net",
-				pathname: "/images/**",
-			},
-		],
-		minimumCacheTTL: 60,
-		deviceSizes: [414, 640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-		imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-		domains: ["https://synthetiseur.net/images/*"], 
-	},
+        remotePatterns: [
+            {
+                protocol: "http",
+                hostname: "localhost",
+                port: "4000",
+                pathname: "/images/**",
+            },
+            {
+                protocol: "https",
+                hostname: "synthetiseur.net",
+                pathname: "/images/**",
+            },
+            {
+                protocol: "https",
+                hostname: "concrete-api.vercel.app",
+                pathname: "/**",
+            },
+            {
+                protocol: "https",
+                hostname: "api-inference.huggingface.co",
+                pathname: "/**",
+            }
+        ],
+        minimumCacheTTL: 60,
+        deviceSizes: [414, 640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+        imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    },
 };
 
