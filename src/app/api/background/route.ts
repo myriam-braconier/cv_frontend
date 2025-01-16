@@ -88,34 +88,45 @@ async function attemptGeneration(prompt: string, maxRetries = 3) {
 }
 
 
+// app/api/background/route.ts
 export async function POST(request: Request) {
   try {
-    const { prompt }: RequestBody = await request.json();
-    console.log('Tentative de génération pour le prompt:', prompt);
+    const { prompt } = await request.json();
 
-    const response = await attemptGeneration(prompt);
-    const base64String = Buffer.from(response.data).toString('base64');
-    
-    return NextResponse.json({ 
-      imageUrl: `data:image/jpeg;base64,${base64String}`,
-      success: true
-    });
+    const response = await fetch(
+      "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5", // Modèle plus stable
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.HUGGINGFACE_API_TOKEN}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          inputs: prompt + ", high resolution, 4k, high quality, masterpiece", // Amélioration du prompt
+          parameters: {
+            negative_prompt: "blur, low quality, lowres, bad anatomy, bad hands, cropped, worst quality",
+            width: 768,      // Taille optimale pour ce modèle
+            height: 768,     // Taille optimale pour ce modèle
+            num_inference_steps: 30,
+            guidance_scale: 7.5
+          }
+        })
+      }
+    );
 
+    if (!response.ok) {
+      throw new Error(`Hugging Face API error: ${response.status}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const base64String = Buffer.from(arrayBuffer).toString('base64');
+
+    return NextResponse.json({ imageUrl: `data:image/jpeg;base64,${base64String}` });
   } catch (error) {
-    const axiosError = error as AxiosError;
-    console.error('Erreur finale:', {
-      message: axiosError.message,
-      status: axiosError.response?.status,
-      statusText: axiosError.response?.statusText
-    });
-
-    return NextResponse.json({
-      error: axiosError.response?.status === 503 ? 
-        "Le service est temporairement indisponible, veuillez réessayer plus tard" :
-        "Erreur lors de la génération de l'image",
-      details: axiosError.message
-    }, { 
-      status: axiosError.response?.status || 500 
-    });
+    console.error('Generation error:', error);
+    return NextResponse.json(
+      { error: 'Erreur lors de la génération de l\'image' },
+      { status: 500 }
+    );
   }
 }
