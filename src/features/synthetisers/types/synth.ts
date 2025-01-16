@@ -26,11 +26,11 @@ export interface Post {
 	format?: string;
 	statut?: "brouillon" | "publié" | "archivé"; // Statuts possibles
 	userId?: number;
-	 // Ajout de la relation avec l'utilisateur
-	 author?: {
-        id: number;
-        username: string;
-    };
+	// Ajout de la relation avec l'utilisateur
+	author?: {
+		id: number;
+		username: string;
+	};
 	synthetiserId: number; // ID du synthétiseur associé
 	createdAt?: number; // Date de création
 	updatedAt?: string; // Date de mise à jour
@@ -43,5 +43,30 @@ export interface AuctionPrice {
 	synthetiserId: number;
 	userId: number;
 	updatedAt: string;
-	createdAt: number;  
+	createdAt: number;
+}
+export interface User {
+	id: number;
+	username: string;
+	first_name: string;
+	last_name: string;
+	email: string;
+	role: string[];
+	password: string;
+}
+
+export interface ApiResponse {
+	data: Synth[];
+	roles: string[];
+	message?: string;
+	status?: number;
+}
+
+export interface LoginResponse {
+	token: string;
+	user: {
+		id: number;
+		email: string;
+		role: string[];
+	};
 }

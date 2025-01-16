@@ -1,13 +1,15 @@
 "use client";
 
 import { ListSynthetisers } from "@/features/synthetisers/components/list/ListSynthetisers";
-import BackgroundRotator from "@/components/BackgroundRotator";
+import AiGenerator from '../../components/AiGenerator'
+
+// import AIBackground from "@components/AIbackground";
 
 export default function SynthetisersPage() {
-	const images = [
-		"/images/iStock-1477817772.webp",
-		"/images/login2.webp",
-	];
+	// const images = [
+	// 	"/images/iStock-1477817772.webp",
+	// 	"/images/login2.webp",
+	// ];
 
 	// ------------IMPOSER l'authentification--------------------------------------------
 	// const verifyAuth = useCallback(async () => {
@@ -97,20 +99,21 @@ export default function SynthetisersPage() {
 	// if (error) return <div className="text-red-500 text-center">{error}</div>;
 
 	return (
-		<main className="min-h-screen relative">
-			{/* Background en premier avec z-index négatif */}
-			<div className="fixed inset-0 -z-10">
-				<BackgroundRotator images={images} />
-			</div>
-			<div className="w-full px-4 py-6 relative z-10">
+		<AiGenerator>
+
+			<main className="min-h-screen relative">
 				{/* Background en premier avec z-index négatif */}
+				<div className="w-full px-4 py-6 relative z-10">
+					{/* <BackgroundRotator images={images} /> */}
 
-				<h1 className="text-3xl font-bold mb-8 text-center text-white">
-					Synthétiseurs
-				</h1>
-
-				<ListSynthetisers synths={[]} />
-			</div>
-		</main>
+					<h1 className="text-3xl font-bold mb-8 text-center text-white">
+						Synthétiseurs
+					</h1>
+					
+					<ListSynthetisers synths={[]} />
+				</div>
+			</main>
+			</AiGenerator>
+	
 	);
 }
