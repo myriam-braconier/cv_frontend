@@ -49,71 +49,74 @@ export async function GET() {
   }
 }
 
+
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function attemptGeneration(prompt: string, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await huggingFaceApi.post(
+        '/models/CompVis/stable-diffusion-v1-4',
+        {
+          inputs: prompt || "abstract digital art background, colorful",
+          parameters: {
+            num_inference_steps: 30,
+            guidance_scale: 7.5,
+            negative_prompt: "blurry, bad"
+          }
+        },
+        {
+          responseType: 'arraybuffer',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'image/png'
+          }
+        }
+      );
+
+      return response;
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response?.status === 503 && attempt < maxRetries) {
+        console.log(`Tentative ${attempt} échouée, nouvelle tentative dans ${attempt * 2} secondes...`);
+        await delay(attempt * 2000); // Attente croissante entre les tentatives
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw new Error('Maximum retry attempts reached');
+}
+
+
 export async function POST(request: Request) {
   try {
-    // Log pour vérifier l'environnement
-    console.log('API Token présent:', !!process.env.HUGGINGFACE_API_TOKEN);
-    
     const { prompt }: RequestBody = await request.json();
-    console.log('Prompt reçu:', prompt);
+    console.log('Tentative de génération pour le prompt:', prompt);
 
-    // Vérifier que le token est présent
-    if (!process.env.HUGGINGFACE_API_TOKEN) {
-      throw new Error('Hugging Face API token is missing');
-    }
-
-    // Faire la requête avec la structure exacte attendue par l'API
-    const response = await huggingFaceApi.post(
-      '/models/CompVis/stable-diffusion-v1-4', // Changement de modèle
-      {
-        inputs: prompt || "abstract digital art background, colorful",
-        parameters: {
-          num_inference_steps: 30,
-          guidance_scale: 7.5,
-          negative_prompt: "blurry, bad"
-        }
-      },
-      {
-        responseType: 'arraybuffer',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'image/png' // Spécifier explicitement qu'on attend une image
-        }
-      }
-    );
-
-    console.log('Réponse reçue, status:', response.status);
-
+    const response = await attemptGeneration(prompt);
     const base64String = Buffer.from(response.data).toString('base64');
-    return NextResponse.json({ imageUrl: `data:image/jpeg;base64,${base64String}` });
+    
+    return NextResponse.json({ 
+      imageUrl: `data:image/jpeg;base64,${base64String}`,
+      success: true
+    });
 
   } catch (error) {
     const axiosError = error as AxiosError;
-    console.error('Erreur détaillée:', {
+    console.error('Erreur finale:', {
       message: axiosError.message,
       status: axiosError.response?.status,
-      statusText: axiosError.response?.statusText,
-      config: {
-        url: axiosError.config?.url,
-        method: axiosError.config?.method,
-        headers: axiosError.config?.headers,
-      }
+      statusText: axiosError.response?.statusText
     });
 
-    // Si l'erreur vient de l'API, essayons de lire le message d'erreur
-    let errorMessage = 'Failed to generate image';
-    if (axiosError.response?.data) {
-      try {
-        const errorData = axiosError.response.data;
-        errorMessage = typeof errorData === 'string' ? errorData : JSON.stringify(errorData);
-      } catch (e) {
-        console.error('Erreur lors du parsing de l\'erreur:', e);
-      }
-    }
-
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: axiosError.response?.status || 500 }
-    );
+    return NextResponse.json({
+      error: axiosError.response?.status === 503 ? 
+        "Le service est temporairement indisponible, veuillez réessayer plus tard" :
+        "Erreur lors de la génération de l'image",
+      details: axiosError.message
+    }, { 
+      status: axiosError.response?.status || 500 
+    });
   }
 }
