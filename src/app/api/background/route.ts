@@ -1,7 +1,11 @@
 // app/api/background/route.ts
 import { NextResponse } from 'next/server';
 import huggingFaceApi from '@/lib/axios/huggingface';
+import { AxiosError } from 'axios';
 
+interface RequestBody {
+  prompt: string;
+}
 
 export async function GET() {
   try {
@@ -47,12 +51,12 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { prompt } = await request.json();
+    const { prompt }: RequestBody = await request.json();
 
     const response = await huggingFaceApi.post(
       '/models/runwayml/stable-diffusion-v1-5',
       {
-        inputs: prompt || "abstract digital art background, colorful",
+        inputs: prompt || "abstract digital art background, colorful"
       },
       {
         responseType: 'arraybuffer'
@@ -60,11 +64,21 @@ export async function POST(request: Request) {
     );
 
     const base64String = Buffer.from(response.data).toString('base64');
-    const imageUrl = `data:image/jpeg;base64,${base64String}`;
 
-    return NextResponse.json({ imageUrl });
+    return NextResponse.json({
+      imageUrl: `data:image/jpeg;base64,${base64String}`
+    });
   } catch (error) {
-    console.error('Error:', error);
-    return NextResponse.json({ error: 'Failed to generate image' }, { status: 500 });
+    const axiosError = error as AxiosError;
+    console.error('Generation error:', {
+      message: axiosError.message,
+      status: axiosError.response?.status,
+      data: axiosError.response?.data,
+    });
+
+    return NextResponse.json({
+      error: 'Failed to generate image',
+      details: axiosError.message
+    }, { status: 500 });
   }
 }
