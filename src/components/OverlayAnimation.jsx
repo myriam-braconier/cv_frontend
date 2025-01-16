@@ -63,7 +63,7 @@ const OverlayAnimation = () => {
           rounded-full 
           bg-gradient-to-r 
           from-blue-500 
-          to-purple-500
+          to-orange-700
           ${phase === 1 ? 'animate-pulse' : ''}
         `} />
       </div>
