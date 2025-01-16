@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { setBackgroundInCache } from "@/lib/cache";
+import { X } from 'lucide-react'; // Pour l'icône de fermeture
 
 export default function AiGenerator({
 	children,
@@ -11,6 +12,7 @@ export default function AiGenerator({
 	const [bgImage, setBgImage] = useState<string>("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(true); // État pour contrôler la visibilité
 	const [prompt, setPrompt] = useState(
 		"abstract digital art background, colorful, vibrant"
 	);
@@ -52,49 +54,83 @@ export default function AiGenerator({
 		}
 	};
 
-	return (
-		<div className="min-h-screen w-full relative">
-			<div
-				className={`
+  if (!isOpen) {
+    return (
+      <div className="min-h-screen w-full relative">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: bgImage ? `url(${bgImage})` : undefined,
+          }}
+        />
+        {/* Bouton pour réouvrir le générateur */}
+        <button
+          onClick={() => setIsOpen(true)}
+          className="fixed top-20 right-4 z-50 bg-blue-900/50 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+        >
+          Générateur de fond
+        </button>
+        <div className="relative z-10">{children}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen w-full relative">
+      <div
+        className={`
           absolute inset-0 bg-cover bg-center transition-opacity duration-1000
           ${isLoading ? "opacity-50" : "opacity-100"}
         `}
-				style={{
-					backgroundImage: bgImage ? `url(${bgImage})` : undefined,
-				}}
-			/>
+        style={{
+          backgroundImage: bgImage ? `url(${bgImage})` : undefined,
+        }}
+      />
+      <div className="fixed top-20 right-4 z-50 bg-white/90 p-4 rounded-lg shadow-lg">
+        {/* Bouton de fermeture */}
+        <button
+          onClick={() => setIsOpen(false)}
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+        >
+          <X size={20} />
+        </button>
 
-			<div className="fixed top-16 right-4 z-50 bg-white/90 p-4 rounded-lg shadow-lg">
-				<input
-					type="text"
-					value={prompt}
-					onChange={(e) => setPrompt(e.target.value)}
-					className="w-64 px-3 py-4 border rounded-lg mb-2"
-					placeholder="Décrivez le fond souhaité..."
-				/>
-				<button
-					onClick={() => generateBackground()}
-					disabled={isLoading}
-					className={`
+        <input
+          type="text"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          className="w-64 px-3 py-4 border rounded-lg mb-2 text-black"
+          placeholder="Décrivez le fond souhaité..."
+        />
+        <button
+          onClick={() => generateBackground()}
+          disabled={isLoading}
+          className={`
             w-full px-4 py-2 bg-blue-900/50 text-white rounded-lg
             ${isLoading ? "opacity-50" : "hover:bg-blue-600"}
           `}
-				>
-					{isLoading ? "Génération..." : "Générer le fond"}
-				</button>
-				{error && (
-					<div className="fixed bottom-4 right-4 bg-red-500/90 text-white p-4 rounded-lg shadow-lg">
-						{error}
+        >
+          {isLoading ? "Génération..." : "Générer le fond"}
+        </button>
+        {error && (
+          <div className="fixed bottom-4 right-4 bg-red-500/90 text-white p-4 rounded-lg shadow-lg">
+            {error}
             {retryCount > 0 && (
-            <div className="text-sm mt-1">
-              Tentative {retryCount}/3
-            </div>
-          )}
-					</div>
-				)}
-			</div>
-
-			<div className="relative z-10">{children}</div>
-		</div>
-	);
+              <div className="text-sm mt-1">
+                Tentative {retryCount}/3
+              </div>
+            )}
+            {/* Bouton pour fermer l'erreur */}
+            <button
+              onClick={() => setError(null)}
+              className="absolute top-2 right-2 text-white hover:text-gray-200"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        )}
+      </div>
+      <div className="relative z-10">{children}</div>
+    </div>
+  );
 }
