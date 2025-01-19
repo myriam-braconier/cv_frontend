@@ -1,4 +1,4 @@
-"use client"; // Ajout nécessaire pour utiliser useState et useEffect dans Next.js
+"use client"; 
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -53,15 +53,15 @@ export default function HomePage() {
 								passion
 							</p>
 							<p className="text-sm italic">
-								Hero Site de Myriam Braconier Leclerc{" "}
+								{" "}
+							</p>
+							<p className="text-xl font-bold text-blue-800">
+								Accès : <br></br> email: technician@free.fr <br></br>password: 012345678{" "}
 							</p>
 							<p className="text-sm italic">
-								Accès email: admin@free.fr / password: 012345678{" "}
+								
 							</p>
-							<p className="text-sm italic">
-								Des fonctionnalités sont en cours de développement
-							</p>
-							<div className="font-bold text-base text-red-500 ml-4 mt-2 text-right">
+							<div className="font-bold text-xl text-blue-800 ml-4 mt-2 text-right">
 								<span className="">Consulter les dépôts GitHub</span>
 								<br />
 								<div className="mt-2  text-white">
