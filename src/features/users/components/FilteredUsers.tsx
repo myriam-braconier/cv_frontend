@@ -30,6 +30,7 @@ const FilteredUsers = ({ users, profiles, posts, synthetisers }: FilteredUsersPr
                         profile={profiles[user.id]}
                         posts={posts[user.id]}
                         synthetisers={synthetisers}
+                        role={user.role} // Add the missing role prop
                     />
                 </div>
             ))}
