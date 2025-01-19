@@ -90,6 +90,7 @@ export default function Navbar() {
     <div className="flex items-baseline space-x-8 "  >
       <NavLink href="/synthetisers">Synthétiseurs</NavLink>
       <NavLink href="/auctions">Enchères</NavLink>
+      {/* <NavLink href="/users">Aficionados</NavLink> */}
       <NavLink href="/about">A propos</NavLink>
     </div>
   );

@@ -114,6 +114,23 @@ const DuplicateSynthForm = ({
 	return (
 		<div className="w-full max-w-4xl mx-auto p-6">
 			<div className="mb-6">
+			{formData.image_url && !imageError && (
+					<div className="mt-4">
+						<label className="block text-sm font-medium text-white mb-1">
+							Illustration
+						</label>
+						<div className="relative w-full">
+							<Image
+								src={formData.image_url}
+								alt="Aperçu"
+								width={200}
+								height={200}
+								className="object-contain rounded"
+								onError={() => setImageError(true)}
+							/>
+						</div>
+					</div>
+				)}
 				<div className="bg-gray-50 p-4 rounded-lg">
 					<h2 className="text-lg font-semibold mb-2">
 						Synthétiseur d&apos;origine :
@@ -149,7 +166,7 @@ const DuplicateSynthForm = ({
 				)}
 
 				<div className="mt-4">
-					<label className="block text-sm font-medium text-gray-700 mb-1">
+					<label className="block text-sm font-medium text-white mb-1">
 						Prix de votre annonce (EUR)*
 					</label>
 					<input
@@ -165,24 +182,9 @@ const DuplicateSynthForm = ({
 					/>
 				</div>
 
-				{formData.image_url && !imageError && (
-					<div className="mt-4">
-						<label className="block text-sm font-medium text-gray-700 mb-1">
-							Aperçu de l&apos;image
-						</label>
-						<div className="relative h-48 w-48">
-							<Image
-								src={formData.image_url}
-								alt="Aperçu"
-								fill
-								className="object-contain rounded"
-								onError={() => setImageError(true)}
-							/>
-						</div>
-					</div>
-				)}
+				
 
-				<div className="flex justify-end space-x-4 mt-6">
+				<div className="flex justify-end space-x-4 mt-6 text-white">
 					<Button
 						type="button"
 						variant="outline"

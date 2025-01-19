@@ -40,7 +40,7 @@ export const DuplicateSynthDialog = ({
 			
 			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
-					<DialogTitle>Dupliquer le synthétiseur</DialogTitle>
+					<DialogTitle className=" text-white">Dupliquer le synthétiseur</DialogTitle>
 				</DialogHeader>
 				<DuplicateSynthForm
 					originalSynth={originalSynth}

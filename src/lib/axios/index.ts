@@ -12,7 +12,8 @@ const api = axios.create({
 // Liste des routes publiques qui ne nécessitent pas d'authentification
 const publicRoutes = [
   '/api/auctions',
-  '/api/synthetisers'
+  '/api/synthetisers',
+  '/api/users'
   // Ajoutez d'autres routes publiques ici
 ];
 
