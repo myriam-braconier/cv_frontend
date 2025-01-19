@@ -93,6 +93,7 @@ export function UsersList({ users: initialUsers, synthetisers }: UsersListProps)
           profile={user.profile}
           posts={user.posts || []}
           synthetisers={synthetisers}
+          role={user.role} // Add this line assuming role is part of the user object
         />
       ))}
     </div>
