@@ -56,7 +56,7 @@ export default function HomePage() {
 								{" "}
 							</p>
 							<p className="text-xl font-bold text-blue-800">
-								Accès : <br></br> email: technician@free.fr <br></br>password: 012345678{" "}
+								Accès : <br></br> email: tech10@free.fr <br></br>password: 012345678{" "}
 							</p>
 							<p className="text-sm italic">
 								
