@@ -271,7 +271,7 @@ export default function RegisterForm() {
       </button>
 
       {/* Debug info */}
-      <div className="mt-4 p-2 bg-gray-100 rounded text-xs">
+      {/* <div className="mt-4 p-2 bg-gray-100 rounded text-xs">
         <pre>
           {JSON.stringify({
             formData,
@@ -279,7 +279,7 @@ export default function RegisterForm() {
             finalRole: formData.hasInstrument ? 5 : formData.roleId
           }, null, 2)}
         </pre>
-      </div>
+      </div> */}
     </form>
   );
 }
