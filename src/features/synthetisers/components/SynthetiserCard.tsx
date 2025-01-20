@@ -11,14 +11,14 @@ import { Synth, Post } from "@/features/synthetisers/types/synth";
 import { DuplicateSynthDialog } from "@/features/synthetisers/components/dialogs/DuplicateSynthDialog";
 import { API_URL } from "@/config/constants";
 
-
 interface SynthetiserCardProps {
 	synth: Synth;
 	userRoles?: string[];
 	onUpdateSuccess?: () => void;
 	isAuthenticated: () => boolean;
-	
 }
+
+
 
 export const SynthetiserCard = ({
 	synth,
@@ -48,28 +48,24 @@ export const SynthetiserCard = ({
 	const fullTitle = `${marque} ${modele}`;
 
 	// Vérification du role de l'utilisateur
-	const checkUserRole = useCallback(() => {
+	const checkUserRole = useCallback((): boolean => {
 		try {
-			const token = localStorage.getItem('token');
-			if (!token) {
-				return false;
-			}
-	
-			// Décodage du token
-			const payload = JSON.parse(atob(token.split('.')[1]));
+			const token = localStorage.getItem("token");
+			if (!token) return false;
 			
-			// Vérification du rôle (admin ou rôles spécifiques)
-			return payload.roleId === 2;
+			const payload = JSON.parse(atob(token.split(".")[1]));
+			console.log("Role ID from token:", payload.roleId);  // Pour debug
+			
+			// Convertir en nombre et vérifier si c'est 5
+			const roleId = Number(payload.roleId);
+			return roleId === 5;
 		} catch (error) {
 			console.error("Erreur lors de la vérification du rôle:", error);
 			return false;
 		}
 	}, []);
-	
-	
 
 	const handleTogglePost = useCallback(() => setShowPosts((prev) => !prev), []);
-
 
 	const handleImageError = useCallback(
 		() => console.error("Erreur de chargement d'image"),
@@ -106,13 +102,15 @@ export const SynthetiserCard = ({
 			// Ajouter ceci pour debug
 			const data = await response.json();
 			if (!response.ok) {
-				console.error('Erreur détaillée:', data);
+				console.error("Erreur détaillée:", data);
 				if (response.status === 401) {
 					localStorage.removeItem("token");
 					router.push("/login");
 					return;
 				}
-				throw new Error(`Erreur ${response.status}: ${data.error || data.message}`);
+				throw new Error(
+					`Erreur ${response.status}: ${data.error || data.message}`
+				);
 			}
 
 			// Gestion des réponses
@@ -143,7 +141,6 @@ export const SynthetiserCard = ({
 		}
 	}, [id, fullTitle, router, onUpdateSuccess]);
 
-	
 	const handleDuplicate = useCallback(async () => {
 		try {
 			const token = localStorage.getItem("token");
@@ -152,24 +149,25 @@ export const SynthetiserCard = ({
 				router.push("/login");
 				return;
 			}
-	
+
 			// Décodage direct du token
-			const payload = JSON.parse(atob(token.split('.')[1]));
-			const isAdmin = payload.role === 'admin' || payload.roleId === 1 || payload.roleId === 2;
-	
+			const payload = JSON.parse(atob(token.split(".")[1]));
+			const isAdmin =
+				payload.role === "admin" ||
+				payload.roleId === 1 ||
+				payload.roleId === 2;
+
 			if (!isAdmin) {
 				toast.error("Accès non autorisé");
 				return;
 			}
-	
+
 			setIsDuplicating(true);
-	
 		} catch (error: unknown) {
 			console.error("Erreur:", error);
 			toast.error("Erreur lors de la duplication");
 		}
 	}, [router]);
-	
 
 	const handleSubmit = useCallback(
 		async (data: Partial<Synth>) => {
@@ -196,39 +194,39 @@ export const SynthetiserCard = ({
 	);
 
 	const isAuthenticated = () => {
-		const token = localStorage.getItem('token');
+		const token = localStorage.getItem("token");
 		return !!token;
 	};
 
 	useEffect(() => {
 		const fetchPosts = async () => {
 			try {
-				const token = localStorage.getItem('token');
+				const token = localStorage.getItem("token");
 				const response = await fetch(
 					`${API_URL}/api/posts?synthetiserId=${id}`, // s'assurer que l'ID est bien passé
 					{
 						headers: {
-							'Authorization': `Bearer ${token}`,
-							'Content-Type': 'application/json'
-						}
+							Authorization: `Bearer ${token}`,
+							"Content-Type": "application/json",
+						},
 					}
 				);
 				if (!response.ok)
 					throw new Error("Erreur lors du chargement des posts");
 				const data = await response.json();
-				console.log('Posts reçus pour synthetiseur', id, ':', data);
+				console.log("Posts reçus pour synthetiseur", id, ":", data);
 				setLocalPosts(data);
 			} catch (error) {
 				console.error("Erreur lors du chargement des posts:", error);
 			}
 		};
-	
+
 		if (id) {
 			fetchPosts();
 		}
 	}, [id]);
 
-	// pour vérification le role 
+	// pour vérification le role
 	// useEffect(() => {
 	// 	const verifyAccess = async () => {
 	// 		if (!checkUserRole()) {
@@ -236,18 +234,27 @@ export const SynthetiserCard = ({
 	// 			router.push('/login');
 	// 		}
 	// 	};
-	
+
 	// 	verifyAccess();
 	// }, [checkUserRole, router]);
 
-	console.log('Vérification finale des IDs:', {
+	console.log("Vérification finale des IDs:", {
 		synthétiseurId: synth.id,
-		postsAvecSynthIds: localPosts.map(p => ({
-		  postId: p.id,
-		  synthId: p.synthetiserId,
-		  titre: p.titre
-		}))
-	  });
+		postsAvecSynthIds: localPosts.map((p) => ({
+			postId: p.id,
+			synthId: p.synthetiserId,
+			titre: p.titre,
+		})),
+	});
+
+	useEffect(() => {
+		const token = localStorage.getItem("token");
+		console.log("Token présent:", !!token);
+		if (token) {
+			const payload = JSON.parse(atob(token.split(".")[1]));
+			console.log("Payload du token:", payload);
+		}
+	}, []);
 
 	// RENDU
 	return (
@@ -278,8 +285,7 @@ export const SynthetiserCard = ({
 					isLoading={isLoading}
 					synthId={id.toString()}
 					onUpdateSuccess={onUpdateSuccess}
-					isAdmin={checkUserRole()}
-				/>
+					isAdmin={Boolean(checkUserRole())}				/>
 
 				{/* Posts */}
 				<CardPost
@@ -288,7 +294,6 @@ export const SynthetiserCard = ({
 					onToggle={handleTogglePost}
 					synthetiserId={synth.id}
 				/>
-				
 
 				{/* Actions admin */}
 				{checkUserRole() && (
@@ -319,13 +324,12 @@ export const SynthetiserCard = ({
 
 						{isDuplicating && (
 							<DuplicateSynthDialog
-							isOpen={isDuplicating}
-							onOpenChange={setIsDuplicating}
-						
-							onClose={() => setIsDuplicating(false)}
-							onSuccess={onUpdateSuccess}
-							originalSynth={synth}
-							isAdmin={true}
+								isOpen={isDuplicating}
+								onOpenChange={setIsDuplicating}
+								onClose={() => setIsDuplicating(false)}
+								onSuccess={onUpdateSuccess}
+								originalSynth={synth}
+								isAdmin={true}
 							/>
 						)}
 					</div>
@@ -333,5 +337,4 @@ export const SynthetiserCard = ({
 			</div>
 		</article>
 	);
-
 };
