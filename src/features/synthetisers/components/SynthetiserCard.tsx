@@ -244,6 +244,8 @@ useEffect(() => {
 
 	// RENDU
 	return (
+		<PermissionGuard permissions={["synths:read"]}>
+
 		<article className="bg-orange-600/60 rounded-lg shadow-lg h-full w-full backdrop-blur-2xl border-2 border-blue-800"
 		style={{backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined}}>
 			<div className="flex flex-col h-full space-y-4 p-4">
@@ -338,5 +340,7 @@ useEffect(() => {
 				</PermissionGuard>
 			</div>
 		</article>
+		</PermissionGuard>
+
 	);
 };

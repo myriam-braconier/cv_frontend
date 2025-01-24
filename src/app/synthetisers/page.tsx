@@ -1,11 +1,16 @@
 "use client";
 
 import { ListSynthetisers } from "@/features/synthetisers/components/list/ListSynthetisers";
-import AiGenerator from '../../components/AiGenerator'
+import AiGenerator from '../../components/AiGenerator';
+import { useState } from 'react';
+import { Synth } from "@/features/synthetisers/types/synth";
 
 // import AIBackground from "@components/AIbackground";
 
 export default function SynthetisersPage() {
+    const [synths] = useState<Synth[]>([]);
+
+
 	// const images = [
 	// 	"/images/iStock-1477817772.webp",
 	// 	"/images/login2.webp",
@@ -110,7 +115,10 @@ export default function SynthetisersPage() {
 						Synthétiseurs
 					</h1>
 					
-					<ListSynthetisers synths={[]} />
+					<ListSynthetisers 
+  synths={synths} 
+  isAuthenticated={() => !!localStorage.getItem("token")}  //logique d'autentification
+/>
 				</div>
 			</main>
 			</AiGenerator>

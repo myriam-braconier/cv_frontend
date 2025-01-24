@@ -19,5 +19,4 @@ huggingFaceApi.interceptors.request.use(request => {
   });
   return request;
 });
-
 export default huggingFaceApi;
