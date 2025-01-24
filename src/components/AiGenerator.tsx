@@ -12,7 +12,7 @@ export default function AiGenerator({
 	const [bgImage, setBgImage] = useState<string>("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-  const [isOpen, setIsOpen] = useState(true); // État pour contrôler la visibilité
+  const [isOpen, setIsOpen] = useState(true); 
 	const [prompt, setPrompt] = useState(
 		"abstract digital art background, colorful, vibrant"
 	);

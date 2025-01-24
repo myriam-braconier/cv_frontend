@@ -13,12 +13,12 @@ export const api = axios.create({
 
 
   // API Hugging Face
-export const huggingFaceApi = axios.create({
-	baseURL: 'https://api-inference.huggingface.co',
-	headers: {
-	  Authorization: `Bearer ${process.env.HUGGINGFACE_API_TOKEN}`,
-	},
-  });
+// export const huggingFaceApi = axios.create({
+// 	baseURL: 'https://api-inference.huggingface.co',
+// 	headers: {
+// 	  Authorization: `Bearer ${process.env.HUGGINGFACE_API_TOKEN}`,
+// 	},
+//   });
 
 // Intercepteur pour ajouter le token à chaque requête
 api.interceptors.request.use(

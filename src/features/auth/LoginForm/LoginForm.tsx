@@ -25,7 +25,7 @@ export default function LoginForm() {
             // Get the callback URL if it exists
             const callbackUrl = searchParams.get('callbackUrl');
             // Redirect to callback URL or home
-            router.push(callbackUrl || `/`);
+            router.push(callbackUrl || `/synthetisers`);
             
         } catch (err) {
             setError(
