@@ -245,7 +245,7 @@ export default function RegisterForm() {
 						}`}
 					>
 						{roles
-							.filter((role) => role.name.toLowerCase() !== "admin")
+							// .filter((role) => role.name.toLowerCase() !== "moderator")
 							.map((role) => (
 								<option key={role.id} value={role.id}>
 									{role.description || role.name}

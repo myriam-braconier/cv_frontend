@@ -8,12 +8,14 @@ import { API_URL } from "@/config/constants";
 import { toast } from "react-hot-toast";
 import api from "@/lib/axios/index";
 
-
 interface ListSynthetisersProps {
 	synths: Synth[];
+	isAuthenticated: () => boolean;
 }
 
-export const ListSynthetisers = ({}: ListSynthetisersProps) => {
+export const ListSynthetisers = ({
+	isAuthenticated,
+}: ListSynthetisersProps) => {
 	const [synths, setSynths] = useState<Synth[]>([]);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
@@ -91,40 +93,44 @@ export const ListSynthetisers = ({}: ListSynthetisersProps) => {
 		fetchSynths(1); // Charger la première page au montage
 	}, [fetchSynths]);
 
-	
-
 	return (
-			<ErrorBoundary>
-				<div className="flex flex-col space-y-8 relative z-10">
-					<div className="text-white text-bold col-span-8 mx-auto bg-slate-400 p-10 opacity-50 rounded-lg">
-						<span>
-							Liste de synthetiseurs Kawai - Korg - Roland
-							<br />
-							Données issues d&apos;un scraping éthique en Python du site
-							<a href="https://synthetiseur.net"> synthetiseur.net</a>
-							<br />
-							Les prix indiqués sont totalement fictifs
-						</span>
-					</div>
+		<ErrorBoundary>
+			<div className="flex flex-col space-y-8 relative z-10">
+				<div className="text-white text-bold col-span-8 mx-auto bg-slate-400 p-10 opacity-90 rounded-lg">
+					<span>
+						Liste de synthetiseurs Kawai - Korg - Roland
+						<br />
+						Données issues d&apos;un scraping éthique en Python du site
+						<a href="https://synthetiseur.net"> synthetiseur.net</a>
+						<br />
+						Les prix indiqués sont totalement fictifs
+					</span>
+				</div>
+				<div className="col-span-8 mx-auto bg-slate">
+					<h3 className="text-center text-white">
+						Pour découvrir les synthétiseurs et les commentaires, connectez-vous : 
+					</h3>
+				</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-						{isLoading ? (
-							<div className="col-span-full text-center text-white">
-								Chargement...
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+					{isLoading ? (
+						<div className="col-span-full text-center text-white">
+							Chargement...
+						</div>
+					) : (
+						synths.map((synth) => (
+							<div key={synth.id}>
+								<SynthetiserCard
+									synth={synth}
+									onUpdateSuccess={handleUpdateSuccess}
+									isAuthenticated={isAuthenticated}
+								/>
 							</div>
-						) : (
-							synths.map((synth) => (
-								<div key={synth.id}>
-									<SynthetiserCard
-										synth={synth}
-										onUpdateSuccess={handleUpdateSuccess}
-										isAuthenticated={() => true}
-									/>
-								</div>
-							))
-						)}
-					</div>
+						))
+					)}
+				</div>
 
+				{isAuthenticated() && (
 					<div className="flex justify-center items-center gap-4 p-4">
 						<button
 							onClick={handlePreviousPage}
@@ -146,12 +152,12 @@ export const ListSynthetisers = ({}: ListSynthetisersProps) => {
 							Suivant
 						</button>
 					</div>
+				)}
 
-					<div className="text-center text-white">
-						{synths.length} synthétiseurs affichés
-					</div>
+				<div className="text-center text-white">
+					{synths.length} synthétiseurs affichés
 				</div>
-			</ErrorBoundary>
-		
+			</div>
+		</ErrorBoundary>
 	);
 };
