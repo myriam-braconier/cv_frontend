@@ -10,6 +10,9 @@ import { EditorDialog } from "@/features/synthetisers/components/dialogs/EditorD
 import { Synth, Post } from "@/features/synthetisers/types/synth";
 import { DuplicateSynthDialog } from "@/features/synthetisers/components/dialogs/DuplicateSynthDialog";
 import { API_URL } from "@/config/constants";
+import { usePermissions } from "@/hooks/usePermissions";
+import { PermissionGuard } from "@components/PermissionGuard";
+import { generateBackground } from '@/services/imageGeneration';
 
 interface SynthetiserCardProps {
 	synth: Synth;
@@ -18,8 +21,6 @@ interface SynthetiserCardProps {
 	isAuthenticated: () => boolean;
 }
 
-
-
 export const SynthetiserCard = ({
 	synth,
 	onUpdateSuccess,
@@ -27,10 +28,14 @@ export const SynthetiserCard = ({
 	const [showPosts, setShowPosts] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [postsLoading, setPostsLoading] = useState(false);
+	const [postsError, setPostsError] = useState<string | null>(null);
 	const [localPosts, setLocalPosts] = useState<Post[]>(synth.posts || []);
 	const [isDuplicating, setIsDuplicating] = useState(false);
-
+	const { hasPermission } = usePermissions();
 	const router = useRouter();
+	const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
+	
 
 	const {
 		id,
@@ -41,32 +46,60 @@ export const SynthetiserCard = ({
 		nb_avis,
 		specifications,
 		price,
-		// on supprime posts=[] car localposts est initialisé
 		auctionPrices = [],
 	} = synth;
 
 	const fullTitle = `${marque} ${modele}`;
 
-	// Vérification du role de l'utilisateur
-	const checkUserRole = useCallback((): boolean => {
-		try {
-			const token = localStorage.getItem("token");
-			if (!token) return false;
-			
-			const payload = JSON.parse(atob(token.split(".")[1]));
-			console.log("Role ID from token:", payload.roleId);  // Pour debug
-			
-			// Convertir en nombre et vérifier si c'est 5
-			const roleId = Number(payload.roleId);
-			return roleId === 5;
-		} catch (error) {
-			console.error("Erreur lors de la vérification du rôle:", error);
-			return false;
+	// Fetch posts with proper error handling and loading states
+	useEffect(() => {
+		const fetchPosts = async () => {
+			if (!id) return;
+
+			setPostsLoading(true);
+			setPostsError(null);
+
+			try {
+				const token = localStorage.getItem("token");
+				if (!token) {
+					throw new Error("No authentication token found");
+				}
+
+				const response = await fetch(
+					`${API_URL}/api/posts?synthetiserId=${id}`,
+					{
+						headers: {
+							Authorization: `Bearer ${token}`,
+							"Content-Type": "application/json",
+						},
+					}
+				);
+
+				if (!response.ok) {
+					throw new Error(
+						`Failed to fetch posts: ${response.status} ${response.statusText}`
+					);
+				}
+
+				const data = await response.json();
+				setLocalPosts(data);
+			} catch (error) {
+				console.error("Error fetching posts:", error);
+				setPostsError(
+					error instanceof Error ? error.message : "Failed to load posts"
+				);
+				toast.error("Failed to load posts");
+			} finally {
+				setPostsLoading(false);
+			}
+		};
+
+		if (showPosts) {
+			fetchPosts();
 		}
-	}, []);
+	}, [id, showPosts]);
 
 	const handleTogglePost = useCallback(() => setShowPosts((prev) => !prev), []);
-
 	const handleImageError = useCallback(
 		() => console.error("Erreur de chargement d'image"),
 		[]
@@ -152,13 +185,11 @@ export const SynthetiserCard = ({
 
 			// Décodage direct du token
 			const payload = JSON.parse(atob(token.split(".")[1]));
-			const isAdmin =
-				payload.role === "admin" ||
-				payload.roleId === 1 ||
-				payload.roleId === 2;
+			// Vérifier si c'est un admin (rôle 2) uniquement
+			const isAdmin = payload.roleId === 2;
 
 			if (!isAdmin) {
-				toast.error("Accès non autorisé");
+				toast.error("Accès non autorisé - Action réservée aux administrateurs");
 				return;
 			}
 
@@ -198,112 +229,83 @@ export const SynthetiserCard = ({
 		return !!token;
 	};
 
-	useEffect(() => {
-		const fetchPosts = async () => {
-			try {
-				const token = localStorage.getItem("token");
-				const response = await fetch(
-					`${API_URL}/api/posts?synthetiserId=${id}`, // s'assurer que l'ID est bien passé
-					{
-						headers: {
-							Authorization: `Bearer ${token}`,
-							"Content-Type": "application/json",
-						},
-					}
-				);
-				if (!response.ok)
-					throw new Error("Erreur lors du chargement des posts");
-				const data = await response.json();
-				console.log("Posts reçus pour synthetiseur", id, ":", data);
-				setLocalPosts(data);
-			} catch (error) {
-				console.error("Erreur lors du chargement des posts:", error);
-			}
-		};
 
-		if (id) {
-			fetchPosts();
-		}
-	}, [id]);
 
-	// pour vérification le role
-	// useEffect(() => {
-	// 	const verifyAccess = async () => {
-	// 		if (!checkUserRole()) {
-	// 			toast.error("Accès non autorisé");
-	// 			router.push('/login');
-	// 		}
-	// 	};
+useEffect(() => {
+	const loadBackground = async () => {
+	  const imageData = await generateBackground(`synthesizer ${marque} ${modele}`);
+	  if (imageData) {
+		setBackgroundImage(imageData);
+	  }
+	};
+	loadBackground();
+  }, [marque, modele]);
 
-	// 	verifyAccess();
-	// }, [checkUserRole, router]);
-
-	console.log("Vérification finale des IDs:", {
-		synthétiseurId: synth.id,
-		postsAvecSynthIds: localPosts.map((p) => ({
-			postId: p.id,
-			synthId: p.synthetiserId,
-			titre: p.titre,
-		})),
-	});
-
-	useEffect(() => {
-		const token = localStorage.getItem("token");
-		console.log("Token présent:", !!token);
-		if (token) {
-			const payload = JSON.parse(atob(token.split(".")[1]));
-			console.log("Payload du token:", payload);
-		}
-	}, []);
 
 	// RENDU
 	return (
-		<article className="bg-orange-600/50 rounded-lg shadow-lg h-full w-full backdrop-blur-2xl border-2 border-blue-800">
+		<article className="bg-orange-600/60 rounded-lg shadow-lg h-full w-full backdrop-blur-2xl border-2 border-blue-800"
+		style={{backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined}}>
 			<div className="flex flex-col h-full space-y-4 p-4">
 				{/* Image */}
-				<div className="relative h-48 w-full">
-					<CardImage
-						image_url={image_url}
-						title={fullTitle}
-						onError={handleImageError}
-					/>
-				</div>
+				<PermissionGuard permissions={["synths:read"]}>
+					<div className="relative h-48 w-full">
+						<CardImage
+							image_url={image_url}
+							title={fullTitle}
+							onError={handleImageError}
+						/>
+					</div>
+				</PermissionGuard>
 
 				{/* Informations */}
-				<CardHeader
-					title={fullTitle}
-					note={note}
-					nb_avis={nb_avis}
-					specifications={specifications}
-				/>
+				<PermissionGuard permissions={["synths:read"]}>
+					<CardHeader
+						title={fullTitle}
+						note={note}
+						nb_avis={nb_avis}
+						specifications={specifications}
+					/>
+				</PermissionGuard>
 
 				{/* Prix */}
-				<CardPricing
-					price={price}
-					auctionPrices={auctionPrices}
-					isAuthenticated={isAuthenticated}
-					isLoading={isLoading}
-					synthId={id.toString()}
-					onUpdateSuccess={onUpdateSuccess}
-					isAdmin={Boolean(checkUserRole())}				/>
+				<PermissionGuard permissions={["synths:read"]}>
+					<CardPricing
+						price={price}
+						auctionPrices={auctionPrices}
+						isAuthenticated={isAuthenticated}
+						isLoading={isLoading}
+						synthId={id.toString()}
+						onUpdateSuccess={onUpdateSuccess}
+						isAdmin={hasPermission("synths:update")}
+					/>
+				</PermissionGuard>
 
-				{/* Posts */}
-				<CardPost
-					posts={localPosts}
-					showPosts={showPosts}
-					onToggle={handleTogglePost}
-					synthetiserId={synth.id}
-				/>
+					{/* Posts */}
+					<PermissionGuard permissions={["synths:read"]}>
+					<CardPost
+						posts={localPosts}
+						showPosts={showPosts}
+						onToggle={handleTogglePost}
+						synthetiserId={synth.id}
+						isLoading={postsLoading}
+						error={postsError}
+						onPostsUpdate={setLocalPosts}
+					/>
+				</PermissionGuard>
 
-				{/* Actions admin */}
-				{checkUserRole() && (
+				{/* Actions d'édition*/}
+				<PermissionGuard
+					permissions={["synths:update", "synths:delete"]}
+					type="any"
+				>
 					<div className="mt-4">
 						<CardActions
 							onEdit={handleEdit}
 							onDelete={handleDelete}
 							onDuplicate={handleDuplicate}
 							isLoading={isLoading}
-							isAdmin={true}
+							isAdmin={hasPermission("synths:delete")}
 							originalSynth={synth}
 						/>
 
@@ -318,7 +320,7 @@ export const SynthetiserCard = ({
 								error={null}
 								isLoading={isLoading}
 								isAuthenticated={isAuthenticated}
-								isAdmin={true}
+								isAdmin={hasPermission("synths:update")}
 							/>
 						)}
 
@@ -329,11 +331,11 @@ export const SynthetiserCard = ({
 								onClose={() => setIsDuplicating(false)}
 								onSuccess={onUpdateSuccess}
 								originalSynth={synth}
-								isAdmin={true}
+								isAdmin={hasPermission("synths:update")}
 							/>
 						)}
 					</div>
-				)}
+				</PermissionGuard>
 			</div>
 		</article>
 	);
