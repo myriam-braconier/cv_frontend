@@ -1,15 +1,15 @@
 "use client";
 
 import { ListSynthetisers } from "@/features/synthetisers/components/list/ListSynthetisers";
-import AiGenerator from '../../components/AiGenerator';
-import { useState } from 'react';
+import AiGenerator from "../../components/AiGenerator";
+import { useState, useEffect } from "react";
 import { Synth } from "@/features/synthetisers/types/synth";
 
 // import AIBackground from "@components/AIbackground";
 
 export default function SynthetisersPage() {
-    const [synths] = useState<Synth[]>([]);
-
+	const [synths] = useState<Synth[]>([]);
+	const [isAuth, setIsAuth] = useState(false);
 
 	// const images = [
 	// 	"/images/iStock-1477817772.webp",
@@ -103,9 +103,14 @@ export default function SynthetisersPage() {
 	// if (isLoading) return <LoadingSpinner />;
 	// if (error) return <div className="text-red-500 text-center">{error}</div>;
 
+
+    useEffect(() => {
+        setIsAuth(!!localStorage.getItem("token"));
+    }, []);
+
+
 	return (
 		<AiGenerator>
-
 			<main className="min-h-screen relative">
 				{/* Background en premier avec z-index négatif */}
 				<div className="w-full px-4 py-6 relative z-10">
@@ -114,14 +119,12 @@ export default function SynthetisersPage() {
 					<h1 className="text-3xl font-bold mb-8 text-center text-white">
 						Synthétiseurs
 					</h1>
-					
-					<ListSynthetisers 
-  synths={synths} 
-  isAuthenticated={() => !!localStorage.getItem("token")}  //logique d'autentification
-/>
+
+					<ListSynthetisers
+						synths={synths}
+                        isAuthenticated={() => isAuth}					/>
 				</div>
 			</main>
-			</AiGenerator>
-	
+		</AiGenerator>
 	);
 }
