@@ -8,6 +8,7 @@ import { API_URL } from "@/config/constants";
 import api from "@/lib/axios/index";
 
 interface ListSynthetisersProps {
+	synths: Synth[];
     isAuthenticated: () => boolean;
 }
 
