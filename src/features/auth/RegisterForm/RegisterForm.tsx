@@ -51,13 +51,13 @@ export default function RegisterForm() {
 		e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
 	) => {
 		const { name, value, type } = e.target;
-
+	
 		if (type === "radio" && name === "hasInstrument") {
 			const isOwner = value === "true";
 			setFormData((prev) => ({
 				...prev,
 				hasInstrument: isOwner,
-				roleId: isOwner ? 5 : prev.roleId, // Si propriétaire, force le rôle 5
+				roleId: isOwner ? 5 : prev.roleId,
 			}));
 		} else {
 			setFormData((prev) => ({
