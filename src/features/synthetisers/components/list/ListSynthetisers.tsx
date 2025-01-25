@@ -93,6 +93,8 @@ export const ListSynthetisers = ({
 		fetchSynths(1); // Charger la première page au montage
 	}, [fetchSynths]);
 
+	console.log("Auth status:", isAuthenticated);
+
 	return (
 		<ErrorBoundary>
 			<div className="flex flex-col space-y-8 relative z-10">
@@ -106,11 +108,14 @@ export const ListSynthetisers = ({
 						Les prix indiqués sont totalement fictifs
 					</span>
 				</div>
-				<div className="col-span-8 mx-auto bg-slate">
-					<h3 className="text-center text-white">
-						Pour découvrir les synthétiseurs et les commentaires, connectez-vous : 
-					</h3>
-				</div>
+				{!isAuthenticated() && ( // isAuthenticated est une fonction, si c'est une simple variable alors : {!isAuthenticated}
+					<div className="col-span-8 mx-auto bg-gray-600/60">
+						<h3 className="text-center text-xl font-bold text-white">
+							Pour découvrir les synthétiseurs et les fonctionnalités,
+							connectez-vous : Aficionado 012345678
+						</h3>
+					</div>
+				)}
 
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
 					{isLoading ? (
@@ -151,12 +156,11 @@ export const ListSynthetisers = ({
 						>
 							Suivant
 						</button>
+						<div className="text-center text-white">
+							{synths.length} synthétiseurs affichés
+						</div>
 					</div>
 				)}
-
-				<div className="text-center text-white">
-					{synths.length} synthétiseurs affichés
-				</div>
 			</div>
 		</ErrorBoundary>
 	);
