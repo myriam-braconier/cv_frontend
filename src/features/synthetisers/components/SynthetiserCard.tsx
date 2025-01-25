@@ -245,6 +245,11 @@ useEffect(() => {
 	// RENDU
 	return (
 		<PermissionGuard permissions={["synths:read"]}>
+			<>
+			  {console.log('Inside PermissionGuard')}
+			  {process.env.NODE_ENV === 'development' && (
+      <div className="hidden">{JSON.stringify(hasPermission("synths:read"))}</div>
+    )}
 
 		<article className="bg-orange-600/60 rounded-lg shadow-lg h-full w-full backdrop-blur-2xl border-2 border-blue-800"
 		style={{backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined}}>
@@ -340,6 +345,7 @@ useEffect(() => {
 				</PermissionGuard>
 			</div>
 		</article>
+		</>
 		</PermissionGuard>
 
 	);

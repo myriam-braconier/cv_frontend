@@ -5,7 +5,7 @@ import { Synth } from "@/features/synthetisers/types/synth";
 import { SynthetiserCard } from "../SynthetiserCard";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { API_URL } from "@/config/constants";
-import { toast } from "react-hot-toast";
+// import { toast } from "react-hot-toast";
 import api from "@/lib/axios/index";
 
 interface ListSynthetisersProps {
@@ -25,16 +25,19 @@ export const ListSynthetisers = ({
 	// Fonction de récupération des données
 	const fetchSynths = useCallback(
 		async (page: number) => {
+			console.log('Fetching page:', page);
 			if (page < 1) return;
 			setIsLoading(true);
 			try {
+
+				
 				const response = await api.get(`${API_URL}/api/synthetisers`, {
 					params: {
 						page,
 						limit: pageSize,
 					},
 				});
-
+				console.log('API Response:', response.data);
 				const synthsList = response.data.synths;
 
 				if (synthsList && Array.isArray(synthsList)) {
@@ -55,7 +58,11 @@ export const ListSynthetisers = ({
 						return marqueCompare;
 					});
 
+					console.log('API Response:', response);
+					console.log('Sorted synths:', sortedSynths);
+
 					setSynths(sortedSynths);
+					console.log('Synths state after update:', sortedSynths);
 
 					if (response.data.pagination) {
 						setTotalPages(response.data.pagination.totalPages);
@@ -64,13 +71,10 @@ export const ListSynthetisers = ({
 				} else {
 					throw new Error("Structure de données inattendue");
 				}
-			} catch (error) {
-				console.error("Erreur:", error);
-				toast.error("Erreur lors du chargement des synthétiseurs");
-				setSynths([]);
-			} finally {
-				setIsLoading(false);
-			}
+			}  catch (error: Error | unknown) {
+				console.error('Error details:', error instanceof Error ? error.message : error);
+			  }
+			
 		},
 		[pageSize]
 	);
@@ -93,6 +97,11 @@ export const ListSynthetisers = ({
 		fetchSynths(1); // Charger la première page au montage
 	}, [fetchSynths]);
 
+	useEffect(() => {
+		console.log('API_URL:', API_URL);
+		console.log('Environmental variables:', process.env);
+	  }, []);
+
 	console.log("Auth status:", isAuthenticated);
 
 	return (
@@ -108,60 +117,59 @@ export const ListSynthetisers = ({
 						Les prix indiqués sont totalement fictifs
 					</span>
 				</div>
-				{!isAuthenticated() && ( // isAuthenticated est une fonction, si c'est une simple variable alors : {!isAuthenticated}
-					<div className="col-span-8 mx-auto bg-gray-600/60">
+
+				{!isAuthenticated() ? (
+					<div className="col-span-8 mx-auto bg-gray-600/60 p-4">
 						<h3 className="text-center text-xl font-bold text-white">
 							Pour découvrir les synthétiseurs et les fonctionnalités,
 							connectez-vous : Aficionado 012345678
 						</h3>
 					</div>
-				)}
-
-
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-					{isLoading ? (
-						<div className="col-span-full text-center text-white">
-							Chargement...
+				) : (
+					<>
+						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+							{isLoading ? (
+								<div className="col-span-full text-center text-white">
+									Chargement...
+								</div>
+							) : (
+								synths.map((synth) => (
+									<div key={synth.id}>
+										<SynthetiserCard
+											synth={synth}
+											onUpdateSuccess={handleUpdateSuccess}
+											isAuthenticated={isAuthenticated}
+										/>
+									</div>
+								))
+							)}
 						</div>
-					) : (
-						synths.map((synth) => (
-							<div key={synth.id}>
-								<SynthetiserCard
-									synth={synth}
-									onUpdateSuccess={handleUpdateSuccess}
-									isAuthenticated={isAuthenticated}
-								/>
+
+						<div className="flex justify-center items-center gap-4 p-4">
+							<button
+								onClick={handlePreviousPage}
+								disabled={currentPage === 1 || isLoading}
+								className="px-4 py-2 bg-pink-600 text-white rounded-lg disabled:opacity-50"
+							>
+								Précédent
+							</button>
+
+							<span className="text-white">
+								Page {currentPage} sur {totalPages}
+							</span>
+
+							<button
+								onClick={handleNextPage}
+								disabled={currentPage === totalPages || isLoading}
+								className="px-4 py-2 bg-pink-600 text-white rounded-lg disabled:opacity-50"
+							>
+								Suivant
+							</button>
+							<div className="text-center text-white">
+								{synths.length} synthétiseurs affichés
 							</div>
-						))
-					)}
-				</div>
-				
-
-				{isAuthenticated() && (
-					<div className="flex justify-center items-center gap-4 p-4">
-						<button
-							onClick={handlePreviousPage}
-							disabled={currentPage === 1 || isLoading}
-							className="px-4 py-2 bg-pink-600 text-white rounded-lg disabled:opacity-50"
-						>
-							Précédent
-						</button>
-
-						<span className="text-white">
-							Page {currentPage} sur {totalPages}
-						</span>
-
-						<button
-							onClick={handleNextPage}
-							disabled={currentPage === totalPages || isLoading}
-							className="px-4 py-2 bg-pink-600 text-white rounded-lg disabled:opacity-50"
-						>
-							Suivant
-						</button>
-						<div className="text-center text-white">
-							{synths.length} synthétiseurs affichés
 						</div>
-					</div>
+					</>
 				)}
 			</div>
 		</ErrorBoundary>
