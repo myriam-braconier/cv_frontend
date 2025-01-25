@@ -12,7 +12,13 @@ import { DuplicateSynthDialog } from "@/features/synthetisers/components/dialogs
 import { API_URL } from "@/config/constants";
 import { usePermissions } from "@/hooks/usePermissions";
 import { PermissionGuard } from "@components/PermissionGuard";
-import { generateBackground } from '@/services/imageGeneration';
+import { generateBackground } from "@/services/imageGeneration";
+
+
+
+
+
+
 
 interface SynthetiserCardProps {
 	synth: Synth;
@@ -23,7 +29,7 @@ interface SynthetiserCardProps {
 
 export const SynthetiserCard = ({
 	synth,
-	onUpdateSuccess,
+	onUpdateSuccess, isAuthenticated
 }: SynthetiserCardProps) => {
 	const [showPosts, setShowPosts] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
@@ -32,10 +38,9 @@ export const SynthetiserCard = ({
 	const [postsError, setPostsError] = useState<string | null>(null);
 	const [localPosts, setLocalPosts] = useState<Post[]>(synth.posts || []);
 	const [isDuplicating, setIsDuplicating] = useState(false);
-	const { hasPermission } = usePermissions();
 	const router = useRouter();
 	const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
-	
+	const { hasPermission } = usePermissions();
 
 	const {
 		id,
@@ -50,6 +55,13 @@ export const SynthetiserCard = ({
 	} = synth;
 
 	const fullTitle = `${marque} ${modele}`;
+
+
+	console.log('SynthetiserCard Rendering:', {
+		token: localStorage.getItem('token'),
+		hasPermission: hasPermission('synths:read'),
+		isAuthenticated: isAuthenticated()
+	  });
 
 	// Fetch posts with proper error handling and loading states
 	useEffect(() => {
@@ -224,129 +236,140 @@ export const SynthetiserCard = ({
 		[id, onUpdateSuccess]
 	);
 
-	const isAuthenticated = () => {
-		const token = localStorage.getItem("token");
-		return !!token;
-	};
+	useEffect(() => {
+		const loadBackground = async () => {
+			const imageData = await generateBackground(
+				`synthesizer ${marque} ${modele}`
+			);
+			if (imageData) {
+				setBackgroundImage(imageData);
+			}
+		};
+		loadBackground();
+	}, [marque, modele]);
 
-
-
-useEffect(() => {
-	const loadBackground = async () => {
-	  const imageData = await generateBackground(`synthesizer ${marque} ${modele}`);
-	  if (imageData) {
-		setBackgroundImage(imageData);
-	  }
-	};
-	loadBackground();
-  }, [marque, modele]);
-
+	// Ajout des logs debug
+	useEffect(() => {
+		const token = localStorage.getItem('token');
+		console.log('SynthetiserCard rendered:', {
+		  hasPermission: hasPermission('synths:read'),
+		  token: !!token,
+		  permissions: token ? 
+			JSON.parse(atob(token.split('.')[1]))?.permissions || [] 
+			: []
+		});
+	  }, [hasPermission]);
 
 	// RENDU
 	return (
-		<PermissionGuard permissions={["synths:read"]}>
+		
 			<>
-			  {console.log('Inside PermissionGuard')}
-			  {process.env.NODE_ENV === 'development' && (
-      <div className="hidden">{JSON.stringify(hasPermission("synths:read"))}</div>
-    )}
-
-		<article className="bg-orange-600/60 rounded-lg shadow-lg h-full w-full backdrop-blur-2xl border-2 border-blue-800"
-		style={{backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined}}>
-			<div className="flex flex-col h-full space-y-4 p-4">
-				{/* Image */}
-				<PermissionGuard permissions={["synths:read"]}>
-					<div className="relative h-48 w-full">
-						<CardImage
-							image_url={image_url}
-							title={fullTitle}
-							onError={handleImageError}
-						/>
+				{console.log("Inside PermissionGuard")}
+				{process.env.NODE_ENV === "development" && (
+					<div className="hidden">
+						{JSON.stringify(hasPermission("synths:read"))}
 					</div>
-				</PermissionGuard>
+				)}
 
-				{/* Informations */}
-				<PermissionGuard permissions={["synths:read"]}>
-					<CardHeader
-						title={fullTitle}
-						note={note}
-						nb_avis={nb_avis}
-						specifications={specifications}
-					/>
-				</PermissionGuard>
-
-				{/* Prix */}
-				<PermissionGuard permissions={["synths:read"]}>
-					<CardPricing
-						price={price}
-						auctionPrices={auctionPrices}
-						isAuthenticated={isAuthenticated}
-						isLoading={isLoading}
-						synthId={id.toString()}
-						onUpdateSuccess={onUpdateSuccess}
-						isAdmin={hasPermission("synths:update")}
-					/>
-				</PermissionGuard>
-
-					{/* Posts */}
-					<PermissionGuard permissions={["synths:read"]}>
-					<CardPost
-						posts={localPosts}
-						showPosts={showPosts}
-						onToggle={handleTogglePost}
-						synthetiserId={synth.id}
-						isLoading={postsLoading}
-						error={postsError}
-						onPostsUpdate={setLocalPosts}
-					/>
-				</PermissionGuard>
-
-				{/* Actions d'édition*/}
-				<PermissionGuard
-					permissions={["synths:update", "synths:delete"]}
-					type="any"
+				<article
+					className="bg-orange-600/60 rounded-lg shadow-lg h-full w-full backdrop-blur-2xl border-2 border-blue-800"
+					style={{
+						backgroundImage: backgroundImage
+							? `url(${backgroundImage})`
+							: undefined,
+					}}
 				>
-					<div className="mt-4">
-						<CardActions
-							onEdit={handleEdit}
-							onDelete={handleDelete}
-							onDuplicate={handleDuplicate}
-							isLoading={isLoading}
-							isAdmin={hasPermission("synths:delete")}
-							originalSynth={synth}
-						/>
+					<div className="flex flex-col h-full space-y-4 p-4">
+						{/* Image */}
+							<div className="relative h-48 w-full">
+								<CardImage
+									image_url={image_url}
+									title={fullTitle}
+									onError={handleImageError}
+								/>
+							</div>
 
-						{isEditing && (
-							<EditorDialog
-								isOpen={isEditing}
-								onOpenChange={setIsEditing}
-								synth={synth}
-								onSubmit={handleSubmit}
-								onCancel={handleCloseEditor}
-								onClose={handleCloseEditor}
-								error={null}
-								isLoading={isLoading}
+						{/* Informations */}
+						<PermissionGuard permissions={["synths:read"]}>
+							<CardHeader
+								title={fullTitle}
+								note={note}
+								nb_avis={nb_avis}
+								specifications={specifications}
+							/>
+						</PermissionGuard>
+
+						{/* Prix */}
+						<PermissionGuard permissions={["synths:read"]}>
+							<CardPricing
+								price={price}
+								auctionPrices={auctionPrices}
 								isAuthenticated={isAuthenticated}
+								isLoading={isLoading}
+								synthId={id.toString()}
+								onUpdateSuccess={onUpdateSuccess}
 								isAdmin={hasPermission("synths:update")}
 							/>
-						)}
+						</PermissionGuard>
 
-						{isDuplicating && (
-							<DuplicateSynthDialog
-								isOpen={isDuplicating}
-								onOpenChange={setIsDuplicating}
-								onClose={() => setIsDuplicating(false)}
-								onSuccess={onUpdateSuccess}
-								originalSynth={synth}
-								isAdmin={hasPermission("synths:update")}
+						{/* Posts */}
+						<PermissionGuard permissions={["synths:read"]}>
+							<CardPost
+								posts={localPosts}
+								showPosts={showPosts}
+								onToggle={handleTogglePost}
+								synthetiserId={synth.id}
+								isLoading={postsLoading}
+								error={postsError}
+								onPostsUpdate={setLocalPosts}
 							/>
-						)}
+						</PermissionGuard>
+
+						{/* Actions d'édition*/}
+						<PermissionGuard
+							permissions={["synths:update", "synths:delete"]}
+							type="any"
+						>
+							<div className="mt-4">
+								<CardActions
+									onEdit={handleEdit}
+									onDelete={handleDelete}
+									onDuplicate={handleDuplicate}
+									isLoading={isLoading}
+									isAdmin={hasPermission("synths:delete")}
+									originalSynth={synth}
+								/>
+
+								{isEditing && (
+									<EditorDialog
+										isOpen={isEditing}
+										onOpenChange={setIsEditing}
+										synth={synth}
+										onSubmit={handleSubmit}
+										onCancel={handleCloseEditor}
+										onClose={handleCloseEditor}
+										error={null}
+										isLoading={isLoading}
+										isAuthenticated={isAuthenticated}
+										isAdmin={hasPermission("synths:update")}
+									/>
+								)}
+
+								{isDuplicating && (
+									<DuplicateSynthDialog
+										isOpen={isDuplicating}
+										onOpenChange={setIsDuplicating}
+										onClose={() => setIsDuplicating(false)}
+										onSuccess={onUpdateSuccess}
+										originalSynth={synth}
+										isAdmin={hasPermission("synths:update")}
+									/>
+								)}
+							</div>
+						</PermissionGuard>
 					</div>
-				</PermissionGuard>
-			</div>
-		</article>
-		</>
-		</PermissionGuard>
-
+				</article>
+			</>
+		
 	);
 };

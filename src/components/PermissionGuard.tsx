@@ -1,5 +1,5 @@
 // components/PermissionGuard.tsx
-import { ReactNode, useMemo } from 'react';
+import { ReactNode, useEffect, useMemo } from 'react';
 import { usePermissions } from '@/hooks/usePermissions';
 
 interface PermissionGuardProps {
@@ -27,14 +27,27 @@ export const PermissionGuard = ({
   }, [type, permissions, hasAllPermissions, hasAnyPermission]);
 
   // Log pour le développement
-  if (process.env.NODE_ENV === 'development') {
-    console.log('PermissionGuard:', {
-      permissions,
-      type,
-      loading,
-      hasAccess,
-    });
-  }
+  // if (process.env.NODE_ENV === 'development') {
+  //   console.log('PermissionGuard:', {
+  //     permissions,
+  //     type,
+  //     loading,
+  //     hasAccess,
+  //   });
+  // }
+
+   // Logs debug
+ useEffect(() => {
+  console.log('PermissionGuard Debug:', {
+    permissions,
+    type,
+    loading,
+    hasAccess,
+    token: localStorage.getItem('token'),
+    decodedToken: localStorage.getItem('token') ? 
+      JSON.parse(atob(localStorage.getItem('token')!.split('.')[1])) : null
+  });
+}, [permissions, type, loading, hasAccess]);
 
   // Afficher le composant de chargement si nécessaire
   if (loading) {
