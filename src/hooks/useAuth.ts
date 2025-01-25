@@ -1,4 +1,3 @@
-// @/hooks/useAuth.ts
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/services/axios";
 import Cookies from "js-cookie";
