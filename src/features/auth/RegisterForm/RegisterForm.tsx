@@ -51,23 +51,21 @@ export default function RegisterForm() {
 		e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
 	) => {
 		const { name, value, type } = e.target;
-		console.log('Change event:', { name, value, type });
-	
+		console.log("Change event:", { name, value, type });
+
 		if (type === "radio" && name === "hasInstrument") {
-			setFormData(prev => ({
+			setFormData((prev) => ({
 				...prev,
 				hasInstrument: value === "true",
-				roleId: value === "true" ? 5 : prev.roleId
+				roleId: value === "true" ? 5 : prev.roleId,
 			}));
 		} else {
-			setFormData(prev => ({
+			setFormData((prev) => ({
 				...prev,
-				[name]: name === "roleId" ? parseInt(value) : value
+				[name]: name === "roleId" ? parseInt(value) : value,
 			}));
 		}
 	};
-		
-	
 
 	const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -98,20 +96,30 @@ export default function RegisterForm() {
 				email,
 				password,
 				has_instrument: hasInstrument,
-				roleId
+				roleId,
 			};
 
 			console.log("Données envoyées à l'API:", requestData);
 
+			// const response = await axios.post(
+			// 	`${API_URL}/auth/register`,
+			// 	requestData,
+			// 	{
+			// 		headers: {
+			// 			"Content-Type": "application/json",
+			// 		},
+			// 	}
+			// );
+
 			const response = await axios.post(
 				`${API_URL}/auth/register`,
-				requestData,
-				{
-					headers: {
-						"Content-Type": "application/json",
-					},
-				}
+				requestData
 			);
+			if (response.status === 201) {
+				const { token } = response.data;
+				localStorage.setItem("token", token);
+				router.push("/login");
+			}
 
 			console.log("Réponse du serveur:", response.data);
 
