@@ -91,7 +91,13 @@ const CardPricing = ({
 	const fetchLatestAuction = useCallback(async () => {
 		try {
 			const response = await fetch(
-				`${API_URL}/api/synthetisers/${synthId}/auctions/latest`
+				`${API_URL}/api/synthetisers/${synthId}/auctions/latest`,
+				{
+					headers: {
+						'Authorization': `Bearer ${localStorage.getItem('token')}`,
+						'Content-Type': 'application/json'
+					}
+				}
 			);
 			const data = await response.json();
 
