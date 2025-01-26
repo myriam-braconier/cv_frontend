@@ -51,21 +51,23 @@ export default function RegisterForm() {
 		e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
 	) => {
 		const { name, value, type } = e.target;
+		console.log('Change event:', { name, value, type });
 	
 		if (type === "radio" && name === "hasInstrument") {
-			const isOwner = value === "true";
-			setFormData((prev) => ({
+			setFormData(prev => ({
 				...prev,
-				hasInstrument: isOwner,
-				roleId: isOwner ? 5 : prev.roleId,
+				hasInstrument: value === "true",
+				roleId: value === "true" ? 5 : prev.roleId
 			}));
 		} else {
-			setFormData((prev) => ({
+			setFormData(prev => ({
 				...prev,
-				[name]: name === "roleId" ? parseInt(value) : value,
+				[name]: name === "roleId" ? parseInt(value) : value
 			}));
 		}
 	};
+		
+	
 
 	const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -89,14 +91,14 @@ export default function RegisterForm() {
 
 		try {
 			// Si l'utilisateur est propriétaire, on force le rôle 5
-			const finalRoleId = hasInstrument ? 5 : roleId;
+			// const finalRoleId = hasInstrument ? 5 : roleId;
 
 			const requestData = {
 				username,
 				email,
 				password,
 				has_instrument: hasInstrument,
-				roleId: finalRoleId,
+				roleId
 			};
 
 			console.log("Données envoyées à l'API:", requestData);
@@ -237,7 +239,7 @@ export default function RegisterForm() {
 					<select
 						id="roleId"
 						name="roleId"
-						value={formData.hasInstrument ? 5 : formData.roleId}
+						value={formData.roleId}
 						onChange={handleChange}
 						disabled={formData.hasInstrument}
 						className={`w-full px-3 py-2 border rounded text-black ${

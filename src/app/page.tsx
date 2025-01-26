@@ -53,7 +53,7 @@ export default function HomePage() {
 								passion
 							</p>
 							<p className="text-sm italic">
-								{" "}
+								Site de démonstration
 							</p>
 							<p className="text-xl font-bold text-blue-800">
 								{/* Accès : <br></br> email: tech10@free.fr <br></br>password: 012345678{" "} */}
