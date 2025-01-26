@@ -312,44 +312,46 @@ export const SynthetiserCard = ({
 						onPostsUpdate={setLocalPosts}
 					/>
 
-					{/* Actions d'édition*/}
+					{/* Actions d'édition */}
+<div className="mt-4">
+    {(hasPermission("synths:delete") || hasPermission("synths:update")) && (
+        <>
+            <CardActions
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onDuplicate={handleDuplicate}
+                isLoading={isLoading}
+                isAdmin={true}
+                originalSynth={synth}
+            />
+            {isEditing && (
+                <EditorDialog
+                    isOpen={isEditing}
+                    onOpenChange={setIsEditing}
+                    synth={synth}
+                    onSubmit={handleSubmit}
+                    onCancel={handleCloseEditor}
+                    onClose={handleCloseEditor}
+                    error={null}
+                    isLoading={isLoading}
+                    isAuthenticated={isAuthenticated}
+                    isAdmin={true}
+                />
+            )}
+            {isDuplicating && (
+                <DuplicateSynthDialog
+                    isOpen={isDuplicating}
+                    onOpenChange={setIsDuplicating}
+                    onClose={() => setIsDuplicating(false)}
+                    onSuccess={onUpdateSuccess}
+                    originalSynth={synth}
+                    isAdmin={true}
+                />
+            )}
+        </>
+    )}
+</div>
 
-					<div className="mt-4">
-						<CardActions
-							onEdit={handleEdit}
-							onDelete={handleDelete}
-							onDuplicate={handleDuplicate}
-							isLoading={isLoading}
-							isAdmin={hasPermission("synths:delete")}
-							originalSynth={synth}
-						/>
-
-						{isEditing && (
-							<EditorDialog
-								isOpen={isEditing}
-								onOpenChange={setIsEditing}
-								synth={synth}
-								onSubmit={handleSubmit}
-								onCancel={handleCloseEditor}
-								onClose={handleCloseEditor}
-								error={null}
-								isLoading={isLoading}
-								isAuthenticated={isAuthenticated}
-								isAdmin={hasPermission("synths:update")}
-							/>
-						)}
-
-						{isDuplicating && (
-							<DuplicateSynthDialog
-								isOpen={isDuplicating}
-								onOpenChange={setIsDuplicating}
-								onClose={() => setIsDuplicating(false)}
-								onSuccess={onUpdateSuccess}
-								originalSynth={synth}
-								isAdmin={hasPermission("synths:update")}
-							/>
-						)}
-					</div>
 				</div>
 			</article>
 		</>
