@@ -18,7 +18,13 @@ export const generateBackground = async (
 			}
 		);
 
-		const base64Image = Buffer.from(response.data).toString("base64");
+		console.log('Response type:', typeof response.data);
+		console.log('Response:', response.data);
+
+		 // Si response.data est déjà un Buffer
+		 const base64Image = (Buffer.isBuffer(response.data)) 
+		 ? response.data.toString('base64')
+		 : Buffer.from(response.data).toString("base64");
 		return `data:image/jpeg;base64,${base64Image}`;
 	} catch (error) {
 		console.error("Image generation failed:", error);
