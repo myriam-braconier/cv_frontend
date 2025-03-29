@@ -61,7 +61,7 @@ export default function HomePage() {
 							<p className="text-sm italic">
 								
 							</p>
-							<div className="font-bold text-xl text-blue-800 ml-4 mt-2 text-right">
+							<div className="font-bold text-xl text-white ml-4 mt-2 text-right">
 								<span className="">Consulter les dépôts GitHub</span>
 								<br />
 								<div className="mt-2  text-white">
