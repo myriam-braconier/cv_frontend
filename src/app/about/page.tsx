@@ -14,7 +14,7 @@ export default function AboutPage() {
 				<BackgroundRotator images={images} />
 			</div>
 			<div className="text-white max-w-[800px] mx-auto">
-				<div className="space-y-12 space-x-6 text-lg text-white text-bold mt-10 border-2  border-white">
+				<div className="space-y-12 space-x-6 text-lg text-white text-bold mt-10 border-2  border-white rounded-xl">
 					<h1 className="text-3xl font-bold mt-8 mb-8 text-center">
 						À propos de Concrete Vibes
 					</h1>
