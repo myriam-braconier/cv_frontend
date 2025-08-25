@@ -2,5 +2,7 @@
   "name": "cv_frontend",
   "main": ".open-next/worker.js",
   "compatibility_date": "2025-04-01",
-  "nodejs_compat": true
+    "compatibility_flags": [
+    "nodejs_compat"
+  ]
 }
