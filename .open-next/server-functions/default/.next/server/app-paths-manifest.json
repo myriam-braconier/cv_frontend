@@ -4,10 +4,10 @@
   "/(auth)/login/page": "app/(auth)/login/page.js",
   "/about/page": "app/about/page.js",
   "/(auth)/register/page": "app/(auth)/register/page.js",
-  "/page": "app/page.js",
   "/admin/dashboard/page": "app/admin/dashboard/page.js",
+  "/auctions/page": "app/auctions/page.js",
+  "/page": "app/page.js",
   "/synthetisers/[id]/page": "app/synthetisers/[id]/page.js",
   "/synthetisers/page": "app/synthetisers/page.js",
-  "/auctions/page": "app/auctions/page.js",
   "/users/page": "app/users/page.js"
 }
