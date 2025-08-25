@@ -70,7 +70,7 @@ export default function HomePage() {
 									</span>
 									<span>
 										<Link
-											href="https://github.com/volubyl01/cv_frontend.git"
+											href="https://github.com/myriam-braconier/cv_frontend.git"
 											className=""
 										>
 											Concrete Vibes
@@ -80,7 +80,7 @@ export default function HomePage() {
 										👉
 										</span>
 										<Link
-											href="https://github.com/volubyl01/cv_backend.git"
+											href="https://github.com/myriam-braconier/cv_backend.git"
 											className=""
 										>
 											Concrete Vibes Api

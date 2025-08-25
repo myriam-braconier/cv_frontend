@@ -56,17 +56,17 @@ api.interceptors.response.use(
 );
 
 // Intercepteur pour gérer les erreurs d'authentification
-api.interceptors.response.use(
-	(response) => response,
-	(error) => {
-		if (error.response?.status === 401) {
-			// Gérer l'expiration du token ici
-			localStorage.removeItem("token");
-			localStorage.removeItem("user");
-		}
-		return Promise.reject(error);
-	}
-);
+// api.interceptors.response.use(
+// 	(response) => response,
+// 	(error) => {
+// 		if (error.response?.status === 401) {
+// 			// Gérer l'expiration du token ici
+// 			localStorage.removeItem("token");
+// 			localStorage.removeItem("user");
+// 		}
+// 		return Promise.reject(error);
+// 	}
+// );
 
 // Intercepteur pour gérer les erreurs globales
 api.interceptors.response.use(

@@ -1,0 +1,7 @@
+package.json :
+"scripts": {
+    "dev": "set NODE_ENV=development&& next dev",
+    "build": "set NODE_ENV=production&& next build",
+    "start": "set NODE_ENV=production&& next start",
+    "lint": "next lint"
+  },
