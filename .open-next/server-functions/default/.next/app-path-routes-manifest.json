@@ -1,0 +1,13 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/api/background/route": "/api/background",
+  "/(auth)/login/page": "/login",
+  "/about/page": "/about",
+  "/(auth)/register/page": "/register",
+  "/page": "/",
+  "/admin/dashboard/page": "/admin/dashboard",
+  "/synthetisers/[id]/page": "/synthetisers/[id]",
+  "/synthetisers/page": "/synthetisers",
+  "/auctions/page": "/auctions",
+  "/users/page": "/users"
+}
