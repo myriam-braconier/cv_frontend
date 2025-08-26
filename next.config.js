@@ -4,10 +4,14 @@ module.exports = {
 	poweredByHeader: false,
 	reactStrictMode: true,
 	rewrites: async () => {
+const backendUrl = process.env.NODE_ENV === 'production' 
+            ? 'https://cvbackend-production-302b.up.railway.app'
+            : 'http://localhost:4000';
+
 		return [
 			{
 				source: "/api/:path*",
-				destination: "http://localhost:4000/api/:path*",
+				 destination: `${backendUrl}/api/:path*`,
 			},
 		];
 	},
