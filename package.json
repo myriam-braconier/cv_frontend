@@ -5,14 +5,10 @@
   "scripts": {
     "dev": "set NODE_ENV=development&& next dev",
     "build": "set NODE_ENV=production&& next build",
-    "build-open": "opennextjs-cloudflare build",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "start": "set NODE_ENV=production&& next start",
+    "start": "node .next/standalone/server.js",
     "lint": "next lint"
   },
   "dependencies": {
-    "@opennextjs/cloudflare": "^1.6.5",
     "@radix-ui/react-avatar": "^1.1.2",
     "@radix-ui/react-dialog": "^1.1.4",
     "@radix-ui/react-slot": "^1.1.1",
@@ -45,7 +41,7 @@
     "eslint-import-resolver-typescript": "^3.7.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.3",
-    "wrangler": "^4.32.0"
+    "typescript": "^5.7.3"
+  
   }
 }

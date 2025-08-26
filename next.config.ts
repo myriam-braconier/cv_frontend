@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 
 const config: NextConfig = {
+  output: 'standalone',
   async redirects() {
     return [];
   },
@@ -16,3 +17,4 @@ const config: NextConfig = {
 };
 
 export default config;
+
