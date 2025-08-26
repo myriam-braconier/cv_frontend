@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "set NODE_ENV=development&& next dev",
 		"build": "set NODE_ENV=production&& next build",
-		"start": "node .next/standalone/server.js -H 0.0.0.0",
+		"start": "node .next/standalone/server.js -H 0.0.0.0 -p $PORT",
 		"lint": "next lint",
 		"postbuild": "cp -R public .next/standalone && cp -R .next/static .next/standalone/.next/static"
 	},
