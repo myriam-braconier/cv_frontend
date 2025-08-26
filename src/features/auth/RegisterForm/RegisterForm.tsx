@@ -111,7 +111,7 @@ export default function RegisterForm() {
 			// );
 
 			const response = await axios.post(
-				`api/auth/register`,
+				`auth/register`,
 				requestData
 			);
 			if (response.status === 201) {
