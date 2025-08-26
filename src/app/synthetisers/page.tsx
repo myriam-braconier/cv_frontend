@@ -1,5 +1,5 @@
 "use client";
-import { useParams } from "next/navigation";
+
 import { ListSynthetisers } from "@/features/synthetisers/components/list/ListSynthetisers";
 import AiGenerator from "../../components/AiGenerator";
 import { useState, useEffect } from "react";
@@ -8,8 +8,8 @@ import { Synth } from "@/features/synthetisers/types/synth";
 // import AIBackground from "@components/AIbackground";
 
 export default function SynthetisersPage() {
-	const params = useParams();
-  const id = params?.id;
+	
+  
   
 	const [synths] = useState<Synth[]>([]);
 	const [isAuth, setIsAuth] = useState(false);
@@ -120,7 +120,7 @@ export default function SynthetisersPage() {
 					{/* <BackgroundRotator images={images} /> */}
 
 					<h1 className="text-3xl font-bold mb-8 text-center text-white">
-						Synthétiseur ID : {id ?? "inconnu"}
+						Synthétiseurs
 					</h1>
 
 					<ListSynthetisers

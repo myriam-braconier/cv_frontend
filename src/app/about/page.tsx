@@ -41,10 +41,10 @@ export default function AboutPage() {
 						<p>
 							Vous pouvez me contacter à l&apos;adresse suivante :
 							<a
-								href="mailto:online@indexof.fr"
+								href=""
 								className="text-blue-600 hover:underline ml-1"
 							>
-								online@indexof.fr
+								
 							</a>
 						</p>
 					</section>
