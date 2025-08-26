@@ -37,7 +37,7 @@ export default function RegisterForm() {
 	useEffect(() => {
 		const fetchRoles = async () => {
 			try {
-				const response = await axios.get(`${API_URL}/api/roles`);
+				const response = await axios.get(`/api/roles`);
 				setRoles(response.data);
 			} catch (error) {
 				console.error("Erreur lors du chargement des rôles:", error);
