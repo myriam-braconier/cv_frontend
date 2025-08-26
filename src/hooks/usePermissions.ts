@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { API_URL } from "@/config/constants";
+
 
 interface Permission {
   id: number;
@@ -24,7 +24,7 @@ export const usePermissions = () => {
         }
         
         console.log('✅ Token trouvé:', token.substring(0, 20) + '...');
-        console.log('🔄 Tentative de requête vers:', `${API_URL}/api/users/permissions`);
+        console.log('🔄 Tentative de requête vers:', `/api/users/permissions`);
         
         // Définition de config ici
         const config = {
@@ -36,7 +36,7 @@ export const usePermissions = () => {
           withCredentials: true
         };
 
-        const response = await axios.get(`${API_URL}/api/users/permissions`, config);
+        const response = await axios.get(`/api/users/permissions`, config);
         console.log('📥 Réponse brute:', response.data);
         
         if (response.data && response.data.permissions) {

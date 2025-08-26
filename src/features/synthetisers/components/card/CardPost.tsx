@@ -3,7 +3,7 @@ import { memo } from "react";
 import { Post } from "@/features/synthetisers/types/synth";
 import { AddPost } from "../posts/AddPost";
 import Link from "next/link";
-import { API_URL } from "@/config/constants";
+
 import { toast } from "react-hot-toast";
 
 interface CardPostProps {
@@ -35,7 +35,7 @@ export const CardPost = memo(
 	const handlePostAdded = async () => {
 		try {
 		  const response = await fetch(
-			`${API_URL}/api/posts?synthetiserId=${synthetiserId}`,
+			`/api/posts?synthetiserId=${synthetiserId}`,
 			{
 			  headers: {
 				Authorization: `Bearer ${localStorage.getItem("token")}`,

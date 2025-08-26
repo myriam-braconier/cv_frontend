@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/services/axios";
 import Cookies from "js-cookie";
-import { API_URL } from "@/config/constants";
+
 
 interface UserData {
 	email: string;
@@ -68,7 +68,7 @@ export const useAuth = () => {
 
 	const verifyToken = useCallback(async (token: string): Promise<boolean> => {
 		try {
-			const response = await api.get(`${API_URL}/auth/verify`, {
+			const response = await api.get(`/auth/verify`, {
 				headers: { Authorization: `Bearer ${token}` },
 				withCredentials: true, // Ajouter explicitement ici aussi
 			});
@@ -111,7 +111,7 @@ export const useAuth = () => {
 		try {
 			// Ajouter l'appel API pour la déconnexion
 			await api.post(
-				`${API_URL}/auth/logout`,
+				`/auth/logout`,
 				{},
 				{
 					withCredentials: true,

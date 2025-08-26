@@ -1,7 +1,6 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { API_URL } from "@/config/constants";
 
 interface Role {
 	id: number;
@@ -112,7 +111,7 @@ export default function RegisterForm() {
 			// );
 
 			const response = await axios.post(
-				`${API_URL}/auth/register`,
+				`/auth/register`,
 				requestData
 			);
 			if (response.status === 201) {

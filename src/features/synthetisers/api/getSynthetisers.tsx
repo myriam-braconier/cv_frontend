@@ -1,6 +1,6 @@
 // features/synthetisers/api/getSynthetisers.ts
 import { Synth } from '@/features/synthetisers/types/synth';
-import { API_URL } from '@/config/constants';
+
 
 interface SynthResponse {
   synths: Synth[];
@@ -16,7 +16,7 @@ interface SynthResponse {
 export async function getSynthetisers(page = 1, limit = 12): Promise<Synth[]> {
   try {
     const response = await fetch(
-      `${API_URL}/api/synthetisers?page=${page}&limit=${limit}`,
+      `/api/synthetisers?page=${page}&limit=${limit}`,
       {
         headers: {
           'Content-Type': 'application/json'

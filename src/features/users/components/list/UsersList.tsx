@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { User, Profile } from '@/features/users/types/types';
 import { Synth, Post } from '@/features/synthetisers/types/synth';
 import { UserCard } from '../cards';  // Import depuis l'index.ts
-import { API_URL } from "@/config/constants";
+
 
 
 interface UsersListProps {
@@ -23,9 +23,9 @@ export function UsersList({ users: initialUsers, synthetisers }: UsersListProps)
     const loadUsersWithPosts = async () => {
       setIsLoading(true);
       try {
-        console.log("Tentative de fetch à l'URL:", `${API_URL}/api/users/with-posts`);
+        console.log("Tentative de fetch à l'URL:", `/api/users/with-posts`);
         
-        const response = await fetch(`${API_URL}/api/users/users-with-posts`, {
+        const response = await fetch(`/api/users/users-with-posts`, {
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'

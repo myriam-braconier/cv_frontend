@@ -10,7 +10,7 @@ type UserType = {
   role?: string[];
 } | null;
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
 
 const NavLink = ({
   href,
@@ -39,7 +39,7 @@ export default function Navbar() {
     try {
       const token = localStorage.getItem("token");
       if (token) {
-        await fetch(`${API_URL}/auth/logout`, {
+        await fetch(`/auth/logout`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -61,7 +61,7 @@ export default function Navbar() {
     try {
       const token = localStorage.getItem("token");
       if (token) {
-        const response = await fetch(`${API_URL}/auth/verify`, {
+        const response = await fetch(`/auth/verify`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,

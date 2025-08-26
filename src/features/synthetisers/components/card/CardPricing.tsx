@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { api } from "@/services/axios";
 import { toast } from "react-hot-toast";
 import { AuctionPrice } from "@/features/synthetisers/types/synth";
-import { API_URL } from "@/config/constants";
+
 
 interface CardPricingProps {
 	price: number | Price | null;
@@ -91,7 +91,7 @@ const CardPricing = ({
 	const fetchLatestAuction = useCallback(async () => {
 		try {
 			const response = await fetch(
-				`${API_URL}/api/synthetisers/${synthId}/auctions/latest`,
+				`/api/synthetisers/${synthId}/auctions/latest`,
 				{
 					headers: {
 						'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -157,7 +157,7 @@ const CardPricing = ({
 
 			const userId = JSON.parse(atob(token.split(".")[1])).id;
 			const response = await api.post(
-				`${API_URL}/api/synthetisers/${synthId}/auctions`,
+				`/api/synthetisers/${synthId}/auctions`,
 				{
 					proposal_price: Number(newBidAmount),
 					status: "active",

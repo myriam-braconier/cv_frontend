@@ -1,8 +1,8 @@
 // utils/api.js
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
 
 export const fetchPosts = async (synthetiserId) => {
-  const response = await fetch(`${API_URL}/api/posts?synthetiserId=${synthetiserId}`);
+  const response = await fetch(`/api/posts?synthetiserId=${synthetiserId}`);
   if (!response.ok) {
     throw new Error('Erreur lors de la récupération des posts');
   }

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { api } from "@/services/axios";
-import { API_URL } from '@/config/constants';
 import { toast } from "react-hot-toast";
 import { AxiosError } from "axios";
 import { useRouter } from 'next/navigation'; // Ajout de l'import
@@ -51,7 +50,7 @@ export function AddPost({ synthetiserId, onPostAdded }: AddPostProps) {
       const userId = payload.id;
 
       // Premier appel pour créer le post
-      const response = await api.post(`${API_URL}/api/posts`, {
+      const response = await api.post(`/api/posts`, {
         titre: titre.trim(),
         commentaire: commentaire.trim(),
         synthetiserId,
@@ -66,7 +65,7 @@ export function AddPost({ synthetiserId, onPostAdded }: AddPostProps) {
         setCommentaire('');
 
         // Deuxième appel pour récupérer le post avec les informations de l'auteur
-        const postWithAuthor = await api.get(`${API_URL}/api/posts/${response.data.id}`, {
+        const postWithAuthor = await api.get(`/api/posts/${response.data.id}`, {
           params: {
             include: ['author']
           }

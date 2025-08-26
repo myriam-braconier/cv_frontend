@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from "react";
 import { Synth } from "@/features/synthetisers/types/synth";
 import { SynthetiserCard } from "../SynthetiserCard";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { API_URL } from "@/config/constants";
 import api from "@/lib/axios/index";
 
 interface ListSynthetisersProps {
@@ -25,7 +24,7 @@ export const ListSynthetisers = ({
         console.log('Fetching synths for page:', page);
         setIsLoading(true);
         try {
-            const response = await api.get(`${API_URL}/api/synthetisers`, {
+            const response = await api.get(`/api/synthetisers`, {
                 params: {
                     page,
                     limit: pageSize,

@@ -9,7 +9,7 @@ import { CardPost } from "@/features/synthetisers/components/card/CardPost";
 import { EditorDialog } from "@/features/synthetisers/components/dialogs/EditorDialog";
 import { Synth, Post } from "@/features/synthetisers/types/synth";
 import { DuplicateSynthDialog } from "@/features/synthetisers/components/dialogs/DuplicateSynthDialog";
-import { API_URL } from "@/config/constants";
+
 import { usePermissions } from "@/hooks/usePermissions";
 // import { PermissionGuard } from "@components/PermissionGuard";
 import { generateBackground } from "@/services/imageGeneration";
@@ -72,7 +72,7 @@ export const SynthetiserCard = ({
 				}
 
 				const response = await fetch(
-					`${API_URL}/api/posts?synthetiserId=${id}`,
+					`/api/posts?synthetiserId=${id}`,
 					{
 						headers: {
 							Authorization: `Bearer ${token}`,
@@ -130,7 +130,7 @@ export const SynthetiserCard = ({
 			}
 
 			// Appel API
-			const response = await fetch(`${API_URL}/api/synthetisers/${id}`, {
+			const response = await fetch(`/api/synthetisers/${id}`, {
 				method: "DELETE",
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -209,7 +209,7 @@ export const SynthetiserCard = ({
 	const handleSubmit = useCallback(
 		async (data: Partial<Synth>) => {
 			try {
-				const response = await fetch(`${API_URL}/api/synthetisers/${id}`, {
+				const response = await fetch(`/api/synthetisers/${id}`, {
 					method: "PUT",
 					headers: {
 						"Content-Type": "application/json",

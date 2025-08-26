@@ -6,7 +6,6 @@ import Image from "next/image";
 import { Synth } from "@/features/synthetisers/types/synth";
 import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
-import { API_URL } from "@/config/constants";
 import { AxiosError } from "axios";
 
 interface DuplicateSynthFormProps {
@@ -66,7 +65,7 @@ const DuplicateSynthForm = ({
 			};
 	
 			const response = await api.post(
-				`${API_URL}/api/synthetisers/${originalSynth.id}/duplicate`,
+				`/api/synthetisers/${originalSynth.id}/duplicate`,
 				requestData
 			);
 	

@@ -1,5 +1,5 @@
 "use client";
-import { API_URL } from '@/config/constants';
+
 
 import { useParams } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
@@ -20,7 +20,7 @@ export default function SynthetiserDetailPage() {
 
 		try {
 			const token = localStorage.getItem("token");
-			const response = await api.get(`${API_URL}/api/synthetisers/${params.id}`, {
+			const response = await api.get(`/api/synthetisers/${params.id}`, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},

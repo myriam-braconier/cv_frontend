@@ -1,7 +1,6 @@
 // components/SynthDetail.tsx
 import { useRouter } from 'next/navigation';
 import { Synth } from "@/features/synthetisers/types/synth";
-import { API_URL } from '@/config/constants';
 
 
 
@@ -43,7 +42,7 @@ interface SynthDetailProps {
       <div className="flex gap-2 mt-4">
         {canDuplicate() && (
           <button
-            onClick={() => router.push(`${API_URL}/synthetisers/duplicate/${synth.id}`)}
+            onClick={() => router.push(`/api/synthetisers/duplicate/${synth.id}`)}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
           >
             Dupliquer ce synthétiseur

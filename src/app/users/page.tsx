@@ -1,7 +1,7 @@
 // app/users/page.tsx
 import { Synth } from "@/features/synthetisers/types/synth";
 import { UsersList } from "@/features/users/components/list/UsersList";
-import { API_URL } from "@/config/constants";
+
 
 import { getSynthetisers } from "@/features/synthetisers/api/getSynthetisers";
 
@@ -13,7 +13,7 @@ export default async function UsersPage() {
 
     // Récupération directe des users depuis l'API
     const [usersResponse, synthetisers] = await Promise.all([
-      fetch(`${API_URL}/api/users`),
+      fetch(`/api/users`),
       getSynthetisers(1, 100)
     ]);
 

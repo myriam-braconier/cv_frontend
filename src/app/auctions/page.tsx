@@ -1,6 +1,6 @@
 "use client";
 
-import { API_URL } from "@/config/constants";
+
 import { useState, useCallback, useEffect } from "react";
 import { AuctionsList } from "@/features/auctions/components/list/AuctionsList";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -60,7 +60,7 @@ console.log("Valeur finale de isAdmin:", isAdmin);
 			setIsLoading(true);
 			setError(null);
 
-			const auctionResponse = await api.get(`${API_URL}/api/auctions`);
+			const auctionResponse = await api.get(`/api/auctions`);
 			console.log("Response:", auctionResponse); // Pour voir la structure complète
 			if (!auctionResponse.data.data) {
 				throw new Error("Format de données invalide");

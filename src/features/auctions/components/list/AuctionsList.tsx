@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Auction } from "@/features/auctions/types/auction";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { API_URL } from "@/config/constants";
 import Image from "next/image";
 import axios, { AxiosError } from "axios";
 
@@ -48,7 +47,7 @@ export const AuctionsList = ({
 			setDeleteError(null);
 
 			// 204 est une réponse valide après suppression
-			await axios.delete(`${API_URL}/api/auctions/${auctionId}`, {
+			await axios.delete(`/api/auctions/${auctionId}`, {
 				validateStatus: (status) => {
 					return status === 204 || (status >= 200 && status < 300);
 				},
@@ -104,7 +103,7 @@ export const AuctionsList = ({
 	const handleRefresh = async () => {
 		try {
 			setIsRefreshing(true);
-			const response = await axios.get(`${API_URL}/api/auctions`);
+			const response = await axios.get(`/api/auctions`);
 
 			const auctionsData = Array.isArray(response.data)
 				? response.data
