@@ -31,7 +31,7 @@ module.exports = {
             },
             {
                 protocol: "https",
-                hostname: "concrete-api.vercel.app",
+                hostname: "concrete-vibes.up.railway.app/",
                 pathname: "/**",
             },
             {
