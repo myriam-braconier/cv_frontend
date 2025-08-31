@@ -1,7 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Waveform = ({ initialColor = '#FF5733' }) => {
   const [color, setColor] = useState(initialColor);
+  const [waveData, setWaveData] = useState<Array<{y: number, height: number}>>([]);
+
+  useEffect(() => {
+    // Générer les données d'onde aléatoirement seulement côté client après l'hydratation
+    const data = [...Array(20)].map(() => ({
+      y: 7 + Math.random() * 15,
+      height: 8 + Math.random() * 8
+    }));
+    setWaveData(data);
+  }, []);
 
   return (
     <div className="w-full max-w-2xl mx-auto p-4">
@@ -24,13 +34,13 @@ const Waveform = ({ initialColor = '#FF5733' }) => {
           strokeWidth="0.5"
         />
         {/* Simulation des pics audio */}
-        {[...Array(20)].map((_, i) => (
+        {waveData.map((bar, i) => (
           <rect
             key={i}
             x={i * 5}
-            y={7 + Math.random() * 15}
+            y={bar.y}
             width="2"
-            height={8 + Math.random() * 8}
+            height={bar.height}
             fill={color}
           />
         ))}

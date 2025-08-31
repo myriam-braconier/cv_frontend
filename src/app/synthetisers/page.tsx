@@ -5,7 +5,6 @@ import AiGenerator from "../../components/AiGenerator";
 import { useState, useEffect } from "react";
 import { Synth } from "@/features/synthetisers/types/synth";
 
-// import AIBackground from "@components/AIbackground";
 
 export default function SynthetisersPage() {
 	
@@ -128,6 +127,6 @@ export default function SynthetisersPage() {
                         isAuthenticated={() => isAuth}					/>
 				</div>
 			</main>
-		</AiGenerator>
+		 </AiGenerator>
 	);
 }

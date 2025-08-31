@@ -3,16 +3,19 @@ import axios from "axios";
 import Cookies from "js-cookie";
 // import { toast } from "react-hot-toast";
 
-
 axios.defaults.withCredentials = true;
 
 // API principale
 export const api = axios.create({
-	baseURL: process.env.NEXT_PUBLIC_API_URL,
-  });
+	baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api",
+	withCredentials: true,
+	timeout: 10000, // 10 secondes de timeout
+	headers: {
+		"Content-Type": "application/json",
+	},
+});
 
-
-  // API Hugging Face
+// API Hugging Face
 // export const huggingFaceApi = axios.create({
 // 	baseURL: 'https://api-inference.huggingface.co',
 // 	headers: {
@@ -23,6 +26,11 @@ export const api = axios.create({
 // Intercepteur pour ajouter le token à chaque requête
 api.interceptors.request.use(
 	(config) => {
+		// Log des requêtes en développement
+		if (process.env.NODE_ENV === "development") {
+			console.log(`🚀 ${config.method?.toUpperCase()} ${config.url}`);
+		}
+
 		// On vérifie d'abord le token dans les cookies (pour cohérence avec le middleware)
 		const token = Cookies.get("token") || localStorage.getItem("token");
 
@@ -32,6 +40,7 @@ api.interceptors.request.use(
 		return config;
 	},
 	(error) => {
+		console.error("Erreur dans l'intercepteur de requête:", error);
 		return Promise.reject(error);
 	}
 );
@@ -39,20 +48,20 @@ api.interceptors.request.use(
 // Intercepteur unique pour les réponses
 // Modifier l'intercepteur pour ne pas rediriger automatiquement
 api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        // Ne pas rediriger si c'est une route publique
-        const publicRoutes = ['/api/synthetisers'];
-        if (publicRoutes.includes(error.config.url)) {
-            return Promise.reject(error);
-        }
+	(response) => response,
+	(error) => {
+		// Ne pas rediriger si c'est une route publique
+		const publicRoutes = ["/api/synthetisers"];
+		if (publicRoutes.includes(error.config.url)) {
+			return Promise.reject(error);
+		}
 
-        // Pour les autres routes, garder votre logique actuelle
-        if (error.response?.status === 401) {
-            // redirection ou autre logique
-        }
-        return Promise.reject(error);
-    }
+		// Pour les autres routes, garder votre logique actuelle
+		if (error.response?.status === 401) {
+			// redirection ou autre logique
+		}
+		return Promise.reject(error);
+	}
 );
 
 // Intercepteur pour gérer les erreurs d'authentification

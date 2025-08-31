@@ -1,6 +1,6 @@
 // features/synthetisers/api/getSynthetisers.ts
 import { Synth } from '@/features/synthetisers/types/synth';
-
+import { apiFetch } from '@/config/api';
 
 interface SynthResponse {
   synths: Synth[];
@@ -15,24 +15,12 @@ interface SynthResponse {
 
 export async function getSynthetisers(page = 1, limit = 12): Promise<Synth[]> {
   try {
-    const response = await fetch(
-      `/api/synthetisers?page=${page}&limit=${limit}`,
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    console.log(`🔍 Fetching synthetisers - Page: ${page}, Limit: ${limit}`);
+    
+    // Utiliser apiFetch au lieu de fetch direct
+    const data: SynthResponse = await apiFetch(`/api/synthetisers?page=${page}&limit=${limit}`);
 
-    if (!response.ok) {
-      console.error('API Error:', response.status, response.statusText);
-      const text = await response.text();
-      console.error('Error details:', text);
-      return [];
-    }
-
-    const data: SynthResponse = await response.json();
-    console.log('Synthetisers API response:', {
+    console.log('✅ Synthetisers API response:', {
       total: data.pagination.total,
       currentPage: data.pagination.currentPage,
       synthsCount: data.synths.length,
@@ -43,9 +31,9 @@ export async function getSynthetisers(page = 1, limit = 12): Promise<Synth[]> {
       } : null
     });
 
-    return data.synths;
+    return data.synths || [];
   } catch (error) {
-    console.error('Error fetching synthetisers:', error);
+    console.error('❌ Error fetching synthetisers:', error);
     return [];
   }
 }

@@ -3,7 +3,8 @@ import localFont from "next/font/local";
 import "@/styles/globals.css";
 import Navbar from "../components/layout/NavBar";
 import "react-toastify/dist/ReactToastify.css";
-import OverlayAnimation from "../components/OverlayAnimation";
+
+
 
 const geistSans = localFont({
 	src: "../../public/fonts/GeistVF.woff",
@@ -40,9 +41,10 @@ export default function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
-				<OverlayAnimation />
+				
 				<Navbar />
 				{children}
+				
 			</body>
 		</html>
 	);

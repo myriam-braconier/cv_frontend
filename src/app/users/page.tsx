@@ -1,9 +1,8 @@
 // app/users/page.tsx
 import { Synth } from "@/features/synthetisers/types/synth";
 import { UsersList } from "@/features/users/components/list/UsersList";
-
-
 import { getSynthetisers } from "@/features/synthetisers/api/getSynthetisers";
+import { apiFetch } from '@/config/api';
 
 type SynthMap = { [key: number]: Synth };
 
@@ -12,13 +11,11 @@ export default async function UsersPage() {
     console.log('Starting data fetch...');
 
     // Récupération directe des users depuis l'API
-    const [usersResponse, synthetisers] = await Promise.all([
-      fetch(`/api/users`),
+    const [users, synthetisers] = await Promise.all([
+      apiFetch(`/api/users`),
       getSynthetisers(1, 100)
     ]);
 
-    
-    const users = await usersResponse.json();
 
     console.log('Data fetched:', {
       usersCount: users.length,

@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import Waveform from "@/components/Waveform";
+import OverlayAnimation from "../components/OverlayAnimation";
+
 
 export default function HomePage() {
 	const [isAdmin, setIsAdmin] = useState(false);
@@ -27,11 +29,12 @@ export default function HomePage() {
 				className="relative  text-white  min-h-[600px] w-full overflow-y-clip"
 				id="sectionAccueil"
 			>
-				<div className="absolute inset-0 w-full h-full">
-					<Image
-						src="/images/synthetiseur-analogique-moog-subsequent-37.webp"
-						alt="Background"
-						fill
+				<OverlayAnimation />
+					<div className="absolute inset-0 w-full h-full">
+						<Image
+							src="/images/synthetiseur-analogique-moog-subsequent-37.webp"
+							alt="Background"
+							fill
 						sizes="100vw"
 						className="object-cover  opacity-50"
 						priority
@@ -116,6 +119,7 @@ export default function HomePage() {
 						</div>
 					</div>
 				</div>
+				
 			</section>
 
 			{/* Features Section */}

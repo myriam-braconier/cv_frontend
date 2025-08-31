@@ -9,10 +9,9 @@ import { CardPost } from "@/features/synthetisers/components/card/CardPost";
 import { EditorDialog } from "@/features/synthetisers/components/dialogs/EditorDialog";
 import { Synth, Post } from "@/features/synthetisers/types/synth";
 import { DuplicateSynthDialog } from "@/features/synthetisers/components/dialogs/DuplicateSynthDialog";
-
 import { usePermissions } from "@/hooks/usePermissions";
-// import { PermissionGuard } from "@components/PermissionGuard";
-import { generateBackground } from "@/services/imageGeneration";
+import { apiFetch } from "@/config/api";
+
 
 interface SynthetiserCardProps {
 	synth: Synth;
@@ -33,8 +32,9 @@ export const SynthetiserCard = ({
 	const [postsError, setPostsError] = useState<string | null>(null);
 	const [localPosts, setLocalPosts] = useState<Post[]>(synth.posts || []);
 	const [isDuplicating, setIsDuplicating] = useState(false);
-	const router = useRouter();
 	const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
+	const [backgroundLoading, setBackgroundLoading] = useState(false);
+	const router = useRouter();
 	const { hasPermission } = usePermissions();
 
 	const {
@@ -71,15 +71,11 @@ export const SynthetiserCard = ({
 					throw new Error("No authentication token found");
 				}
 
-				const response = await fetch(
-					`/api/posts?synthetiserId=${id}`,
-					{
-						headers: {
-							Authorization: `Bearer ${token}`,
-							"Content-Type": "application/json",
-						},
-					}
-				);
+				const response = await apiFetch(`/api/posts?synthetiserId=${id}`, {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
 
 				if (!response.ok) {
 					throw new Error(
@@ -104,6 +100,47 @@ export const SynthetiserCard = ({
 			fetchPosts();
 		}
 	}, [id, showPosts]);
+
+	// Fetch background image via API route
+	useEffect(() => {
+  const fetchBackgroundImage = async () => {
+    setBackgroundLoading(true);
+    try {
+      // Récupérer le token
+      const token = localStorage.getItem('authToken') || 
+                    sessionStorage.getItem('authToken');
+      
+      if (!token) {
+        console.warn("No authentication token available");
+        setBackgroundLoading(false);
+        return;
+      }
+
+      // Utiliser apiFetch au lieu de fetch direct
+      const data = await apiFetch("/api/generate-background", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          prompt: `synthesizer ${marque} ${modele}`,
+        }),
+      });
+
+      if (data.success && data.images && data.images.length > 0) {
+        setBackgroundImage(data.images[0].imageUrl);
+      } else {
+        console.warn("Failed to generate background image");
+      }
+    } catch (error) {
+      console.error("Error fetching background image:", error);
+    } finally {
+      setBackgroundLoading(false);
+    }
+  };
+
+  fetchBackgroundImage();
+}, [marque, modele]);
 
 	const handleTogglePost = useCallback(() => setShowPosts((prev) => !prev), []);
 	const handleImageError = useCallback(
@@ -130,11 +167,11 @@ export const SynthetiserCard = ({
 			}
 
 			// Appel API
-			const response = await fetch(`/api/synthetisers/${id}`, {
+			const response = await apiFetch(`/api/synthetisers/${id}`, {
 				method: "DELETE",
 				headers: {
 					Authorization: `Bearer ${token}`,
-					"Content-Type": "application/json",
+					// "Content-Type": "application/json" est déjà ajouté par défaut dans apiFetch
 				},
 			});
 
@@ -230,18 +267,6 @@ export const SynthetiserCard = ({
 		[id, onUpdateSuccess]
 	);
 
-	useEffect(() => {
-		const loadBackground = async () => {
-			const imageData = await generateBackground(
-				`synthesizer ${marque} ${modele}`
-			);
-			if (imageData) {
-				setBackgroundImage(imageData);
-			}
-		};
-		loadBackground();
-	}, [marque, modele]);
-
 	// Ajout des logs debug
 	useEffect(() => {
 		const token = localStorage.getItem("token");
@@ -273,6 +298,13 @@ export const SynthetiserCard = ({
 				}}
 			>
 				<div className="flex flex-col h-full space-y-4 p-4">
+					{/* Loading indicator pour background */}
+					{backgroundLoading && (
+						<div className="absolute top-2 right-2 text-xs text-white bg-black/50 px-2 py-1 rounded">
+							Chargement...
+						</div>
+					)}
+
 					{/* Image */}
 					<div className="relative h-48 w-full">
 						<CardImage
@@ -313,45 +345,45 @@ export const SynthetiserCard = ({
 					/>
 
 					{/* Actions d'édition */}
-<div className="mt-4">
-    {(hasPermission("synths:delete") || hasPermission("synths:update")) && (
-        <>
-            <CardActions
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onDuplicate={handleDuplicate}
-                isLoading={isLoading}
-                isAdmin={true}
-                originalSynth={synth}
-            />
-            {isEditing && (
-                <EditorDialog
-                    isOpen={isEditing}
-                    onOpenChange={setIsEditing}
-                    synth={synth}
-                    onSubmit={handleSubmit}
-                    onCancel={handleCloseEditor}
-                    onClose={handleCloseEditor}
-                    error={null}
-                    isLoading={isLoading}
-                    isAuthenticated={isAuthenticated}
-                    isAdmin={true}
-                />
-            )}
-            {isDuplicating && (
-                <DuplicateSynthDialog
-                    isOpen={isDuplicating}
-                    onOpenChange={setIsDuplicating}
-                    onClose={() => setIsDuplicating(false)}
-                    onSuccess={onUpdateSuccess}
-                    originalSynth={synth}
-                    isAdmin={true}
-                />
-            )}
-        </>
-    )}
-</div>
-
+					<div className="mt-4">
+						{(hasPermission("synths:delete") ||
+							hasPermission("synths:update")) && (
+							<>
+								<CardActions
+									onEdit={handleEdit}
+									onDelete={handleDelete}
+									onDuplicate={handleDuplicate}
+									isLoading={isLoading}
+									isAdmin={true}
+									originalSynth={synth}
+								/>
+								{isEditing && (
+									<EditorDialog
+										isOpen={isEditing}
+										onOpenChange={setIsEditing}
+										synth={synth}
+										onSubmit={handleSubmit}
+										onCancel={handleCloseEditor}
+										onClose={handleCloseEditor}
+										error={null}
+										isLoading={isLoading}
+										isAuthenticated={isAuthenticated}
+										isAdmin={true}
+									/>
+								)}
+								{isDuplicating && (
+									<DuplicateSynthDialog
+										isOpen={isDuplicating}
+										onOpenChange={setIsDuplicating}
+										onClose={() => setIsDuplicating(false)}
+										onSuccess={onUpdateSuccess}
+										originalSynth={synth}
+										isAdmin={true}
+									/>
+								)}
+							</>
+						)}
+					</div>
 				</div>
 			</article>
 		</>
