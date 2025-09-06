@@ -4,7 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { Synth } from "@/features/synthetisers/types/synth";
 import { SynthetiserCard } from "../SynthetiserCard";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import api from "@/lib/axios/index";
+import api from '../../../../services/axios';
+
 
 interface ListSynthetisersProps {
 	synths: Synth[];

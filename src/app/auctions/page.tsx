@@ -4,9 +4,11 @@
 import { useState, useCallback, useEffect } from "react";
 import { AuctionsList } from "@/features/auctions/components/list/AuctionsList";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import api from "@/lib/axios/index";
+
 import { useAuth } from "@/hooks/useAuth"; // import du hook
 import BackgroundRotator from "@/components/BackgroundRotator";
+import api from '../../services/axios';
+
 
 
 export default function AuctionsPage() {

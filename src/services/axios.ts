@@ -5,23 +5,28 @@ import Cookies from "js-cookie";
 
 axios.defaults.withCredentials = true;
 
+
+// Configuration automatique selon l'environnement
+const getBaseURL = () => {
+  // En production (Railway/Vercel/etc.)
+  if (process.env.NODE_ENV === 'production') {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  
+  // En développement local
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+};
+
 // API principale
 export const api = axios.create({
-	baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api",
-	withCredentials: true,
+	baseURL: getBaseURL(),
 	timeout: 10000, // 10 secondes de timeout
 	headers: {
 		"Content-Type": "application/json",
 	},
+	withCredentials: true,
 });
 
-// API Hugging Face
-// export const huggingFaceApi = axios.create({
-// 	baseURL: 'https://api-inference.huggingface.co',
-// 	headers: {
-// 	  Authorization: `Bearer ${process.env.HUGGINGFACE_API_TOKEN}`,
-// 	},
-//   });
 
 // Intercepteur pour ajouter le token à chaque requête
 api.interceptors.request.use(
@@ -64,18 +69,7 @@ api.interceptors.response.use(
 	}
 );
 
-// Intercepteur pour gérer les erreurs d'authentification
-// api.interceptors.response.use(
-// 	(response) => response,
-// 	(error) => {
-// 		if (error.response?.status === 401) {
-// 			// Gérer l'expiration du token ici
-// 			localStorage.removeItem("token");
-// 			localStorage.removeItem("user");
-// 		}
-// 		return Promise.reject(error);
-// 	}
-// );
+
 
 // Intercepteur pour gérer les erreurs globales
 api.interceptors.response.use(

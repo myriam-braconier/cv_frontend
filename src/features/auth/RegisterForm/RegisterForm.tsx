@@ -1,6 +1,6 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import api from "../../../services/axios";
 
 interface Role {
 	id: number;
@@ -32,13 +32,12 @@ export default function RegisterForm() {
 	const [loading, setLoading] = useState<boolean>(false);
 	const router = useRouter();
 
-	// Charger les rôles disponibles
 	useEffect(() => {
 		const fetchRoles = async () => {
 			try {
-				const response = await axios.get(`/api/roles`);
+				const response = await api.get(`/api/public/roles`);
 				setRoles(response.data);
-			} catch (error) {
+			} catch (error: unknown) {
 				console.error("Erreur lors du chargement des rôles:", error);
 				setError("Impossible de charger les rôles disponibles");
 			}
@@ -87,9 +86,6 @@ export default function RegisterForm() {
 		}
 
 		try {
-			// Si l'utilisateur est propriétaire, on force le rôle 5
-			// const finalRoleId = hasInstrument ? 5 : roleId;
-
 			const requestData = {
 				username,
 				email,
@@ -100,20 +96,8 @@ export default function RegisterForm() {
 
 			console.log("Données envoyées à l'API:", requestData);
 
-			// const response = await axios.post(
-			// 	`${API_URL}/auth/register`,
-			// 	requestData,
-			// 	{
-			// 		headers: {
-			// 			"Content-Type": "application/json",
-			// 		},
-			// 	}
-			// );
+			const response = await api.post(`auth/register`, requestData);
 
-			const response = await axios.post(
-				`auth/register`,
-				requestData
-			);
 			if (response.status === 201) {
 				const { token } = response.data;
 				localStorage.setItem("token", token);
@@ -121,22 +105,40 @@ export default function RegisterForm() {
 			}
 
 			console.log("Réponse du serveur:", response.data);
+		} catch (error: unknown) {
+			console.error("Erreur lors de l'inscription:", error);
 
-			if (response.status === 201) {
-				router.push("/login");
-			}
-		} catch (error) {
-			if (axios.isAxiosError(error)) {
+			if (typeof error === "object" && error !== null && "response" in error) {
+				const err = error as { response: { status: number; data?: unknown } };
+
 				console.error("Erreur détaillée:", {
-					status: error.response?.status,
-					data: error.response?.data,
+					status: err.response.status,
+					data: err.response.data,
 				});
+
+				const data = err.response.data as
+					| { message?: string; error?: string }
+					| undefined;
+
+				const errorMessage =
+					data?.message || data?.error || `Erreur ${err.response.status}`;
+
+				setError(errorMessage);
+			} else if (
+				typeof error === "object" &&
+				error !== null &&
+				"request" in error
+			) {
+				const err = error as { request: unknown };
+				console.error("Pas de réponse du serveur:", err.request);
 				setError(
-					error.response?.data?.message || "Erreur lors de l'inscription"
+					"Impossible de contacter le serveur. Vérifiez que votre API Express tourne."
 				);
-			} else {
-				console.error("Erreur non-Axios:", error);
+			} else if (error instanceof Error) {
+				console.error("Erreur de configuration:", error.message);
 				setError("Une erreur inattendue est survenue");
+			} else {
+				setError("Une erreur inconnue est survenue");
 			}
 		} finally {
 			setLoading(false);
@@ -243,6 +245,7 @@ export default function RegisterForm() {
 					<label htmlFor="roleId" className="block mb-2 text-orange-600">
 						Type de compte
 					</label>
+
 					<select
 						id="roleId"
 						name="roleId"
@@ -254,13 +257,14 @@ export default function RegisterForm() {
 						}`}
 					>
 						{roles
-							// .filter((role) => role.name.toLowerCase() !== "moderator")
+							.filter((role) => role.name.toLowerCase() !== "administrateur")
 							.map((role) => (
 								<option key={role.id} value={role.id}>
 									{role.description || role.name}
 								</option>
 							))}
 					</select>
+
 					{formData.hasInstrument && (
 						<p className="mt-1 text-sm text-blue-600">
 							En tant que propriétaire, votre rôle est automatiquement défini

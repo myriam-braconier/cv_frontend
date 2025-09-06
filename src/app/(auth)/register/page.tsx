@@ -9,7 +9,7 @@ export default function RegisterPage() {
     "/images/login2.webp",
 		"/images/login.webp",
 		
-		// autres images...
+		
 	];
   return (
     <main className="min-h-screen relative">
@@ -18,7 +18,7 @@ export default function RegisterPage() {
         <BackgroundRotator images={images} />
       </div>
 
-      {/* Contenu centré */}
+      
       <div className="flex min-h-screen items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <h2 className="mt-6 text-center text-3xl font-extrabold text-white bg-black/50 p-4 rounded-lg backdrop-blur-sm">
