@@ -87,7 +87,7 @@ export const ListSynthetisers = ({
                     <div className="col-span-8 mx-auto bg-gray-600/60 p-4">
                         <h3 className="text-center text-xl font-bold text-white">
                             Pour découvrir les synthétiseurs et les fonctionnalités,
-                            connectez-vous : user@free.fr 012345678
+                            connectez-vous : owner@owner.fr 012345678
                         </h3>
                     </div>
                 ) : (

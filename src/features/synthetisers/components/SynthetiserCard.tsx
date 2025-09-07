@@ -71,7 +71,7 @@ export const SynthetiserCard = ({
 					throw new Error("No authentication token found");
 				}
 
-				const response = await apiFetch(`/api/posts?synthetiserId=${id}`, {
+				const response = await fetch(`/api/posts?synthetiserId=${id}`, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},
