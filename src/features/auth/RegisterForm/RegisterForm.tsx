@@ -190,7 +190,7 @@ export default function RegisterForm() {
 						onChange={handleChange}
 						required
 						minLength={8}
-						className="w-full px-3 py-2 border rounded"
+						className="w-full px-3 py-2 border rounded text-black"
 					/>
 				</div>
 
