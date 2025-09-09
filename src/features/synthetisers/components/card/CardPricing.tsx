@@ -442,7 +442,7 @@ const fetchLatestAuction = useCallback(async () => {
 							setNewBidAmount(e.target.value ? Number(e.target.value) : null)
 						}
 						min={String(minimumBid)} // Conversion en string pour éviter les NaN
-						className="w-full p-2 border rounded"
+						className="w-full p-2 border rounded text-black"
 						placeholder={`Montant minimum: ${minimumBid}€`}
 					/>
 					<button
