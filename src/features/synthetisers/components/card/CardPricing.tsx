@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { api } from "@/services/axios";
 import { toast } from "react-hot-toast";
 import { AuctionPrice } from "@/features/synthetisers/types/synth";
-
+import { AxiosError } from "axios";
 
 interface CardPricingProps {
 	price: number | Price | null;
@@ -75,49 +75,146 @@ const CardPricing = ({
 		return sortedAuctions[0];
 	}, [localAuctionPrices]);
 
-	// Fonction pour obtenir le montant minimum
-	// const getMinimumBid = (): number => {
-	//     // Si une enchère existe et son montant est valide
-	//     if (latestAuction && typeof latestAuction.proposal_price === 'number' && !isNaN(latestAuction.proposal_price)) {
-	//         return latestAuction.proposal_price + 1;
-	//     }
-	//     // Sinon, on prend le prix initial + 1
-	//     return displayPrice + 1;
-	// };
+	// On utilise fetch pour cette fonction
+const fetchLatestAuction = useCallback(async () => {
+	console.log("🚀 Début fetchLatestAuction");
+	console.log("synthId:", synthId);
 
-	// const minimumBid = getMinimumBid();
+	setIsLoadingAuctions(true);
+	setAuctionError(null);
 
-	// On utilise fetch pour cette fonction, car accessible non authentifié
-	const fetchLatestAuction = useCallback(async () => {
+	try {
+		// debug
+		console.log("🏠 Base URL de l'API:", api.defaults?.baseURL);
+		// Vérification de l'authentification
+		console.log("🔐 Vérification authentification...");
+
+		if (!isAuthenticated()) {
+			throw new Error("Utilisateur non authentifié");
+		}
+		console.log("✅ Utilisateur authentifié");
+
+		const token = localStorage.getItem("token");
+		// Construction de l'URL complète
+		const url = `/api/synthetisers/${synthId}/auctions/latest`;
+
+		console.log("🌐 URL relative utilisée:", url);
+
+		const config = {
+			headers: {
+				Authorization: `Bearer ${token}`,
+				"Content-Type": "application/json",
+			},
+		};
+		console.log("⚙️ Configuration de la requête:", config);
+		console.log("📤 Envoi de la requête...");
+
+		// TRY-CATCH IMBRIQUÉ pour la requête API
 		try {
-			const response = await fetch(
-				`/api/synthetisers/${synthId}/auctions/latest`,
-				{
-					headers: {
-						'Authorization': `Bearer ${localStorage.getItem('token')}`,
-						'Content-Type': 'application/json'
-					}
-				}
-			);
-			const data = await response.json();
+			const response = await api.get(url, config);
+			
+			console.log("📥 Réponse reçue:", {
+				status: response.status,
+				statusText: response.statusText,
+				data: response.data,
+			});
+
+			const data = response.data;
+			console.log("📊 Données extraites:", data);
 
 			if (data) {
 				const now = new Date();
-				const formattedData = {
+				const formattedData: AuctionPrice = {
 					...data,
 					createdAt: data.createdAt || now.toISOString(),
 					updatedAt: data.updatedAt || now.toISOString(),
-					proposal_price: parseFloat(data.proposal_price),
+					proposal_price: parseFloat(data.proposal_price) || 0,
 				};
 
+				console.log("✨ Données formatées:", formattedData);
 				setLocalAuctionPrices([formattedData]);
+				console.log("✅ LocalAuctionPrices mis à jour");
+			} else {
+				console.log("⚠️ Aucune donnée reçue, vidage du tableau");
+				setLocalAuctionPrices([]);
 			}
-		} catch (error) {
-			console.error("Erreur détaillée du fetch:", error);
-		} finally {
-			setIsLoadingAuctions(false);
+
+		} catch (apiError: unknown) {
+			console.log("🔍 Debug apiError:", apiError);
+			
+			// Vérification directe des propriétés sans instanceof
+			const errorObj = apiError as { 
+				response?: { status?: number }; 
+				name?: string; 
+				isAxiosError?: boolean;
+				code?: string;
+				message?: string;
+			};
+			
+			console.log("🔍 Status de réponse:", errorObj.response?.status);
+			console.log("🔍 Name:", errorObj.name);
+			console.log("🔍 Code:", errorObj.code);
+			console.log("🔍 IsAxiosError:", errorObj.isAxiosError);
+			
+			// Test simple et direct pour 404
+			if (errorObj.response?.status === 404) {
+				console.log("📭 Aucune enchère trouvée (404) - traité comme cas normal");
+				setLocalAuctionPrices([]);
+				// Pas d'erreur affichée, c'est un état normal
+				return; // Sort de la fonction sans lever d'erreur
+			}
+			
+			// Pour toutes les autres erreurs API, on les relance vers le catch principal
+			console.log("🔄 Relancement de l'erreur vers le catch principal");
+			throw apiError;
 		}
-	}, [synthId]);
+
+	} catch (error: unknown) {
+		console.error("❌ ERREUR COMPLÈTE:", error);
+
+		if (error instanceof AxiosError) {
+			console.error("🔴 Détails erreur Axios:", {
+				message: error.message,
+				status: error.response?.status,
+				statusText: error.response?.statusText,
+				url: error.config?.url,
+				baseURL: error.config?.baseURL,
+				fullURL: `${error.config?.baseURL || ""}${error.config?.url || ""}`,
+			});
+
+			// GESTION SPÉCIALE DU 404 - pas d'enchère trouvée
+			if (error.response?.status === 404) {
+				console.log("📭 Aucune enchère trouvée (404) - traité comme cas normal");
+				setLocalAuctionPrices([]);
+				// Pas d'erreur affichée à l'utilisateur, c'est un état normal
+				return;
+			}
+
+			// Gestion d'erreur selon le type (autres que 404)
+			if (error.response?.status === 401) {
+				setAuctionError("Session expirée, veuillez vous reconnecter");
+				toast.error("Session expirée");
+			} else if (error.response && error.response.status >= 500) {
+				setAuctionError("Erreur serveur");
+				toast.error("Erreur serveur");
+			} else {
+				setAuctionError("Erreur lors du chargement des enchères");
+				toast.error("Erreur de chargement");
+			}
+		} else {
+			// Erreurs non-Axios (authentification, etc.) ou erreurs non identifiées
+			const errorObj = error as { name?: string; message?: string };
+			if (errorObj.name !== 'AxiosError') {
+				console.error("❌ Erreur non-Axios:", error);
+				setAuctionError("Erreur lors du chargement des enchères");
+				toast.error("Erreur de chargement");
+			}
+		}
+	} finally {
+		console.log("🏁 Fin fetchLatestAuction");
+		setIsLoadingAuctions(false);
+	}
+}, [synthId, isAuthenticated]);
 
 	const handleCreateAuction = async () => {
 		if (!isAuthenticated()) {
@@ -156,14 +253,11 @@ const CardPricing = ({
 			}
 
 			const userId = JSON.parse(atob(token.split(".")[1])).id;
-			const response = await api.post(
-				`/api/synthetisers/${synthId}/auctions`,
-				{
-					proposal_price: Number(newBidAmount),
-					status: "active",
-					userId,
-				}
-			);
+			const response = await api.post(`/api/synthetisers/${synthId}/auctions`, {
+				proposal_price: Number(newBidAmount),
+				status: "active",
+				userId,
+			});
 
 			if (response.status === 201) {
 				await fetchLatestAuction();
