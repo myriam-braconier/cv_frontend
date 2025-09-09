@@ -406,7 +406,6 @@ const fetchLatestAuction = useCallback(async () => {
 							</div>
 
 							<div className="text-sm text-gray-600">
-								{/* Si on a le temps écoulé, on l'affiche, sinon on affiche la date formatée */}
 								{timeElapsed || latestAuction.updatedAt
 									? new Date(latestAuction.updatedAt).toLocaleString("fr-FR", {
 											year: "numeric",

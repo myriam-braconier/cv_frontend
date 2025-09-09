@@ -151,71 +151,77 @@ export const SynthetiserCard = ({
 	const handleCloseEditor = useCallback(() => setIsEditing(false), []);
 
 	const handleDelete = useCallback(async () => {
-		// Vérification de la confirmation
-		if (!window.confirm(`Voulez-vous vraiment supprimer ${fullTitle} ?`)) {
+	// NOUVELLE VÉRIFICATION : Contrôle des permissions admin
+	if (!hasPermission("synths:delete")) {
+		alert("Accès refusé : Vous devez être administrateur pour supprimer un synthétiseur.");
+		return;
+	}
+
+	// Vérification de la confirmation
+	if (!window.confirm(`Voulez-vous vraiment supprimer ${fullTitle} ?`)) {
+		return;
+	}
+
+	setIsLoading(true);
+
+	try {
+		// Vérification du token
+		const token = localStorage.getItem("token");
+		if (!token) {
+			router.push("/login");
 			return;
 		}
 
-		setIsLoading(true);
+		// Appel API
+		const response = await apiFetch(`/api/synthetisers/${id}`, {
+			method: "DELETE",
+			headers: {
+				Authorization: `Bearer ${token}`,
+				// "Content-Type": "application/json" est déjà ajouté par défaut dans apiFetch
+			},
+		});
 
-		try {
-			// Vérification du token
-			const token = localStorage.getItem("token");
-			if (!token) {
+		// Ajouter ceci pour debug
+		const data = await response.json();
+		if (!response.ok) {
+			console.error("Erreur détaillée:", data);
+			if (response.status === 401) {
+				localStorage.removeItem("token");
 				router.push("/login");
 				return;
 			}
-
-			// Appel API
-			const response = await apiFetch(`/api/synthetisers/${id}`, {
-				method: "DELETE",
-				headers: {
-					Authorization: `Bearer ${token}`,
-					// "Content-Type": "application/json" est déjà ajouté par défaut dans apiFetch
-				},
-			});
-
-			// Ajouter ceci pour debug
-			const data = await response.json();
-			if (!response.ok) {
-				console.error("Erreur détaillée:", data);
-				if (response.status === 401) {
-					localStorage.removeItem("token");
-					router.push("/login");
-					return;
-				}
-				throw new Error(
-					`Erreur ${response.status}: ${data.error || data.message}`
-				);
-			}
-
-			// Gestion des réponses
-			if (!response.ok) {
-				if (response.status === 401) {
-					localStorage.removeItem("token");
-					router.push("/login");
-					return;
-				}
-				throw new Error(`Erreur ${response.status}`);
-			}
-
-			// Succès
-			toast.success(`${fullTitle} supprimé avec succès`);
-
-			// Mise à jour et redirection
-			if (onUpdateSuccess) {
-				await onUpdateSuccess();
-			}
-
-			router.refresh();
-			router.replace("/synthetisers");
-		} catch (error) {
-			console.error("Erreur lors de la suppression:", error);
-			toast.error(`Erreur lors de la suppression de ${fullTitle}`);
-		} finally {
-			setIsLoading(false);
+			throw new Error(
+				`Erreur ${response.status}: ${data.error || data.message}`
+			);
 		}
-	}, [id, fullTitle, router, onUpdateSuccess]);
+
+		// Gestion des réponses
+		if (!response.ok) {
+			if (response.status === 401) {
+				localStorage.removeItem("token");
+				router.push("/login");
+				return;
+			}
+			throw new Error(`Erreur ${response.status}`);
+		}
+
+		// Succès
+		toast.success(`${fullTitle} supprimé avec succès`);
+
+		// Mise à jour et redirection
+		if (onUpdateSuccess) {
+			await onUpdateSuccess();
+		}
+
+		router.refresh();
+		router.replace("/synthetisers");
+	} catch (error) {
+		console.error("Erreur lors de la suppression:", error);
+		toast.error(`Erreur lors de la suppression de ${fullTitle}`);
+	} finally {
+		setIsLoading(false);
+	}
+}, [id, fullTitle, router, onUpdateSuccess, hasPermission]); // Ajout de hasPermission dans les dépendances
 
 	const handleDuplicate = useCallback(async () => {
 		try {
