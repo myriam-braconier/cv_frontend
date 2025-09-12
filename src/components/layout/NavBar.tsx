@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
+import { api } from "@/services/axios";
 
 type UserType = {
   username?: string;
@@ -39,13 +40,7 @@ export default function Navbar() {
     try {
       const token = localStorage.getItem("token");
       if (token) {
-        await fetch(`/auth/logout`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          credentials: "include",
-        });
+        await api.post("/auth/logout");
       }
     } catch (error) {
       console.error("Erreur lors de la déconnexion:", error);
@@ -61,15 +56,9 @@ export default function Navbar() {
     try {
       const token = localStorage.getItem("token");
       if (token) {
-        const response = await fetch(`/auth/verify`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          credentials: "include",
-        });
+        const response = await api.get("/auth/verify");
         
-        if (response.ok) {
+        if (response.status === 200) {
           const storedUser = localStorage.getItem("user");
           if (storedUser) {
             setUser(JSON.parse(storedUser));

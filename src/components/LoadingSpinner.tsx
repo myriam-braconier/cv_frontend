@@ -8,6 +8,7 @@ export function LoadingSpinner() {
         alt="Chargement"
         width={128}
         height={128}
+        unoptimized
       />
       <span className="ml-3">Chargement...</span>
     </div>

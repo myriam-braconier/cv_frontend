@@ -1,16 +1,10 @@
-// services/axios.ts
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 import Cookies from "js-cookie";
 
-
-// Configuration automatique selon l'environnement
 const getBaseURL = () => {
-  // En production (Railway/Vercel/etc.)
   if (process.env.NODE_ENV === 'production') {
     return process.env.NEXT_PUBLIC_API_URL;
   }
-  
-  // En développement local
   return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 };
 
@@ -20,10 +14,9 @@ console.log('🔧 Configuration Axios:', {
   apiUrl: process.env.NEXT_PUBLIC_API_URL
 });
 
-// API principale
 const api = axios.create({
 	baseURL: getBaseURL(),
-	timeout: 10000, // 10 secondes de timeout
+	timeout: 10000,
 	headers: {
 		"Content-Type": "application/json",
 	},
@@ -114,4 +107,42 @@ api.interceptors.response.use(
 	}
 );
 
-export { api, getBaseURL };
+// Instance pour API externe (Freepik)
+const freepikApi = axios.create({
+  baseURL: 'https://api.freepik.com/v1/ai',
+  headers: {
+    'x-freepik-api-key': process.env.FREEPIK_API_KEY || '',
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+  timeout: 60000,
+});
+
+// Intercepteur pour Freepik API
+freepikApi.interceptors.request.use((request) => {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🎨 Freepik API:', {
+      url: request.url,
+      method: request.method,
+    });
+  }
+  return request;
+});
+
+// Instance configurée avec token automatique pour API interne
+const createApiWithAuth = (): AxiosInstance => {
+  const token = Cookies.get("token") || localStorage.getItem("token");
+  
+  return axios.create({
+    baseURL: getBaseURL(),
+    timeout: 10000,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+    withCredentials: true,
+  });
+};
+
+export { api, freepikApi, createApiWithAuth, getBaseURL };
+export default api;

@@ -158,147 +158,206 @@ export const EditorForm = ({
 		}
 	}, [formData.marque, formData.modele, onCancel, onOpenChange]);
 
-	// RENDU ------------------------------------------------------------
 	return (
-		<div className="w-full space-y-4">
+		<div className="w-full max-w-6xl mx-auto p-6 space-y-6">
 			{(formError || error) && (
-				<Alert variant="destructive">
+				<Alert variant="destructive" className="mb-6">
 					<AlertDescription>{formError || error}</AlertDescription>
 				</Alert>
 			)}
-			<form
-				onSubmit={handleSubmit}
-				id="main-form"
-				className=" flex justify-around"
-			>
-				<div className="space-y-9">
-					<div>
-						<label className="block text-sm font-medium text-white">
-							Marque
-						</label>
-						<input
-							type="text"
-							name="marque"
-							value={formData.marque}
-							onChange={handleChange}
-							required
-							className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-							disabled={isLoading}
-						/>
-					</div>
 
-					<div>
-						<label className="block text-sm font-medium text-white mb-1">
-							Modèle
-						</label>
-						<input
-							type="text"
-							name="modele"
-							value={formData.modele}
-							onChange={handleChange}
-							required
-							className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-							disabled={isLoading}
-						/>
-					</div>
+			<form onSubmit={handleSubmit} className="space-y-8">
+				{/* Layout responsive avec grid */}
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+					{/* Colonne de gauche : Informations principales */}
+					<div className="space-y-6">
+						<div className="bg-gray-50 p-6 rounded-lg space-y-6">
+							<h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+								Informations principales
+							</h3>
+							
+							{/* Marque et Modèle sur la même ligne */}
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-2">
+										Marque *
+									</label>
+									<input
+										type="text"
+										name="marque"
+										value={formData.marque}
+										onChange={handleChange}
+										required
+										className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+										disabled={isLoading}
+										placeholder="Ex: Moog, Roland..."
+									/>
+								</div>
 
-					<div>
-						<div>
-							<label className="block text-sm font-medium text-white mb-1">
-								Spécifications
-							</label>
-							<textarea
-								name="specifications"
-								value={formData.specifications}
-								onChange={handleChange}
-								className="w-96 p-2 border rounded focus:ring-2 focus:ring-blue-500 h-48"
-								disabled={isLoading}
-							/>
-						</div>
-						<label className="block text-sm font-medium text-white  mt-3">
-							URL de l&apos;image
-						</label>
-						<input
-							type="url"
-							name="image_url"
-							value={formData.image_url}
-							onChange={handleImageChange}
-							className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-							disabled={isLoading}
-						/>
-					</div>
-				</div>
-
-				<div className="space-y-10">
-					<div className="relative h-64 w-64 mx-auto">
-						{formData.image_url && !imageError ? (
-							<div className="relative w-full h-full rounded-full overflow-hidden">
-								<Image
-									src={formData.image_url}
-									alt="Aperçu"
-									fill
-									className="object-cover"
-									onError={handleImageError}
-								/>
+								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-2">
+										Modèle *
+									</label>
+									<input
+										type="text"
+										name="modele"
+										value={formData.modele}
+										onChange={handleChange}
+										required
+										className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+										disabled={isLoading}
+										placeholder="Ex: Minimoog, Juno-106..."
+									/>
+								</div>
 							</div>
-						) : (
-							<div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-full">
-								<span className="text-gray-500">Image non disponible</span>
-							</div>
-						)}
-					</div>
 
-					<div>
-						<label className="block text-sm font-medium text-white mb-1">
-							Prix
-						</label>
-						<input
-							type="number"
-							name="price"
-							value={formData.price ?? ""}
-							onChange={(e) =>
-								setFormData((prev) => ({
-									...prev,
-									price: e.target.value === "" ? null : Number(e.target.value),
-								}))
-							}
-							min="0" // Ajout d'une valeur minimale fixe
-							step="0.01" // Pour permettre les décimales
-							className="p-2 border rounded focus:ring-2 focus:ring-blue-500"
-							disabled={isLoading}
-						/>
-					</div>
-
-					{synth?.auctionPrices && synth.auctionPrices.length > 0 && (
-						<div className="border-t pt-4 mt-4">
-							<div className="space-y-2">
-								<label className="block text-sm font-medium text-white">
-									Dernière enchère
+							<div>
+								<label className="block text-sm font-medium text-gray-700 mb-2">
+									URL de l&apos;image
 								</label>
-								<div className="text-lg font-semibold text-red-600">
-									{formData.proposal_price} EUR
+								<input
+									type="url"
+									name="image_url"
+									value={formData.image_url}
+									onChange={handleImageChange}
+									className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+									disabled={isLoading}
+									placeholder="https://..."
+								/>
+								{imageError && (
+									<p className="text-red-500 text-sm mt-1">
+										Impossible de charger cette image
+									</p>
+								)}
+							</div>
+
+							<div>
+								<label className="block text-sm font-medium text-gray-700 mb-2">
+									Prix (EUR)
+								</label>
+								<div className="relative">
+									<input
+										type="number"
+										name="price"
+										value={formData.price ?? ""}
+										onChange={(e) =>
+											setFormData((prev) => ({
+												...prev,
+												price: e.target.value === "" ? null : Number(e.target.value),
+											}))
+										}
+										min="0"
+										step="0.01"
+										className="w-full px-3 py-2 pr-12 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+										disabled={isLoading}
+										placeholder="0.00"
+									/>
+									<span className="absolute right-3 top-2 text-gray-500 text-sm">€</span>
 								</div>
 							</div>
 						</div>
-					)}
 
-					<div className="flex justify-start space-x-2 pt-2">
-						<button
-							type="button"
-							onClick={handleCancel}
-							disabled={isLoading}
-							className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors disabled:opacity-50"
-						>
-							Annuler
-						</button>
-						<button
-							type="submit"
-							disabled={isLoading || isSubmitting}
-							className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
-						>
-							{isLoading ? "Sauvegarde..." : synth ? "Mettre à jour" : "Créer"}
-						</button>
+						{/* Spécifications */}
+						<div className="bg-gray-50 p-6 rounded-lg">
+							<h3 className="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">
+								Spécifications techniques
+							</h3>
+							<div>
+								<label className="block text-sm font-medium text-gray-700 mb-2">
+									Description détaillée
+								</label>
+								<textarea
+									name="specifications"
+									value={formData.specifications}
+									onChange={handleChange}
+									rows={8}
+									className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-y"
+									disabled={isLoading}
+									placeholder="Décrivez les caractéristiques techniques, l'état, les accessoires inclus..."
+								/>
+							</div>
+						</div>
 					</div>
+
+					{/* Colonne de droite : Aperçu et enchères */}
+					<div className="space-y-6">
+						{/* Aperçu de l'image */}
+						<div className="bg-gray-50 p-6 rounded-lg">
+							<h3 className="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">
+								Aperçu
+							</h3>
+							<div className="flex justify-center">
+								<div className="relative h-64 w-64">
+									{formData.image_url && !imageError ? (
+										<div className="relative w-full h-full rounded-lg overflow-hidden border-2 border-gray-200">
+											<Image
+												src={formData.image_url}
+												alt="Aperçu du synthétiseur"
+												fill
+												className="object-cover"
+												onError={handleImageError}
+											/>
+										</div>
+									) : (
+										<div className="w-full h-full flex flex-col items-center justify-center bg-gray-200 rounded-lg border-2 border-dashed border-gray-300">
+											<svg className="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+											</svg>
+											<span className="text-gray-500 text-sm text-center">
+												Aucune image disponible
+												<br />
+												Ajoutez une URL d&apos;image
+											</span>
+										</div>
+									)}
+								</div>
+							</div>
+						</div>
+
+						{/* Informations sur les enchères */}
+						{synth?.auctionPrices && synth.auctionPrices.length > 0 && (
+							<div className="bg-gradient-to-br from-red-50 to-red-100 p-6 rounded-lg border border-red-200">
+								<h3 className="text-lg font-semibold text-red-800 border-b border-red-300 pb-2 mb-4">
+									Informations d&apos;enchères
+								</h3>
+								<div className="space-y-2">
+									<label className="block text-sm font-medium text-red-700">
+										Dernière enchère
+									</label>
+									<div className="text-2xl font-bold text-red-600">
+										{formData.proposal_price?.toLocaleString('fr-FR')} €
+									</div>
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+
+				{/* Boutons d'action */}
+				<div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+					<button
+						type="button"
+						onClick={handleCancel}
+						disabled={isLoading}
+						className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					>
+						Annuler
+					</button>
+					<button
+						type="submit"
+						disabled={isLoading || isSubmitting}
+						className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+					>
+						{(isLoading || isSubmitting) && (
+							<svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+								<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+								<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+							</svg>
+						)}
+						<span>
+							{isLoading ? "Sauvegarde..." : synth ? "Mettre à jour" : "Créer"}
+						</span>
+					</button>
 				</div>
 			</form>
 		</div>

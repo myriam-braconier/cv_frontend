@@ -4,6 +4,9 @@
 - Fonctions : CRUD, filtres
 ### stack : Next JS 15.1.2, Typescript, Axios
 
-### Déploiement : Railway
 
-### Janvier 2025
+### Septembre 2025
+- Déploiement : Railway
+- 
+
+

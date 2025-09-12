@@ -13,9 +13,9 @@ export default function AboutPage() {
 			<div className="fixed inset-0 -z-10">
 				<BackgroundRotator images={images} />
 			</div>
-			<div className="text-white max-w-[800px] mx-auto">
-				<div className="space-y-12 space-x-6 text-lg text-white text-bold mt-10 border-2  border-white rounded-xl">
-					<h1 className="text-3xl font-bold mt-8 mb-8 text-center">
+			<div className="max-w-[800px] mx-auto">
+				<div className="space-y-4 space-x-6 text-lg text-blue-900 text-bold mt-10 pb-10 border-2 border-white rounded-xl">
+					<h1 className="text-3xl font-bold mt-8 mb-6 text-center">
 						À propos de Concrete Vibes
 					</h1>
 					<p>
@@ -24,8 +24,6 @@ export default function AboutPage() {
 						amateurs et collectionneurs peuvent échanger leurs instruments dans
 						un environnement sécurisé et convivial.
 					</p>
-
-					<section className="mt-8">
 						<h2 className="text-2xl font-semibold mb-4">Notre Projet</h2>
 						<p>
 							Concrete Vibes est né d&apos;une passion pour la musique
@@ -34,9 +32,9 @@ export default function AboutPage() {
 							utilisateurs de participer à des enchères, découvrir des pièces
 							rares et échanger avec d&apos;autres passionnés.
 						</p>
-					</section>
+				
 
-					<section className="mt-8">
+					{/* <section className="mt-8">
 						<h2 className="text-2xl font-semibold mb-4">Contact</h2>
 						<p>
 							Vous pouvez me contacter à l&apos;adresse suivante :
@@ -47,7 +45,7 @@ export default function AboutPage() {
 								
 							</a>
 						</p>
-					</section>
+					</section> */}
 				</div>
 			</div>
 		</main>

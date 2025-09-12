@@ -7,7 +7,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 import { useAuth } from "@/hooks/useAuth"; // import du hook
 import BackgroundRotator from "@/components/BackgroundRotator";
-import api from '../../services/axios';
+import {api} from '@/services/axios';
 
 
 

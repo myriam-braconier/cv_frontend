@@ -20,7 +20,7 @@ export const CardHeader = ({ title, note, nb_avis, specifications }: CardHeaderP
 
       {/* Specifications si disponibles */}
       {specifications && (
-        <p className="text-gray-600 text-sm mb-4 line-clamp-3" title={specifications}>
+        <p className="text-white text-sm mb-4 line-clamp-3" title={specifications}>
           {specifications}
         </p>
       )}

@@ -15,7 +15,7 @@ interface RatingProps {
           </div>
         )}
         {nb_avis && (
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-white">
             ({nb_avis})
           </span>
         )}

@@ -1,5 +1,14 @@
 {
-  "files.watcherExclude": {
-    "**/.open-next/**": true
-  }
+	"files.watcherExclude": {
+		"**/.open-next/**": true
+	},
+	"mdb.confirmRunCopilotCode": false,
+	"powerPlatform.experimental.copilotEnabled": false,
+	"powerPlatform.experimental.enableWebCopilot": false,
+	"chat.agent.enabled": false,
+	"chat.commandCenter.enabled": false,
+	"chat.notifyWindowOnConfirmation": false,
+	"telemetry.feedback.enabled": false,
+	"githubPullRequests.experimental.chat": false,
+	"githubPullRequests.codingAgent.enabled": false
 }
