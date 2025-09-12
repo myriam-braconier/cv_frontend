@@ -7,7 +7,7 @@ import BackgroundRotator from "@/components/BackgroundRotator";
 export default function RegisterPage() {
   const images = [
     "/images/login2.webp",
-		"/images/login.webp",
+		"/images/Synth, Studio, Synthetiser, synthé, synthétiseur_.jpeg",
 		
 		
 	];
